@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up - Sanitation System</title>
+</head>
+
+<body>
+
+    <h1>Sanitation Record Management System</h1>
+
+    <h2>Create Account</h2>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">
+            Sign Up
+        </button>
+
+    </form>
+
+    <p>
+        Already have an account?
+        <a href="{% url 'login' %}">
+            Login
+        </a>
+    </p>
+
+</body>
+</html>
