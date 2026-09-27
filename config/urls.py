@@ -39,4 +39,5 @@ urlpatterns = [
     path("api/auth/", include("accounts.api_urls")),
     path("api/plants/", include("plants.api_urls")),
     path("api/titrations/",include("titrations.api_urls")),
+    path("api/inspections/",include("inspections.api_urls")),
 ]
