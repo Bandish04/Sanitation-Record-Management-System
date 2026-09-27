@@ -10,6 +10,10 @@ class SanitizerTitration(models.Model):
         DRAFT = "DRAFT", "Draft"
         SUBMITTED = "SUBMITTED", "Submitted"
         CORRECTED = "CORRECTED", "Corrected"
+
+    class ResultStatus(models.TextChoices):
+        PASS = "PASS", "Pass"
+        FAIL = "FAIL", "Fail"
         REVIEW_REQUIRED = "REVIEW_REQUIRED", "Review Required"
 
     plant = models.ForeignKey(
@@ -45,15 +49,25 @@ class SanitizerTitration(models.Model):
         default=Status.DRAFT,
     )
 
+    result_status = models.CharField(
+        max_length=20,
+        choices=ResultStatus.choices,
+        default=ResultStatus.REVIEW_REQUIRED,
+    )
+
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name="created_sanitizer_titrations",
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
 
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
 
     submitted_at = models.DateTimeField(
         null=True,
@@ -67,12 +81,17 @@ class SanitizerTitration(models.Model):
             f"{self.ppm} ppm"
         )
 
+
 class ChloragelTitration(models.Model):
 
     class Status(models.TextChoices):
         DRAFT = "DRAFT", "Draft"
         SUBMITTED = "SUBMITTED", "Submitted"
         CORRECTED = "CORRECTED", "Corrected"
+
+    class ResultStatus(models.TextChoices):
+        PASS = "PASS", "Pass"
+        FAIL = "FAIL", "Fail"
         REVIEW_REQUIRED = "REVIEW_REQUIRED", "Review Required"
 
     plant = models.ForeignKey(
@@ -102,15 +121,30 @@ class ChloragelTitration(models.Model):
         default=Status.DRAFT,
     )
 
+    result_status = models.CharField(
+        max_length=20,
+        choices=ResultStatus.choices,
+        default=ResultStatus.REVIEW_REQUIRED,
+    )
+
     created_by = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name="created_chloragel_titrations",
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    submitted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    submitted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return (

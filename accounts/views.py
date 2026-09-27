@@ -10,6 +10,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsInspector
 from .serializers import SignupSerializer, LoginSerializer, UserSerializer
+from audit.models import AuditLog
 
 def signup(request):
 
@@ -78,6 +79,18 @@ class LoginAPIView(APIView):
 
         if serializer.is_valid():
             user = serializer.validated_data["user"]
+
+            AuditLog.objects.create(
+             user=user,
+             action="LOGIN",
+             object_type="User",
+             object_id=user.id,
+             old_values=None,
+             new_values={
+             "username": user.username,
+              },
+            reason="User logged in successfully.",
+            )
 
             refresh = RefreshToken.for_user(user)
 
