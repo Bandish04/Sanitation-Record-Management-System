@@ -1,9 +1,6 @@
 from rest_framework import serializers
 
-from inspections.models import (
-    InspectionAnswer,
-    SanitationInspection,
-)
+from inspections.models import InspectionAnswer
 
 from .models import CorrectiveAction
 
@@ -31,19 +28,79 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "id",
-            "status",
             "created_by",
             "created_at",
             "updated_at",
             "completed_at",
         ]
 
+    def validate_status(self, value):
+
+        instance = self.instance
+
+        # Status validation is only needed when updating
+        if instance is None:
+            return value
+
+        current_status = instance.status
+
+        allowed_transitions = {
+            CorrectiveAction.Status.OPEN: [
+                CorrectiveAction.Status.IN_PROGRESS,
+                CorrectiveAction.Status.CANCELLED,
+            ],
+
+            CorrectiveAction.Status.IN_PROGRESS: [
+                CorrectiveAction.Status.COMPLETED,
+                CorrectiveAction.Status.CANCELLED,
+            ],
+        }
+
+        if current_status == value:
+            return value
+
+        if value not in allowed_transitions.get(
+            current_status,
+            [],
+        ):
+            raise serializers.ValidationError(
+                f"Cannot change status from "
+                f"{current_status} to {value}."
+            )
+
+        return value
+
     def validate(self, data):
 
-        inspection = data.get("inspection")
-        question = data.get("question")
+        # For PATCH, use existing values when fields
+        # are not included in request.data.
+        inspection = data.get(
+            "inspection",
+            self.instance.inspection if self.instance else None,
+        )
 
-        # Make sure the question belongs to the inspection template
+        question = data.get(
+            "question",
+            self.instance.question if self.instance else None,
+        )
+
+        # These are required when creating a new action.
+        if inspection is None:
+            raise serializers.ValidationError(
+                {
+                    "inspection": "This field is required."
+                }
+            )
+
+        if question is None:
+            raise serializers.ValidationError(
+                {
+                    "question": "This field is required."
+                }
+            )
+
+        # Make sure the question belongs to the
+        # inspection template.
         if question.section.template_id != inspection.template_id:
             raise serializers.ValidationError(
                 {
@@ -54,7 +111,7 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                 }
             )
 
-        # Find the answer for this question
+        # Check the answer for this question.
         try:
             answer = InspectionAnswer.objects.get(
                 inspection=inspection,
@@ -70,7 +127,8 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                 }
             )
 
-        # Corrective action should only be created for NO
+        # Corrective actions must be associated
+        # with a NO answer.
         if answer.answer != InspectionAnswer.AnswerChoices.NO:
             raise serializers.ValidationError(
                 {
@@ -81,9 +139,11 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                 }
             )
 
-        # Use the inspection answer observation if none is supplied
-        if not data.get("observation"):
-            data["observation"] = answer.observation
+        # Only automatically copy the observation
+        # when creating a new corrective action.
+        if self.instance is None:
+            if not data.get("observation"):
+                data["observation"] = answer.observation
 
         return data
 
