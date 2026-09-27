@@ -40,4 +40,7 @@ urlpatterns = [
     path("api/plants/", include("plants.api_urls")),
     path("api/titrations/",include("titrations.api_urls")),
     path("api/inspections/",include("inspections.api_urls")),
+    path("api/records/",include("records.api_urls")),
+    path("api/corrective-actions/",include("corrective_actions.api_urls")),
+
 ]

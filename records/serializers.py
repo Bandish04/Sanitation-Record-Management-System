@@ -24,3 +24,19 @@ class CombinedRecordSerializer(serializers.Serializer):
     created_at = serializers.DateTimeField()
 
     data = serializers.DictField()
+
+class DailyRecordsSerializer(serializers.Serializer):
+
+    plant = serializers.IntegerField()
+    plant_code = serializers.CharField()
+    plant_name = serializers.CharField()
+
+    date = serializers.DateField()
+
+    sanitizer_titrations = serializers.ListField()
+
+    chloragel_titrations = serializers.ListField()
+
+    inspections = serializers.ListField()
+
+    atp_reports = serializers.ListField()

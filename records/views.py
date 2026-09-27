@@ -4,6 +4,7 @@ from django.utils import timezone
 
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from inspections.models import (
     ATPReport,
@@ -12,6 +13,10 @@ from inspections.models import (
 from titrations.models import (
     SanitizerTitration,
     ChloragelTitration,
+)
+from .serializers import (
+    CombinedRecordSerializer,
+    DailyRecordsSerializer,
 )
 
 from .serializers import CombinedRecordSerializer
@@ -288,3 +293,250 @@ class CombinedRecordsAPIView(generics.ListAPIView):
         serializer = self.get_serializer(records, many=True)
 
         return Response(serializer.data)
+
+class DailyRecordsAPIView(generics.GenericAPIView):
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = DailyRecordsSerializer
+
+    def get(self, request):
+
+        plant_id = request.query_params.get("plant")
+        date_value = request.query_params.get("date")
+
+        if not plant_id:
+            return Response(
+                {
+                    "detail": "The plant parameter is required."
+                },
+                status=400,
+            )
+
+        if not date_value:
+            return Response(
+                {
+                    "detail": "The date parameter is required."
+                },
+                status=400,
+            )
+
+        try:
+            from datetime import date
+
+            selected_date = date.fromisoformat(date_value)
+
+        except ValueError:
+
+            return Response(
+                {
+                    "detail": (
+                        "Invalid date format. "
+                        "Use YYYY-MM-DD."
+                    )
+                },
+                status=400,
+            )
+
+        # -----------------------------------------
+        # Get Plant
+        # -----------------------------------------
+
+        from plants.models import Plant
+
+        try:
+
+            plant = Plant.objects.get(
+                id=plant_id
+            )
+
+        except Plant.DoesNotExist:
+
+            return Response(
+                {
+                    "detail": "Plant not found."
+                },
+                status=404,
+            )
+
+        # -----------------------------------------
+        # Sanitizer
+        # -----------------------------------------
+
+        sanitizer_records = (
+            SanitizerTitration.objects
+            .filter(
+                plant=plant,
+                created_at__date=selected_date,
+            )
+            .select_related("created_by")
+        )
+
+        sanitizer_data = []
+
+        for item in sanitizer_records:
+
+            sanitizer_data.append(
+                {
+                    "id": item.id,
+                    "r71_drops": item.r71_drops,
+                    "sample_volume_ml": str(
+                        item.sample_volume_ml
+                    ),
+                    "ppm": str(item.ppm),
+                    "percent_vv": str(
+                        item.percent_vv
+                    ),
+                    "status": item.status,
+                    "created_by": item.created_by.username,
+                    "created_at": item.created_at,
+                }
+            )
+
+        # -----------------------------------------
+        # Chloragel
+        # -----------------------------------------
+
+        chloragel_records = (
+            ChloragelTitration.objects
+            .filter(
+                plant=plant,
+                created_at__date=selected_date,
+            )
+            .select_related("created_by")
+        )
+
+        chloragel_data = []
+
+        for item in chloragel_records:
+
+            chloragel_data.append(
+                {
+                    "id": item.id,
+                    "r9_drops": item.r9_drops,
+                    "sample_volume_ml": str(
+                        item.sample_volume_ml
+                    ),
+                    "result_percent": str(
+                        item.result_percent
+                    ),
+                    "status": item.status,
+                    "created_by": item.created_by.username,
+                    "created_at": item.created_at,
+                }
+            )
+
+        # -----------------------------------------
+        # Inspections
+        # -----------------------------------------
+
+        inspection_records = (
+            SanitationInspection.objects
+            .filter(
+                plant=plant,
+                inspection_date=selected_date,
+            )
+            .select_related(
+                "template",
+                "inspector",
+            )
+            .prefetch_related(
+                "answers__question"
+            )
+        )
+
+        inspection_data = []
+
+        for item in inspection_records:
+
+            answers = []
+
+            for answer in item.answers.all():
+
+                answers.append(
+                    {
+                        "question_id": answer.question.id,
+                        "question": (
+                            answer.question.question_text
+                        ),
+                        "answer": answer.answer,
+                        "observation": answer.observation,
+                    }
+                )
+
+            inspection_data.append(
+                {
+                    "id": item.id,
+                    "template": item.template.name,
+                    "status": item.status,
+                    "inspector": item.inspector.username,
+                    "general_notes": item.general_notes,
+                    "signed_at": item.signed_at,
+                    "answers": answers,
+                    "created_at": item.created_at,
+                }
+            )
+
+        # -----------------------------------------
+        # ATP Reports
+        # -----------------------------------------
+
+        atp_records = (
+            ATPReport.objects
+            .filter(
+                plant=plant,
+                uploaded_at__date=selected_date,
+            )
+            .select_related(
+                "inspection",
+                "uploaded_by",
+            )
+        )
+
+        atp_data = []
+
+        for item in atp_records:
+
+            atp_data.append(
+                {
+                    "id": item.id,
+                    "original_filename": (
+                        item.original_filename
+                    ),
+                    "file": item.file.url,
+                    "inspection": (
+                        item.inspection.id
+                        if item.inspection
+                        else None
+                    ),
+                    "uploaded_by": (
+                        item.uploaded_by.username
+                    ),
+                    "uploaded_at": item.uploaded_at,
+                    "status": item.status,
+                    "notes": item.notes,
+                }
+            )
+
+        # -----------------------------------------
+        # Final Response
+        # -----------------------------------------
+
+        daily_data = {
+            "plant": plant.id,
+            "plant_code": plant.code,
+            "plant_name": plant.name,
+            "date": selected_date,
+            "sanitizer_titrations": sanitizer_data,
+            "chloragel_titrations": chloragel_data,
+            "inspections": inspection_data,
+            "atp_reports": atp_data,
+        }
+
+        serializer = self.get_serializer(
+            daily_data
+        )
+
+        return Response(
+            serializer.data,
+            status=200,
+        )
