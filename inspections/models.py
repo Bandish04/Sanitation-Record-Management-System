@@ -175,3 +175,57 @@ class InspectionAnswer(models.Model):
             f"{self.inspection} - "
             f"{self.question.question_text}"
         )
+
+class ATPReport(models.Model):
+
+    class Status(models.TextChoices):
+        ACTIVE = "ACTIVE", "Active"
+        ARCHIVED = "ARCHIVED", "Archived"
+
+    plant = models.ForeignKey(
+        Plant,
+        on_delete=models.PROTECT,
+        related_name="atp_reports",
+    )
+
+    inspection = models.ForeignKey(
+        SanitationInspection,
+        on_delete=models.PROTECT,
+        related_name="atp_reports",
+        null=True,
+        blank=True,
+    )
+
+    file = models.FileField(
+        upload_to="atp_reports/",
+    )
+
+    original_filename = models.CharField(
+        max_length=255,
+    )
+
+    uploaded_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="uploaded_atp_reports",
+    )
+
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.ACTIVE,
+    )
+
+    notes = models.TextField(
+        blank=True,
+    )
+
+    def __str__(self):
+        return (
+            f"{self.plant.code} - "
+            f"{self.original_filename}"
+        )

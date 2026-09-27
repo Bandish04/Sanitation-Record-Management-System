@@ -4,6 +4,10 @@ from .views import (
     InspectionTemplateListCreateAPIView,
     InspectionSectionListCreateAPIView,
     InspectionQuestionListCreateAPIView,
+    SanitationInspectionListCreateAPIView,
+    InspectionAnswerCreateAPIView,
+    SanitationInspectionSubmitAPIView,
+    ATPReportListCreateAPIView,
 )
 
 
@@ -25,5 +29,25 @@ urlpatterns = [
         "questions/",
         InspectionQuestionListCreateAPIView.as_view(),
         name="inspection-question-list-create",
+    ),
+    path(
+    "",
+    SanitationInspectionListCreateAPIView.as_view(),
+    name="inspection-list-create",
+    ),
+    path(
+    "answers/",
+    InspectionAnswerCreateAPIView.as_view(),
+    name="inspection-answer-create",
+    ),
+    path(
+    "<int:pk>/submit/",
+    SanitationInspectionSubmitAPIView.as_view(),
+    name="inspection-submit",
+    ),
+    path(
+    "atp/",
+    ATPReportListCreateAPIView.as_view(),
+    name="atp-list-create",
     ),
 ]
