@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'plants',
     'titrations',
     'inspections',
+    'records',
 ]
 
 REST_FRAMEWORK = {
