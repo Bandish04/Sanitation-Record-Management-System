@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'inspections',
     'records',
     'corrective_actions',
+    'audit',
 ]
 
 REST_FRAMEWORK = {
