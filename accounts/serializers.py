@@ -81,3 +81,57 @@ class UserSerializer(serializers.ModelSerializer):
             return group.name
 
         return None
+
+class AdminUserSerializer(serializers.ModelSerializer):
+    role = serializers.SerializerMethodField()
+    password = serializers.CharField(
+        write_only=True,
+        required=False,
+        min_length=8,
+    )
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "username",
+            "email",
+            "password",
+            "is_active",
+            "role",
+        ]
+        read_only_fields = [
+            "id",
+            "role",
+        ]
+
+    def get_role(self, user):
+        group = user.groups.first()
+
+        if group:
+            return group.name
+
+        return None
+
+    def create(self, validated_data):
+        password = validated_data.pop("password", None)
+
+        user = User.objects.create_user(
+            password=password,
+            **validated_data,
+        )
+
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        if password:
+            instance.set_password(password)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+
+        return instance
