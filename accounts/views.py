@@ -35,6 +35,13 @@ def sanitizer_page(request):
         "titrations/sanitizer.html",
     )
 
+@login_required
+def chloragel_page(request):
+    return render(
+        request,
+        "titrations/chloragel.html",
+    )
+
 def browser_login(request):
 
     if request.method == "POST":

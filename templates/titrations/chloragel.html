@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Chloragel Titration</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2>
+            Chloragel Titration
+        </h2>
+
+        <a
+            href="/dashboard/"
+            class="btn btn-secondary"
+        >
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- FORM -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-body">
+
+            <h4 class="mb-4">
+                New Chloragel Titration
+            </h4>
+
+
+            <div
+                id="message"
+                class="alert d-none"
+            ></div>
+
+
+            <form id="titrationForm">
+
+                <!-- PLANT -->
+
+                <div class="mb-3">
+
+                    <label
+                        for="plant"
+                        class="form-label"
+                    >
+                        Plant
+                    </label>
+
+                    <select
+                        id="plant"
+                        class="form-select"
+                        required
+                    >
+
+                        <option value="">
+                            Select Plant
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- SAMPLE VOLUME -->
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Sample Volume
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="15 mL"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- R-9 DROPS -->
+
+                <div class="mb-3">
+
+                    <label
+                        for="r9_drops"
+                        class="form-label"
+                    >
+                        R-9 Drops
+                    </label>
+
+                    <input
+                        type="number"
+                        id="r9_drops"
+                        class="form-control"
+                        min="1"
+                        max="50"
+                        required
+                    >
+
+                    <div class="form-text">
+                        Enter a value from 1 to 50 drops.
+                    </div>
+
+                </div>
+
+
+                <!-- RESULT -->
+
+                <div class="mb-3">
+
+                    <label
+                        for="result_percent"
+                        class="form-label"
+                    >
+                        Result %
+                    </label>
+
+                    <input
+                        type="text"
+                        id="result_percent"
+                        class="form-control"
+                        value="0.000"
+                        readonly
+                    >
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Result Status
+                    </label>
+
+                    <div
+                        id="resultStatus"
+                        class="alert alert-secondary"
+                    >
+                        Enter R-9 drops to calculate.
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <button
+                    type="submit"
+                    id="saveButton"
+                    class="btn btn-primary"
+                >
+                    Save Draft
+                </button>
+
+
+                <button
+                    type="button"
+                    id="submitButton"
+                    class="btn btn-success ms-2 d-none"
+                >
+                    Submit
+                </button>
+
+
+                <button
+                    type="button"
+                    id="cancelEditButton"
+                    class="btn btn-secondary ms-2 d-none"
+                >
+                    Cancel Edit
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- RECORDS -->
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <h4 class="mb-4">
+                Chloragel Titration Records
+            </h4>
+
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered table-hover">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+                            <th>Plant</th>
+                            <th>R-9 Drops</th>
+                            <th>Result %</th>
+                            <th>Result Status</th>
+                            <th>Workflow Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="recordsTable">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL =
+    "/api/titrations/chloragel/";
+
+const accessToken =
+    localStorage.getItem("access_token");
+
+
+let editingId = null;
+
+
+/* --------------------------------------------------
+   CHECK LOGIN
+-------------------------------------------------- */
+
+if (!accessToken) {
+
+    window.location.href = "/login/";
+
+}
+
+
+/* --------------------------------------------------
+   ELEMENTS
+-------------------------------------------------- */
+
+const form =
+    document.getElementById("titrationForm");
+
+const plantSelect =
+    document.getElementById("plant");
+
+const dropsInput =
+    document.getElementById("r9_drops");
+
+const resultPercentInput =
+    document.getElementById("result_percent");
+
+const resultStatus =
+    document.getElementById("resultStatus");
+
+const saveButton =
+    document.getElementById("saveButton");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+const cancelEditButton =
+    document.getElementById("cancelEditButton");
+
+const recordsTable =
+    document.getElementById("recordsTable");
+
+const message =
+    document.getElementById("message");
+
+
+/* --------------------------------------------------
+   HEADERS
+-------------------------------------------------- */
+
+function getHeaders() {
+
+    return {
+
+        "Authorization":
+            `Bearer ${accessToken}`,
+
+        "Content-Type":
+            "application/json"
+
+    };
+
+}
+
+
+/* --------------------------------------------------
+   MESSAGE
+-------------------------------------------------- */
+
+function showMessage(
+    text,
+    type = "success"
+) {
+
+    message.textContent = text;
+
+    message.className =
+        `alert alert-${type}`;
+
+}
+
+
+/* --------------------------------------------------
+   LOAD PLANTS
+-------------------------------------------------- */
+
+async function loadPlants() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/plants/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load plants."
+            );
+
+        }
+
+
+        const plants =
+            await response.json();
+
+
+        plantSelect.innerHTML =
+            '<option value="">Select Plant</option>';
+
+
+        plants.forEach(
+            plant => {
+
+                if (!plant.active) {
+                    return;
+                }
+
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+
+                option.value =
+                    plant.id;
+
+
+                option.textContent =
+                    `${plant.code} - ${plant.name}`;
+
+
+                plantSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "danger"
+        );
+
+    }
+
+}
+
+
+/* --------------------------------------------------
+   CALCULATE CHLORAGEL
+-------------------------------------------------- */
+
+function calculateResult() {
+
+    const drops =
+        Number(dropsInput.value);
+
+
+    if (
+        !drops ||
+        drops < 1
+    ) {
+
+        resultPercentInput.value =
+            "0.000";
+
+
+        resultStatus.textContent =
+            "Enter R-9 drops to calculate.";
+
+
+        resultStatus.className =
+            "alert alert-secondary";
+
+
+        return;
+
+    }
+
+
+    const result =
+        drops * 0.198;
+
+
+    resultPercentInput.value =
+        result.toFixed(3);
+
+
+    resultStatus.textContent =
+        "Final PASS / FAIL status will be determined by the server.";
+
+
+    resultStatus.className =
+        "alert alert-info";
+
+}
+
+
+/* --------------------------------------------------
+   DROPS CHANGE
+-------------------------------------------------- */
+
+dropsInput.addEventListener(
+    "input",
+    calculateResult
+);
+
+
+/* --------------------------------------------------
+   LOAD RECORDS
+-------------------------------------------------- */
+
+async function loadRecords() {
+
+    try {
+
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    headers:
+                        getHeaders()
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load Chloragel records."
+            );
+
+        }
+
+
+        const records =
+            await response.json();
+
+
+        recordsTable.innerHTML =
+            "";
+
+
+        if (records.length === 0) {
+
+            recordsTable.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="8"
+                        class="text-center"
+                    >
+                        No Chloragel titration
+                        records found.
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        records.forEach(
+            record => {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                let actions = "";
+
+
+                if (
+                    record.status === "DRAFT"
+                ) {
+
+                    actions = `
+
+                        <button
+                            class="btn btn-sm btn-primary me-1"
+                            onclick="editRecord(${record.id})"
+                        >
+                            Edit
+                        </button>
+
+
+                        <button
+                            class="btn btn-sm btn-success"
+                            onclick="submitRecord(${record.id})"
+                        >
+                            Submit
+                        </button>
+
+                    `;
+
+                } else {
+
+                    actions = `
+
+                        <span class="text-muted">
+                            Locked
+                        </span>
+
+                    `;
+
+                }
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${record.id}
+                    </td>
+
+                    <td>
+                        ${record.plant}
+                    </td>
+
+                    <td>
+                        ${record.r9_drops}
+                    </td>
+
+                    <td>
+                        ${record.result_percent}
+                    </td>
+
+                    <td>
+                        ${formatResultStatus(
+                            record.result_status
+                        )}
+                    </td>
+
+                    <td>
+                        ${record.status}
+                    </td>
+
+                    <td>
+                        ${formatDate(
+                            record.created_at
+                        )}
+                    </td>
+
+                    <td>
+                        ${actions}
+                    </td>
+
+                `;
+
+
+                recordsTable.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message,
+            "danger"
+        );
+
+    }
+
+}
+
+
+/* --------------------------------------------------
+   RESULT STATUS
+-------------------------------------------------- */
+
+function formatResultStatus(
+    status
+) {
+
+    if (status === "PASS") {
+
+        return `
+
+            <span class="badge bg-success">
+                PASS
+            </span>
+
+        `;
+
+    }
+
+
+    if (status === "FAIL") {
+
+        return `
+
+            <span class="badge bg-danger">
+                FAIL
+            </span>
+
+        `;
+
+    }
+
+
+    if (
+        status === "REVIEW_REQUIRED"
+    ) {
+
+        return `
+
+            <span
+                class="badge bg-warning text-dark"
+            >
+                REVIEW REQUIRED
+            </span>
+
+        `;
+
+    }
+
+
+    return status;
+
+}
+
+
+/* --------------------------------------------------
+   DATE
+-------------------------------------------------- */
+
+function formatDate(
+    dateString
+) {
+
+    if (!dateString) {
+        return "";
+    }
+
+
+    return new Date(
+        dateString
+    ).toLocaleString();
+
+}
+
+
+/* --------------------------------------------------
+   SAVE / UPDATE
+-------------------------------------------------- */
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const plant =
+            plantSelect.value;
+
+
+        const drops =
+            Number(
+                dropsInput.value
+            );
+
+
+        if (!plant) {
+
+            showMessage(
+                "Please select a plant.",
+                "danger"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !drops ||
+            drops < 1 ||
+            drops > 50
+        ) {
+
+            showMessage(
+                "R-9 drops must be between 1 and 50.",
+                "danger"
+            );
+
+            return;
+
+        }
+
+
+        const payload = {
+
+            plant:
+                Number(plant),
+
+            r9_drops:
+                drops
+
+        };
+
+
+        saveButton.disabled =
+            true;
+
+
+        try {
+
+            let response;
+
+
+            if (editingId) {
+
+                response =
+                    await fetch(
+                        `${API_URL}${editingId}/`,
+                        {
+                            method: "PATCH",
+
+                            headers:
+                                getHeaders(),
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+            } else {
+
+                response =
+                    await fetch(
+                        API_URL,
+                        {
+                            method: "POST",
+
+                            headers:
+                                getHeaders(),
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                showMessage(
+                    JSON.stringify(data),
+                    "danger"
+                );
+
+                return;
+
+            }
+
+
+            if (editingId) {
+
+                showMessage(
+                    "Chloragel titration updated successfully.",
+                    "success"
+                );
+
+            } else {
+
+                showMessage(
+                    "Chloragel titration saved as draft.",
+                    "success"
+                );
+
+            }
+
+
+            editingId =
+                null;
+
+
+            resetForm();
+
+
+            await loadRecords();
+
+
+        } catch (error) {
+
+            showMessage(
+                "Unable to save Chloragel titration.",
+                "danger"
+            );
+
+        } finally {
+
+            saveButton.disabled =
+                false;
+
+        }
+
+    }
+);
+
+
+/* --------------------------------------------------
+   EDIT
+-------------------------------------------------- */
+
+async function editRecord(
+    id
+) {
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}${id}/`,
+                {
+                    headers:
+                        getHeaders()
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            showMessage(
+                JSON.stringify(data),
+                "danger"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            data.status !== "DRAFT"
+        ) {
+
+            showMessage(
+                "Only draft Chloragel titrations can be edited.",
+                "danger"
+            );
+
+            return;
+
+        }
+
+
+        editingId =
+            id;
+
+
+        plantSelect.value =
+            data.plant;
+
+
+        dropsInput.value =
+            data.r9_drops;
+
+
+        calculateResult();
+
+
+        saveButton.textContent =
+            "Update Draft";
+
+
+        submitButton.classList.remove(
+            "d-none"
+        );
+
+
+        cancelEditButton.classList.remove(
+            "d-none"
+        );
+
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+
+    } catch (error) {
+
+        showMessage(
+            "Unable to load Chloragel titration.",
+            "danger"
+        );
+
+    }
+
+}
+
+
+/* --------------------------------------------------
+   SUBMIT
+-------------------------------------------------- */
+
+async function submitRecord(
+    id
+) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to submit this Chloragel titration? It cannot be edited after submission."
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API_URL}${id}/submit/`,
+                {
+                    method: "POST",
+                    headers:
+                        getHeaders()
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            showMessage(
+                JSON.stringify(data),
+                "danger"
+            );
+
+            return;
+
+        }
+
+
+        showMessage(
+            "Chloragel titration submitted successfully.",
+            "success"
+        );
+
+
+        await loadRecords();
+
+
+    } catch (error) {
+
+        showMessage(
+            "Unable to submit Chloragel titration.",
+            "danger"
+        );
+
+    }
+
+}
+
+
+/* --------------------------------------------------
+   CANCEL EDIT
+-------------------------------------------------- */
+
+cancelEditButton.addEventListener(
+    "click",
+    function() {
+
+        editingId =
+            null;
+
+
+        resetForm();
+
+    }
+);
+
+
+/* --------------------------------------------------
+   RESET
+-------------------------------------------------- */
+
+function resetForm() {
+
+    form.reset();
+
+
+    resultPercentInput.value =
+        "0.000";
+
+
+    resultStatus.textContent =
+        "Enter R-9 drops to calculate.";
+
+
+    resultStatus.className =
+        "alert alert-secondary";
+
+
+    saveButton.textContent =
+        "Save Draft";
+
+
+    submitButton.classList.add(
+        "d-none"
+    );
+
+
+    cancelEditButton.classList.add(
+        "d-none"
+    );
+
+}
+
+
+/* --------------------------------------------------
+   INITIAL LOAD
+-------------------------------------------------- */
+
+loadPlants();
+
+loadRecords();
+
+</script>
+
+</body>
+
+</html>
