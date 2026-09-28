@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'records',
     'corrective_actions',
     'audit',
+    'titration_config',
 ]
 
 REST_FRAMEWORK = {

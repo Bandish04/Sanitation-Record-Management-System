@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from rest_framework import serializers
 
+from titration_config.services import evaluate_titration_result
+
 from .models import SanitizerTitration, ChloragelTitration
 
 
@@ -55,15 +57,19 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
         ppm = Decimal(drops) * Decimal("12.5")
         percent_vv = Decimal(drops) * Decimal("0.0125")
 
+        result_status = evaluate_titration_result(
+            plant_id=validated_data["plant"].id,
+            titration_type="SANITIZER",
+            value=ppm,
+        )
+
         return SanitizerTitration.objects.create(
             **validated_data,
             sample_volume_ml=Decimal("5.00"),
             ppm=ppm,
             percent_vv=percent_vv,
             status=SanitizerTitration.Status.DRAFT,
-            result_status=(
-                SanitizerTitration.ResultStatus.REVIEW_REQUIRED
-            ),
+            result_status=result_status,
             created_by=self.context["request"].user,
         )
 
@@ -73,20 +79,24 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
             instance.r71_drops,
         )
 
+        plant = validated_data.get(
+            "plant",
+            instance.plant,
+        )
+
         instance.r71_drops = drops
 
-        # Recalculate derived values whenever drops change.
         instance.ppm = Decimal(drops) * Decimal("12.5")
         instance.percent_vv = Decimal(drops) * Decimal("0.0125")
 
-        # Update any other writable fields.
         for attr, value in validated_data.items():
             if attr != "r71_drops":
                 setattr(instance, attr, value)
 
-        # Result limits are not configured yet.
-        instance.result_status = (
-            SanitizerTitration.ResultStatus.REVIEW_REQUIRED
+        instance.result_status = evaluate_titration_result(
+            plant_id=plant.id,
+            titration_type="SANITIZER",
+            value=instance.ppm,
         )
 
         instance.save()
@@ -141,14 +151,18 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
 
         result_percent = Decimal(drops) * Decimal("0.198")
 
+        result_status = evaluate_titration_result(
+            plant_id=validated_data["plant"].id,
+            titration_type="CHLORAGEL",
+            value=result_percent,
+        )
+
         return ChloragelTitration.objects.create(
             **validated_data,
             sample_volume_ml=Decimal("15.00"),
             result_percent=result_percent,
             status=ChloragelTitration.Status.DRAFT,
-            result_status=(
-                ChloragelTitration.ResultStatus.REVIEW_REQUIRED
-            ),
+            result_status=result_status,
             created_by=self.context["request"].user,
         )
 
@@ -158,19 +172,25 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
             instance.r9_drops,
         )
 
+        plant = validated_data.get(
+            "plant",
+            instance.plant,
+        )
+
         instance.r9_drops = drops
 
-        # Recalculate derived value whenever drops change.
-        instance.result_percent = Decimal(drops) * Decimal("0.198")
+        instance.result_percent = (
+            Decimal(drops) * Decimal("0.198")
+        )
 
-        # Update any other writable fields.
         for attr, value in validated_data.items():
             if attr != "r9_drops":
                 setattr(instance, attr, value)
 
-        # Result limits are not configured yet.
-        instance.result_status = (
-            ChloragelTitration.ResultStatus.REVIEW_REQUIRED
+        instance.result_status = evaluate_titration_result(
+            plant_id=plant.id,
+            titration_type="CHLORAGEL",
+            value=instance.result_percent,
         )
 
         instance.save()

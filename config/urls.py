@@ -43,5 +43,6 @@ urlpatterns = [
     path("api/records/",include("records.api_urls")),
     path("api/corrective-actions/",include("corrective_actions.api_urls")),
     path("api/audit/",include("audit.api_urls")),
+    path("api/titration-config/",include("titration_config.api_urls")),
 
 ]
