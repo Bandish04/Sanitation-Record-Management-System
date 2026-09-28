@@ -20,8 +20,16 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
 from accounts.views import signup, dashboard
-from accounts.views import signup, dashboard, admin_users_page, browser_login, plants_page, sanitizer_page,  chloragel_page
-
+from accounts.views import (
+    browser_login,
+    signup,
+    dashboard,
+    plants_page,
+    sanitizer_page,
+    chloragel_page,
+    admin_users_page,
+    inspection_page,
+)
 
 urlpatterns = [
     path(
@@ -35,6 +43,7 @@ urlpatterns = [
 
     path("titrations/sanitizer/",sanitizer_page,name="sanitizer-page"),
     path("titrations/chloragel/",chloragel_page,name="chloragel-page"),
+    path("inspections/",inspection_page,name="inspection-page"),
 
     path("plants/",plants_page,name="plants-page"),
 

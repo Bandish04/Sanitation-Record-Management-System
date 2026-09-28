@@ -74,12 +74,25 @@ class InspectionSectionListCreateAPIView(
 class InspectionQuestionListCreateAPIView(
     generics.ListCreateAPIView
 ):
-    queryset = InspectionQuestion.objects.select_related(
-        "section"
-    ).all()
-
     serializer_class = InspectionQuestionSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+
+        queryset = InspectionQuestion.objects.select_related(
+            "section",
+            "section__template",
+        ).all()
+
+        template_id = self.request.query_params.get(
+            "template"
+        )
+
+        if template_id:
+            queryset = queryset.filter(
+                section__template_id=template_id
+            )
+
+        return queryset
 
     def get_permissions(self):
         if self.request.method == "POST":

@@ -41,6 +41,12 @@ def chloragel_page(request):
         request,
         "titrations/chloragel.html",
     )
+@login_required
+def inspection_page(request):
+    return render(
+        request,
+        "inspections/inspection.html",
+    )
 
 def browser_login(request):
 
