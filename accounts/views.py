@@ -47,6 +47,12 @@ def inspection_page(request):
         request,
         "inspections/inspection.html",
     )
+@login_required
+def atp_page(request):
+    return render(
+        request,
+        "inspections/atp.html",
+    )
 
 def browser_login(request):
 
