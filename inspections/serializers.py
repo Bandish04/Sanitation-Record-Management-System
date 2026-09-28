@@ -84,7 +84,6 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InspectionAnswer
-
         fields = [
             "id",
             "inspection",
@@ -94,7 +93,6 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-
         read_only_fields = [
             "id",
             "inspection",
@@ -104,11 +102,129 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
 
-        answer = data.get("answer")
-        observation = data.get("observation", "").strip()
+        # ----------------------------------------------------
+        # GET INSPECTION
+        # ----------------------------------------------------
+        if self.instance is None:
+            inspection_id = self.context["request"].data.get(
+                "inspection"
+            )
 
-        question = data.get("question")
+            if not inspection_id:
+                raise serializers.ValidationError(
+                    {
+                        "inspection": (
+                            "Inspection is required."
+                        )
+                    }
+                )
 
+            try:
+                inspection = SanitationInspection.objects.get(
+                    id=inspection_id
+                )
+            except SanitationInspection.DoesNotExist:
+                raise serializers.ValidationError(
+                    {
+                        "inspection": (
+                            "Inspection does not exist."
+                        )
+                    }
+                )
+
+        else:
+            inspection = self.instance.inspection
+
+        # ----------------------------------------------------
+        # GET QUESTION
+        # ----------------------------------------------------
+        question = data.get(
+            "question",
+            self.instance.question
+            if self.instance
+            else None,
+        )
+
+        if question is None:
+            raise serializers.ValidationError(
+                {
+                    "question": (
+                        "Question is required."
+                    )
+                }
+            )
+
+        # ----------------------------------------------------
+        # MAKE SURE QUESTION BELONGS TO TEMPLATE
+        # ----------------------------------------------------
+        if (
+            question.section.template_id
+            != inspection.template_id
+        ):
+            raise serializers.ValidationError(
+                {
+                    "question": (
+                        "This question does not belong "
+                        "to the inspection template."
+                    )
+                }
+            )
+
+        # ----------------------------------------------------
+        # PREVENT DUPLICATE ANSWERS
+        # ----------------------------------------------------
+        existing_answer = (
+            InspectionAnswer.objects
+            .filter(
+                inspection=inspection,
+                question=question,
+            )
+            .exclude(
+                pk=self.instance.pk
+            )
+            .first()
+            if self.instance
+            else InspectionAnswer.objects.filter(
+                inspection=inspection,
+                question=question,
+            ).first()
+        )
+
+        if existing_answer:
+            raise serializers.ValidationError(
+                {
+                    "question": (
+                        "This question has already "
+                        "been answered for this inspection."
+                    )
+                }
+            )
+
+        # ----------------------------------------------------
+        # GET ANSWER
+        # ----------------------------------------------------
+        answer = data.get(
+            "answer",
+            self.instance.answer
+            if self.instance
+            else None,
+        )
+
+        # ----------------------------------------------------
+        # GET OBSERVATION
+        # ----------------------------------------------------
+        observation = data.get(
+            "observation",
+            self.instance.observation
+            if self.instance
+            else "",
+        )
+
+        observation = observation.strip()
+
+        # ----------------------------------------------------
+        # NO ANSWER REQUIRES OBSERVATION
+        # ----------------------------------------------------
         if (
             answer == InspectionAnswer.AnswerChoices.NO
             and question.requires_observation_on_no
@@ -124,6 +240,7 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
             )
 
         return data
+        
 
 class SanitationInspectionSerializer(serializers.ModelSerializer):
 
