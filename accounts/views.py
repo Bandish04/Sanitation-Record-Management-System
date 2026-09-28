@@ -28,6 +28,13 @@ def admin_users_page(request):
 def plants_page(request):
     return render(request, "plants/list.html")
 
+@login_required
+def sanitizer_page(request):
+    return render(
+        request,
+        "titrations/sanitizer.html",
+    )
+
 def browser_login(request):
 
     if request.method == "POST":
