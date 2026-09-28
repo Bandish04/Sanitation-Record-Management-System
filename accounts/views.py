@@ -14,6 +14,61 @@ from audit.models import AuditLog
 from django.contrib.auth.models import User, Group
 from rest_framework import generics, status
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+@login_required
+def admin_users_page(request):
+    return render(request, "admin/users.html")
+
+@login_required
+def plants_page(request):
+    return render(request, "plants/list.html")
+
+def browser_login(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password,
+        )
+
+        if user is not None:
+
+            if not user.is_active:
+                return render(
+                    request,
+                    "registration/login.html",
+                    {
+                        "error": "This account is inactive."
+                    },
+                )
+
+            login(request, user)
+
+            return redirect("dashboard")
+
+        return render(
+            request,
+            "registration/login.html",
+            {
+                "error": "Invalid username or password."
+            },
+        )
+
+    return render(
+        request,
+        "registration/login.html",
+    )
+
 def signup(request):
 
     if request.method == "POST":

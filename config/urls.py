@@ -20,18 +20,24 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 
 from accounts.views import signup, dashboard
+from accounts.views import signup, dashboard, admin_users_page, browser_login, plants_page 
 
 
 urlpatterns = [
+    path(
+    "admin/users/",
+    admin_users_page,
+    name="admin-users",
+    ),
     path("admin/", admin.site.urls),
 
     path(
-        "login/",
-        auth_views.LoginView.as_view(
-            template_name="registration/login.html"
-        ),
-        name="login",
+    "login/",
+    browser_login,
+    name="login",
     ),
+    
+    path("plants/",plants_page,name="plants-page"),
 
     path("signup/", signup, name="signup"),
     path("dashboard/", dashboard, name="dashboard"),
@@ -44,5 +50,6 @@ urlpatterns = [
     path("api/corrective-actions/",include("corrective_actions.api_urls")),
     path("api/audit/",include("audit.api_urls")),
     path("api/titration-config/",include("titration_config.api_urls")),
+    
 
 ]
