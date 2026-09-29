@@ -33,6 +33,7 @@ from accounts.views import (
     records_search_page,
     daily_records_page,
     pdf_reports_page,
+    audit_logs_page,
 )
 
 urlpatterns = [
@@ -52,6 +53,7 @@ urlpatterns = [
     path("records/search/",records_search_page,name="records-search-page"),
     path("records/daily/",daily_records_page,name="daily-records-page"),
     path("records/pdf/",pdf_reports_page,name="pdf-reports-page"),
+    path("audit/",audit_logs_page,name="audit-logs-page"),
 
 
     path("plants/",plants_page,name="plants-page"),
