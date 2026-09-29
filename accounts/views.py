@@ -36,6 +36,10 @@ def sanitizer_page(request):
     )
 
 @login_required
+def daily_records_page(request):
+    return render(request, "records/daily.html")
+
+@login_required
 def chloragel_page(request):
     return render(
         request,
@@ -52,6 +56,12 @@ def atp_page(request):
     return render(
         request,
         "inspections/atp.html",
+    )
+@login_required
+def records_search_page(request):
+    return render(
+        request,
+        "records/search.html",
     )
 
 def browser_login(request):

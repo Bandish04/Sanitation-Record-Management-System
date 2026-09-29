@@ -30,6 +30,8 @@ from accounts.views import (
     admin_users_page,
     inspection_page,
     atp_page,
+    records_search_page,
+    daily_records_page,
 )
 
 urlpatterns = [
@@ -46,6 +48,9 @@ urlpatterns = [
     path("titrations/chloragel/",chloragel_page,name="chloragel-page"),
     path("inspections/",inspection_page,name="inspection-page"),
     path("inspections/atp/",atp_page,name="atp-page"),
+    path("records/search/",records_search_page,name="records-search-page"),
+    path("records/daily/",daily_records_page,name="daily-records-page"),
+
 
     path("plants/",plants_page,name="plants-page"),
 

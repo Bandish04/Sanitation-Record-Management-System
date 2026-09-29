@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Search Records</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+
+<body>
+
+<div class="container py-5">
+
+    <!-- HEADER -->
+
+    <div
+        class="d-flex justify-content-between align-items-center mb-4"
+    >
+
+        <div>
+
+            <h2>
+                Search Sanitation Records
+            </h2>
+
+            <p class="text-muted mb-0">
+                Search and filter sanitation records.
+            </p>
+
+        </div>
+
+
+        <a
+            href="/dashboard/"
+            class="btn btn-secondary"
+        >
+            Dashboard
+        </a>
+
+    </div>
+
+
+    <!-- MESSAGE -->
+
+    <div
+        id="message"
+        class="alert d-none"
+    ></div>
+
+
+    <!-- FILTER CARD -->
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header">
+
+            <h5 class="mb-0">
+                Search Filters
+            </h5>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- PLANT -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="plant"
+                        class="form-label"
+                    >
+                        Plant
+                    </label>
+
+                    <select
+                        id="plant"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Plants
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- START DATE -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="startDate"
+                        class="form-label"
+                    >
+                        Start Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="startDate"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- END DATE -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="endDate"
+                        class="form-label"
+                    >
+                        End Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="endDate"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- RECORD TYPE -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="recordType"
+                        class="form-label"
+                    >
+                        Record Type
+                    </label>
+
+                    <select
+                        id="recordType"
+                        class="form-select"
+                            >
+                        <option value="">
+                            All Record Types
+                        </option>
+
+                        <option value="sanitizer">
+                            Sanitizer
+                        </option>
+
+                        <option value="chloragel">
+                            Chloragel
+                        </option>
+
+                        <option value="inspection">
+                            Inspection
+                        </option>
+
+                        <option value="atp">
+                            ATP Report
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="col-md-4">
+
+                    <label
+                        for="status"
+                        class="form-label"
+                    >
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            All Statuses
+                        </option>
+
+                        <option value="DRAFT">
+                            Draft
+                        </option>
+
+                        <option value="SUBMITTED">
+                            Submitted
+                        </option>
+
+                        <option value="CORRECTED">
+                            Corrected
+                        </option>
+
+                        <option value="PASS">
+                            Pass
+                        </option>
+
+                        <option value="FAIL">
+                            Fail
+                        </option>
+
+                        <option value="REVIEW_REQUIRED">
+                            Review Required
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- BUTTONS -->
+
+                <div class="col-md-4 d-flex align-items-end gap-2">
+
+                    <button
+                        type="button"
+                        id="searchButton"
+                        class="btn btn-primary"
+                    >
+                        Search
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="resetButton"
+                        class="btn btn-outline-secondary"
+                    >
+                        Reset
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- RESULTS -->
+
+    <div class="card shadow">
+
+        <div class="card-header">
+
+            <div
+                class="d-flex justify-content-between align-items-center"
+            >
+
+                <h5 class="mb-0">
+                    Search Results
+                </h5>
+
+                <span
+                    id="resultCount"
+                    class="badge bg-secondary"
+                >
+                    0 records
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div
+                id="loading"
+                class="text-center d-none"
+            >
+                Searching...
+            </div>
+
+
+            <div
+                id="emptyMessage"
+                class="alert alert-info d-none"
+            >
+                No records found.
+            </div>
+
+
+            <div
+                id="tableContainer"
+                class="table-responsive"
+            >
+
+                <table
+                    class="table table-bordered table-hover"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>ID</th>
+
+                            <th>Type</th>
+
+                            <th>Plant</th>
+
+                            <th>Date</th>
+
+                            <th>Status</th>
+
+                            <th>Created By</th>
+
+                            <th>Created At</th>
+
+                            <th>Details</th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="resultsTableBody"
+                    >
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- DETAILS MODAL -->
+
+<div
+    class="modal fade"
+    id="detailsModal"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Record Details
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <pre
+                    id="detailsContent"
+                    class="bg-light p-3"
+                    style="white-space: pre-wrap;"
+                ></pre>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
+<script>
+
+const token =
+    localStorage.getItem("access_token");
+
+
+const plantSelect =
+    document.getElementById("plant");
+
+
+const startDate =
+    document.getElementById("startDate");
+
+
+const endDate =
+    document.getElementById("endDate");
+
+
+const recordType =
+    document.getElementById("recordType");
+
+
+const statusSelect =
+    document.getElementById("status");
+
+
+const searchButton =
+    document.getElementById("searchButton");
+
+
+const resetButton =
+    document.getElementById("resetButton");
+
+
+const resultsTableBody =
+    document.getElementById(
+        "resultsTableBody"
+    );
+
+
+const loading =
+    document.getElementById("loading");
+
+
+const emptyMessage =
+    document.getElementById(
+        "emptyMessage"
+    );
+
+
+const tableContainer =
+    document.getElementById(
+        "tableContainer"
+    );
+
+
+const resultCount =
+    document.getElementById(
+        "resultCount"
+    );
+
+
+const message =
+    document.getElementById("message");
+
+
+const detailsContent =
+    document.getElementById(
+        "detailsContent"
+    );
+
+
+if (!token) {
+
+    window.location.href =
+        "/login/";
+
+}
+
+
+/* ============================================================
+   MESSAGE
+============================================================ */
+
+function showMessage(
+    text,
+    type = "danger"
+) {
+
+    message.textContent = text;
+
+    message.className =
+        `alert alert-${type}`;
+
+}
+
+
+function hideMessage() {
+
+    message.classList.add(
+        "d-none"
+    );
+
+}
+
+
+/* ============================================================
+   LOAD PLANTS
+============================================================ */
+
+async function loadPlants() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/plants/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load plants."
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const plants =
+            data.results || data;
+
+
+        plants.forEach(
+            function(plant) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    plant.id;
+
+                option.textContent =
+                    `${plant.code} - ${plant.name}`;
+
+                plantSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   BUILD SEARCH URL
+============================================================ */
+
+function buildSearchUrl() {
+
+    const params =
+        new URLSearchParams();
+
+
+    if (plantSelect.value) {
+
+        params.set(
+            "plant",
+            plantSelect.value
+        );
+
+    }
+
+
+    if (startDate.value) {
+
+        params.set(
+            "start_date",
+            startDate.value
+        );
+
+    }
+
+
+    if (endDate.value) {
+
+        params.set(
+            "end_date",
+            endDate.value
+        );
+
+    }
+
+
+    if (recordType.value) {
+
+        params.set(
+            "record_type",
+            recordType.value
+        );
+
+    }
+
+
+    if (statusSelect.value) {
+
+        params.set(
+            "status",
+            statusSelect.value
+        );
+
+    }
+
+
+    const queryString =
+        params.toString();
+
+
+    if (queryString) {
+
+        return `/api/records/?${queryString}`;
+
+    }
+
+
+    return "/api/records/";
+
+}
+
+
+/* ============================================================
+   LOAD RECORDS
+============================================================ */
+
+async function loadRecords() {
+
+    hideMessage();
+
+
+    loading.classList.remove(
+        "d-none"
+    );
+
+    tableContainer.classList.add(
+        "d-none"
+    );
+
+    emptyMessage.classList.add(
+        "d-none"
+    );
+
+
+    try {
+
+        const url =
+            buildSearchUrl();
+
+
+        const response =
+            await fetch(
+                url,
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load records."
+            );
+
+        }
+
+
+        const records =
+            data.results || data;
+
+
+        resultsTableBody.innerHTML =
+            "";
+
+
+        resultCount.textContent =
+            `${records.length} record${
+                records.length === 1
+                ? ""
+                : "s"
+            }`;
+
+
+        if (records.length === 0) {
+
+            emptyMessage.classList.remove(
+                "d-none"
+            );
+
+            return;
+
+        }
+
+
+        records.forEach(
+            function(record) {
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                row.innerHTML = `
+                    <td>
+                        ${record.id}
+                    </td>
+
+                    <td>
+                        ${record.record_type}
+                    </td>
+
+                    <td>
+                        ${record.plant_code}
+                        -
+                        ${record.plant_name}
+                    </td>
+
+                    <td>
+                        ${record.date}
+                    </td>
+
+                    <td>
+                        ${getStatusBadge(
+                            record.status
+                        )}
+                    </td>
+
+                    <td>
+                        ${record.created_by_username}
+                    </td>
+
+                    <td>
+                        ${formatDate(
+                            record.created_at
+                        )}
+                    </td>
+
+                    <td>
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            onclick='showDetails(${JSON.stringify(
+                                record
+                            )})'
+                        >
+                            View
+                        </button>
+                    </td>
+                `;
+
+
+                resultsTableBody.appendChild(
+                    row
+                );
+
+            }
+        );
+
+
+        tableContainer.classList.remove(
+            "d-none"
+        );
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+
+    } finally {
+
+        loading.classList.add(
+            "d-none"
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   STATUS BADGE
+============================================================ */
+
+function getStatusBadge(status) {
+
+    let badgeClass =
+        "bg-secondary";
+
+
+    if (
+        status === "PASS"
+        || status === "SUBMITTED"
+        || status === "COMPLETED"
+    ) {
+
+        badgeClass =
+            "bg-success";
+
+    }
+
+
+    if (
+        status === "FAIL"
+        || status === "CANCELLED"
+    ) {
+
+        badgeClass =
+            "bg-danger";
+
+    }
+
+
+    if (
+        status === "DRAFT"
+        || status === "IN_PROGRESS"
+    ) {
+
+        badgeClass =
+            "bg-warning text-dark";
+
+    }
+
+
+    if (
+        status === "REVIEW_REQUIRED"
+        || status === "CORRECTED"
+    ) {
+
+        badgeClass =
+            "bg-info text-dark";
+
+    }
+
+
+    return `
+        <span class="badge ${badgeClass}">
+            ${status}
+        </span>
+    `;
+
+}
+
+
+/* ============================================================
+   FORMAT DATE
+============================================================ */
+
+function formatDate(
+    value
+) {
+
+    if (!value) {
+
+        return "-";
+
+    }
+
+
+    return new Date(
+        value
+    ).toLocaleString();
+
+}
+
+
+/* ============================================================
+   SHOW DETAILS
+============================================================ */
+
+function showDetails(record) {
+
+    detailsContent.textContent =
+        JSON.stringify(
+            record.data,
+            null,
+            4
+        );
+
+
+    const modal =
+        new bootstrap.Modal(
+            document.getElementById(
+                "detailsModal"
+            )
+        );
+
+
+    modal.show();
+
+}
+
+
+/* ============================================================
+   SEARCH BUTTON
+============================================================ */
+
+searchButton.addEventListener(
+    "click",
+    function() {
+
+        loadRecords();
+
+    }
+);
+
+
+/* ============================================================
+   RESET
+============================================================ */
+
+resetButton.addEventListener(
+    "click",
+    function() {
+
+        plantSelect.value =
+            "";
+
+        startDate.value =
+            "";
+
+        endDate.value =
+            "";
+
+        recordType.value =
+            "";
+
+        statusSelect.value =
+            "";
+
+        loadRecords();
+
+    }
+);
+
+
+/* ============================================================
+   INITIALIZE
+============================================================ */
+
+async function initialize() {
+
+    await loadPlants();
+
+    await loadRecords();
+
+}
+
+
+initialize();
+
+</script>
+
+</body>
+
+</html>
