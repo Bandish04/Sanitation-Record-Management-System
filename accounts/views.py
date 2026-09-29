@@ -40,6 +40,14 @@ def daily_records_page(request):
     return render(request, "records/daily.html")
 
 @login_required
+def pdf_reports_page(request):
+    return render(request, "records/pdf_reports.html")
+
+@login_required
+def daily_records_page(request):
+    return render(request, "records/daily.html")
+
+@login_required
 def chloragel_page(request):
     return render(
         request,
