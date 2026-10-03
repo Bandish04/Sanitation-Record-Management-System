@@ -33,6 +33,12 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
         ]
+        extra_kwargs = {
+            "observation": {
+           "required": False,
+            "allow_blank": True,
+        },
+}
 
     def validate_status(self, value):
 

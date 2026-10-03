@@ -1,27 +1,26 @@
-
 from django.utils import timezone
 
 from rest_framework import generics, status
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied, NotFound
 
 from .models import (
-    InspectionTemplate,
-    InspectionSection,
-    InspectionQuestion,
-    SanitationInspection,
-    InspectionAnswer,
     ATPReport,
+    InspectionAnswer,
+    InspectionQuestion,
+    InspectionSection,
+    InspectionTemplate,
+    SanitationInspection,
 )
 
 from .serializers import (
-    InspectionTemplateSerializer,
-    InspectionSectionSerializer,
-    InspectionQuestionSerializer,
-    SanitationInspectionSerializer,
-    InspectionAnswerSerializer,
     ATPReportSerializer,
+    InspectionAnswerSerializer,
+    InspectionQuestionSerializer,
+    InspectionSectionSerializer,
+    InspectionTemplateSerializer,
+    SanitationInspectionSerializer,
 )
 
 from accounts.permissions import IsAdmin, IsInspector
@@ -77,7 +76,6 @@ class InspectionQuestionListCreateAPIView(
     serializer_class = InspectionQuestionSerializer
 
     def get_queryset(self):
-
         queryset = InspectionQuestion.objects.select_related(
             "section",
             "section__template",
@@ -111,13 +109,17 @@ class SanitationInspectionListCreateAPIView(
     serializer_class = SanitationInspectionSerializer
 
     def get_queryset(self):
-        return SanitationInspection.objects.select_related(
-            "plant",
-            "template",
-            "inspector",
-        ).prefetch_related(
-            "answers__question"
-        ).all()
+        return (
+            SanitationInspection.objects.select_related(
+                "plant",
+                "template",
+                "inspector",
+            )
+            .prefetch_related(
+                "answers__question"
+            )
+            .all()
+        )
 
     def get_permissions(self):
         if self.request.method == "POST":
@@ -158,13 +160,17 @@ class SanitationInspectionDetailAPIView(
     serializer_class = SanitationInspectionSerializer
 
     def get_queryset(self):
-        return SanitationInspection.objects.select_related(
-            "plant",
-            "template",
-            "inspector",
-        ).prefetch_related(
-            "answers__question"
-        ).all()
+        return (
+            SanitationInspection.objects.select_related(
+                "plant",
+                "template",
+                "inspector",
+            )
+            .prefetch_related(
+                "answers__question"
+            )
+            .all()
+        )
 
     def get_permissions(self):
         if self.request.method in ["PUT", "PATCH"]:
@@ -245,7 +251,6 @@ class InspectionAnswerCreateAPIView(
     permission_classes = [IsInspector]
 
     def perform_create(self, serializer):
-
         inspection_id = self.request.data.get(
             "inspection"
         )
@@ -301,7 +306,6 @@ class InspectionAnswerDetailAPIView(
         return [IsAuthenticated()]
 
     def update(self, request, *args, **kwargs):
-
         answer = self.get_object()
 
         # Only the inspector who owns
@@ -318,7 +322,8 @@ class InspectionAnswerDetailAPIView(
             != SanitationInspection.Status.DRAFT
         ):
             raise PermissionDenied(
-                "Answers can only be modified while the inspection is in draft."
+                "Answers can only be modified while "
+                "the inspection is in draft."
             )
 
         return super().update(
@@ -338,7 +343,6 @@ class SanitationInspectionSubmitAPIView(
     permission_classes = [IsInspector]
 
     def post(self, request, pk):
-
         try:
             inspection = (
                 SanitationInspection.objects
@@ -398,7 +402,6 @@ class SanitationInspectionSubmitAPIView(
         unanswered_questions = []
 
         for question in questions:
-
             if question.id not in answered_question_ids:
                 unanswered_questions.append(
                     question.id
@@ -409,7 +412,6 @@ class SanitationInspectionSubmitAPIView(
         # ----------------------------------------------------
 
         if unanswered_questions:
-
             return Response(
                 {
                     "detail": (
@@ -430,7 +432,6 @@ class SanitationInspectionSubmitAPIView(
         invalid_answers = []
 
         for answer in inspection.answers.all():
-
             if (
                 answer.answer
                 == InspectionAnswer.AnswerChoices.NO
@@ -446,7 +447,6 @@ class SanitationInspectionSubmitAPIView(
         # ----------------------------------------------------
 
         if invalid_answers:
-
             return Response(
                 {
                     "detail": (
@@ -542,16 +542,40 @@ class ATPReportListCreateAPIView(
         ).all()
 
     def get_permissions(self):
-
         if self.request.method == "POST":
             return [IsAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save()
+        # IMPORTANT:
+        # uploaded_by is already assigned inside
+        # ATPReportSerializer.create().
+        #
+        # Therefore we must NOT pass uploaded_by here.
+        atp_report = serializer.save()
+
+        AuditLog.objects.create(
+            user=self.request.user,
+            action="UPLOAD_ATP",
+            object_type="ATPReport",
+            object_id=atp_report.id,
+            old_values=None,
+            new_values={
+                "plant": atp_report.plant_id,
+                "inspection": atp_report.inspection_id,
+                "original_filename": atp_report.original_filename,
+                "uploaded_by": atp_report.uploaded_by_id,
+                "status": atp_report.status,
+                "notes": atp_report.notes,
+            },
+            reason="ATP report uploaded.",
+        )
 
 
+# ============================================================
+# SANITATION INSPECTION ADMIN CORRECTION
+# ============================================================
 
 class SanitationInspectionCorrectionAPIView(
     generics.UpdateAPIView
@@ -560,13 +584,17 @@ class SanitationInspectionCorrectionAPIView(
     permission_classes = [IsAdmin]
 
     def get_queryset(self):
-        return SanitationInspection.objects.select_related(
-            "plant",
-            "template",
-            "inspector",
-        ).prefetch_related(
-            "answers__question"
-        ).all()
+        return (
+            SanitationInspection.objects.select_related(
+                "plant",
+                "template",
+                "inspector",
+            )
+            .prefetch_related(
+                "answers__question"
+            )
+            .all()
+        )
 
     def update(self, request, *args, **kwargs):
         inspection = self.get_object()
@@ -609,7 +637,10 @@ class SanitationInspectionCorrectionAPIView(
             partial=True,
         )
 
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(
+            raise_exception=True
+        )
+
         serializer.save(
             status=SanitationInspection.Status.CORRECTED
         )
@@ -649,5 +680,4 @@ class SanitationInspectionCorrectionAPIView(
             },
             status=status.HTTP_200_OK,
         )
-
 

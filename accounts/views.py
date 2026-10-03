@@ -76,6 +76,11 @@ def records_search_page(request):
 def audit_logs_page(request):
     return render(request, "audit/logs.html")
 
+
+@login_required
+def corrective_actions_page(request):
+    return render(request, "corrective_actions/list.html")
+
 def browser_login(request):
 
     if request.method == "POST":
