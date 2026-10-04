@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>User Management</title>
 
@@ -10,34 +16,87 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+
 </head>
 
-<body>
+
+<body class="bg-light">
+
 
 <div class="container py-5">
 
+
+    <!-- Header -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
-            <h1>User Management</h1>
-            <p class="text-muted mb-0">
+
+            <h1 class="fw-bold">
+                User Management
+            </h1>
+
+            <p class="text-muted mb-2">
                 Manage system users and their roles.
             </p>
+
+            <div>
+
+                <span class="text-muted">
+                    Logged in as:
+                </span>
+
+                <strong>
+                    {{ user.username }}
+                </strong>
+
+                <span class="badge bg-danger ms-2">
+                    Admin
+                </span>
+
+            </div>
+
         </div>
 
-        <a href="/dashboard/" class="btn btn-secondary">
-            Back to Dashboard
-        </a>
+
+        <div class="d-flex gap-2">
+
+            <a
+                href="/dashboard/"
+                class="btn btn-secondary"
+            >
+                Back to Dashboard
+            </a>
+
+            <a
+                href="/logout/"
+                class="btn btn-outline-danger"
+            >
+                Logout
+            </a>
+
+        </div>
+
     </div>
+
+
+    <!-- Message -->
 
     <div id="message"></div>
 
+
     <!-- Create User -->
 
-    <div class="card mb-4">
+    <div class="card shadow-sm mb-4">
 
         <div class="card-header">
-            <h5 class="mb-0">Create User</h5>
+
+            <h5 class="mb-0">
+                Create User
+            </h5>
+
         </div>
+
 
         <div class="card-body">
 
@@ -45,8 +104,15 @@
 
                 <div class="row">
 
+
+                    <!-- Username -->
+
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">
+
+                        <label
+                            class="form-label"
+                            for="username"
+                        >
                             Username
                         </label>
 
@@ -56,10 +122,18 @@
                             class="form-control"
                             required
                         >
+
                     </div>
 
+
+                    <!-- Email -->
+
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">
+
+                        <label
+                            class="form-label"
+                            for="email"
+                        >
                             Email
                         </label>
 
@@ -69,10 +143,18 @@
                             class="form-control"
                             required
                         >
+
                     </div>
 
+
+                    <!-- Password -->
+
                     <div class="col-md-6 mb-3">
-                        <label class="form-label">
+
+                        <label
+                            class="form-label"
+                            for="password"
+                        >
                             Password
                         </label>
 
@@ -83,15 +165,26 @@
                             minlength="8"
                             required
                         >
+
                     </div>
+
+
+                    <!-- Role -->
 
                     <div class="col-md-3 mb-3">
 
-                        <label class="form-label">
+                        <label
+                            class="form-label"
+                            for="role"
+                        >
                             Role
                         </label>
 
-                        <select id="role" class="form-select" required>
+                        <select
+                            id="role"
+                            class="form-select"
+                            required
+                        >
 
                             <option value="">
                                 Select Role
@@ -113,13 +206,22 @@
 
                     </div>
 
+
+                    <!-- Status -->
+
                     <div class="col-md-3 mb-3">
 
-                        <label class="form-label">
+                        <label
+                            class="form-label"
+                            for="is_active"
+                        >
                             Status
                         </label>
 
-                        <select id="is_active" class="form-select">
+                        <select
+                            id="is_active"
+                            class="form-select"
+                        >
 
                             <option value="true">
                                 Active
@@ -134,6 +236,7 @@
                     </div>
 
                 </div>
+
 
                 <button
                     type="submit"
@@ -151,32 +254,57 @@
 
     <!-- Users -->
 
-    <div class="card">
+    <div class="card shadow-sm">
 
         <div class="card-header">
+
             <h5 class="mb-0">
                 System Users
             </h5>
+
         </div>
+
 
         <div class="card-body">
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover">
+                <table
+                    class="table table-bordered table-hover align-middle"
+                >
 
-                    <thead>
+                    <thead class="table-dark">
 
                         <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+
+                            <th>
+                                ID
+                            </th>
+
+                            <th>
+                                Username
+                            </th>
+
+                            <th>
+                                Email
+                            </th>
+
+                            <th>
+                                Role
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Actions
+                            </th>
+
                         </tr>
 
                     </thead>
+
 
                     <tbody id="usersTableBody">
 
@@ -190,40 +318,59 @@
 
     </div>
 
+
 </div>
 
 
 <script>
 
+
 const API_URL = "/api/auth/users/";
 
 
 // Get JWT access token
+
 function getAccessToken() {
 
-    return localStorage.getItem("access_token");
+    return localStorage.getItem(
+        "access_token"
+    );
 
 }
 
 
 // Display message
-function showMessage(message, type = "success") {
 
-    const messageBox = document.getElementById("message");
+function showMessage(
+    message,
+    type = "success"
+) {
+
+    const messageBox =
+        document.getElementById(
+            "message"
+        );
 
     messageBox.innerHTML = `
+
         <div class="alert alert-${type}">
+
             ${message}
+
         </div>
+
     `;
 
 }
 
 
 // Load users
+
 async function loadUsers() {
 
-    const token = getAccessToken();
+    const token =
+        getAccessToken();
+
 
     if (!token) {
 
@@ -233,20 +380,28 @@ async function loadUsers() {
         );
 
         return;
+
     }
+
 
     try {
 
-        const response = await fetch(
-            API_URL,
-            {
-                method: "GET",
+        const response =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET",
 
-                headers: {
-                    "Authorization": `Bearer ${token}`
+                    headers: {
+
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    }
+
                 }
-            }
-        );
+            );
+
 
         if (!response.ok) {
 
@@ -256,101 +411,159 @@ async function loadUsers() {
 
         }
 
-        const users = await response.json();
+
+        const users =
+            await response.json();
+
 
         const tableBody =
             document.getElementById(
                 "usersTableBody"
             );
 
+
         tableBody.innerHTML = "";
 
-        users.forEach(user => {
 
-            const statusBadge = user.is_active
-                ? `<span class="badge bg-success">Active</span>`
-                : `<span class="badge bg-danger">Disabled</span>`;
+        users.forEach(
+            user => {
 
-            tableBody.innerHTML += `
 
-                <tr>
+                const statusBadge =
+                    user.is_active
 
-                    <td>${user.id}</td>
+                        ? `
+                            <span class="badge bg-success">
+                                Active
+                            </span>
+                          `
 
-                    <td>${user.username}</td>
+                        : `
+                            <span class="badge bg-danger">
+                                Disabled
+                            </span>
+                          `;
 
-                    <td>${user.email}</td>
 
-                    <td>
+                tableBody.innerHTML += `
 
-                        <select
-                            class="form-select form-select-sm"
-                            id="role-${user.id}"
-                        >
+                    <tr>
 
-                            <option
-                                value="Inspector"
-                                ${user.role === "Inspector" ? "selected" : ""}
+
+                        <td>
+                            ${user.id}
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                ${user.username}
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+                            ${user.email}
+                        </td>
+
+
+                        <td>
+
+                            <select
+                                class="form-select form-select-sm"
+                                id="role-${user.id}"
                             >
-                                Inspector
-                            </option>
 
-                            <option
-                                value="Team Lead"
-                                ${user.role === "Team Lead" ? "selected" : ""}
+                                <option
+                                    value="Inspector"
+                                    ${
+                                        user.role === "Inspector"
+                                            ? "selected"
+                                            : ""
+                                    }
+                                >
+                                    Inspector
+                                </option>
+
+
+                                <option
+                                    value="Team Lead"
+                                    ${
+                                        user.role === "Team Lead"
+                                            ? "selected"
+                                            : ""
+                                    }
+                                >
+                                    Team Lead
+                                </option>
+
+
+                                <option
+                                    value="Admin"
+                                    ${
+                                        user.role === "Admin"
+                                            ? "selected"
+                                            : ""
+                                    }
+                                >
+                                    Admin
+                                </option>
+
+                            </select>
+
+                        </td>
+
+
+                        <td>
+
+                            ${statusBadge}
+
+                        </td>
+
+
+                        <td>
+
+
+                            <button
+                                class="btn btn-sm btn-primary mb-1"
+                                onclick="updateRole(${user.id})"
                             >
-                                Team Lead
-                            </option>
+                                Save Role
+                            </button>
 
-                            <option
-                                value="Admin"
-                                ${user.role === "Admin" ? "selected" : ""}
+
+                            <button
+                                class="btn btn-sm ${
+                                    user.is_active
+                                        ? "btn-warning"
+                                        : "btn-success"
+                                }"
+                                onclick="toggleUser(
+                                    ${user.id},
+                                    ${user.is_active}
+                                )"
                             >
-                                Admin
-                            </option>
 
-                        </select>
+                                ${
+                                    user.is_active
+                                        ? "Disable"
+                                        : "Enable"
+                                }
 
-                    </td>
+                            </button>
 
-                    <td>
-                        ${statusBadge}
-                    </td>
 
-                    <td>
+                        </td>
 
-                        <button
-                            class="btn btn-sm btn-primary mb-1"
-                            onclick="updateRole(${user.id})"
-                        >
-                            Save Role
-                        </button>
 
-                        <button
-                            class="btn btn-sm ${
-                                user.is_active
-                                    ? "btn-warning"
-                                    : "btn-success"
-                            }"
-                            onclick="toggleUser(
-                                ${user.id},
-                                ${user.is_active}
-                            )"
-                        >
-                            ${
-                                user.is_active
-                                    ? "Disable"
-                                    : "Enable"
-                            }
-                        </button>
+                    </tr>
 
-                    </td>
+                `;
 
-                </tr>
-
-            `;
-
-        });
+            }
+        );
 
     } catch (error) {
 
@@ -365,15 +578,21 @@ async function loadUsers() {
 
 
 // Create user
+
 document
-    .getElementById("createUserForm")
+    .getElementById(
+        "createUserForm"
+    )
     .addEventListener(
         "submit",
         async function(event) {
 
             event.preventDefault();
 
-            const token = getAccessToken();
+
+            const token =
+                getAccessToken();
+
 
             const data = {
 
@@ -404,27 +623,35 @@ document
 
             };
 
+
             try {
 
-                const response = await fetch(
-                    API_URL,
-                    {
-                        method: "POST",
+                const response =
+                    await fetch(
+                        API_URL,
+                        {
+                            method: "POST",
 
-                        headers: {
-                            "Content-Type":
-                                "application/json",
+                            headers: {
 
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
+                                "Content-Type":
+                                    "application/json",
 
-                        body: JSON.stringify(data)
-                    }
-                );
+                                "Authorization":
+                                    `Bearer ${token}`
+
+                            },
+
+                            body:
+                                JSON.stringify(data)
+
+                        }
+                    );
+
 
                 const result =
                     await response.json();
+
 
                 if (!response.ok) {
 
@@ -434,9 +661,11 @@ document
 
                 }
 
+
                 showMessage(
                     "User created successfully."
                 );
+
 
                 document
                     .getElementById(
@@ -444,7 +673,9 @@ document
                     )
                     .reset();
 
+
                 loadUsers();
+
 
             } catch (error) {
 
@@ -460,38 +691,51 @@ document
 
 
 // Update role
-async function updateRole(userId) {
 
-    const token = getAccessToken();
+async function updateRole(
+    userId
+) {
+
+    const token =
+        getAccessToken();
+
 
     const role =
         document.getElementById(
             `role-${userId}`
         ).value;
 
+
     try {
 
-        const response = await fetch(
-            `${API_URL}${userId}/`,
-            {
-                method: "PATCH",
+        const response =
+            await fetch(
+                `${API_URL}${userId}/`,
+                {
+                    method: "PATCH",
 
-                headers: {
-                    "Content-Type":
-                        "application/json",
+                    headers: {
 
-                    "Authorization":
-                        `Bearer ${token}`
-                },
+                        "Content-Type":
+                            "application/json",
 
-                body: JSON.stringify({
-                    role: role
-                })
-            }
-        );
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+                            role: role
+                        })
+
+                }
+            );
+
 
         const result =
             await response.json();
+
 
         if (!response.ok) {
 
@@ -501,11 +745,14 @@ async function updateRole(userId) {
 
         }
 
+
         showMessage(
             "User role updated successfully."
         );
 
+
         loadUsers();
+
 
     } catch (error) {
 
@@ -520,37 +767,49 @@ async function updateRole(userId) {
 
 
 // Enable / Disable user
+
 async function toggleUser(
     userId,
     currentlyActive
 ) {
 
-    const token = getAccessToken();
+    const token =
+        getAccessToken();
+
 
     try {
 
-        const response = await fetch(
-            `${API_URL}${userId}/`,
-            {
-                method: "PATCH",
+        const response =
+            await fetch(
+                `${API_URL}${userId}/`,
+                {
+                    method: "PATCH",
 
-                headers: {
-                    "Content-Type":
-                        "application/json",
+                    headers: {
 
-                    "Authorization":
-                        `Bearer ${token}`
-                },
+                        "Content-Type":
+                            "application/json",
 
-                body: JSON.stringify({
-                    is_active:
-                        !currentlyActive
-                })
-            }
-        );
+                        "Authorization":
+                            `Bearer ${token}`
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            is_active:
+                                !currentlyActive
+
+                        })
+
+                }
+            );
+
 
         const result =
             await response.json();
+
 
         if (!response.ok) {
 
@@ -560,13 +819,20 @@ async function toggleUser(
 
         }
 
+
         showMessage(
+
             currentlyActive
+
                 ? "User disabled successfully."
+
                 : "User enabled successfully."
+
         );
 
+
         loadUsers();
+
 
     } catch (error) {
 
@@ -581,9 +847,17 @@ async function toggleUser(
 
 
 // Initial load
+
 loadUsers();
 
 </script>
 
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
+
+
 </body>
+
 </html>
