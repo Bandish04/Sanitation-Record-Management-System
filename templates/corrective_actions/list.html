@@ -27,11 +27,9 @@
 <div class="container py-4">
 
 ```
-<!-- Page Header -->
+<!-- PAGE HEADER -->
 
-<div
-    class="d-flex justify-content-between align-items-center mb-4"
->
+<div class="d-flex justify-content-between align-items-center mb-4">
 
     <div>
 
@@ -46,28 +44,471 @@
     </div>
 
 
-    <a
-        href="/dashboard/"
-        class="btn btn-secondary"
-    >
-        Dashboard
-    </a>
+    <div class="d-flex gap-2">
+
+        <button
+            type="button"
+            class="btn btn-success"
+            onclick="showCreateForm()"
+        >
+            Create Corrective Action
+        </button>
+
+
+        <a
+            href="/dashboard/"
+            class="btn btn-secondary"
+        >
+            Dashboard
+        </a>
+
+    </div>
 
 </div>
 
 
-<!-- Corrective Actions Card -->
+
+<!-- CREATE FORM -->
+
+<div
+    id="createForm"
+    class="card shadow-sm mb-4"
+    style="display: none;"
+>
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="card-title mb-0">
+                Create Corrective Action
+            </h5>
+
+
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                onclick="hideCreateForm()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+
+        <form id="correctiveActionForm">
+
+            <div class="row">
+
+                <!-- Inspection -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="inspection"
+                        class="form-label"
+                    >
+                        Inspection ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="inspection"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Question -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="question"
+                        class="form-label"
+                    >
+                        Question ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="question"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Observation -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="observation"
+                        class="form-label"
+                    >
+                        Observation
+                    </label>
+
+                    <textarea
+                        id="observation"
+                        class="form-control"
+                        rows="3"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Action Required -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="actionRequired"
+                        class="form-label"
+                    >
+                        Action Required
+                    </label>
+
+                    <textarea
+                        id="actionRequired"
+                        class="form-control"
+                        rows="3"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Assigned To -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="assignedTo"
+                        class="form-label"
+                    >
+                        Assigned To User ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="assignedTo"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- Due Date -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="dueDate"
+                        class="form-label"
+                    >
+                        Due Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="dueDate"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- Action Taken -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="actionTaken"
+                        class="form-label"
+                    >
+                        Action Taken
+                    </label>
+
+                    <textarea
+                        id="actionTaken"
+                        class="form-control"
+                        rows="3"
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <div id="createFormMessage"></div>
+
+
+            <button
+                type="submit"
+                class="btn btn-success"
+            >
+                Create Corrective Action
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- EDIT FORM -->
+
+<div
+    id="editForm"
+    class="card shadow-sm mb-4"
+    style="display: none;"
+>
+
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+            <h5 class="card-title mb-0">
+                Edit Corrective Action
+            </h5>
+
+
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                onclick="hideEditForm()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
+
+        <form id="editCorrectiveActionForm">
+
+            <input
+                type="hidden"
+                id="editId"
+            >
+
+
+            <div class="row">
+
+                <!-- Inspection -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="editInspection"
+                        class="form-label"
+                    >
+                        Inspection ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editInspection"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Question -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="editQuestion"
+                        class="form-label"
+                    >
+                        Question ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editQuestion"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Observation -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="editObservation"
+                        class="form-label"
+                    >
+                        Observation
+                    </label>
+
+                    <textarea
+                        id="editObservation"
+                        class="form-control"
+                        rows="3"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Action Required -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="editActionRequired"
+                        class="form-label"
+                    >
+                        Action Required
+                    </label>
+
+                    <textarea
+                        id="editActionRequired"
+                        class="form-control"
+                        rows="3"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Assigned To -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="editAssignedTo"
+                        class="form-label"
+                    >
+                        Assigned To User ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editAssignedTo"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- Due Date -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="editDueDate"
+                        class="form-label"
+                    >
+                        Due Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="editDueDate"
+                        class="form-control"
+                    >
+
+                </div>
+
+
+                <!-- Action Taken -->
+
+                <div class="col-md-12 mb-3">
+
+                    <label
+                        for="editActionTaken"
+                        class="form-label"
+                    >
+                        Action Taken
+                    </label>
+
+                    <textarea
+                        id="editActionTaken"
+                        class="form-control"
+                        rows="3"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Status -->
+
+                <div class="col-md-6 mb-3">
+
+                    <label
+                        for="editStatus"
+                        class="form-label"
+                    >
+                        Status
+                    </label>
+
+                    <select
+                        id="editStatus"
+                        class="form-select"
+                    >
+
+                        <option value="OPEN">
+                            Open
+                        </option>
+
+                        <option value="IN_PROGRESS">
+                            In Progress
+                        </option>
+
+                        <option value="COMPLETED">
+                            Completed
+                        </option>
+
+                        <option value="CANCELLED">
+                            Cancelled
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div id="editFormMessage"></div>
+
+
+            <button
+                type="submit"
+                class="btn btn-primary"
+            >
+                Update Corrective Action
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- CORRECTIVE ACTION RECORDS -->
 
 <div class="card shadow-sm">
 
     <div class="card-body">
 
 
-        <!-- Card Header -->
-
-        <div
-            class="d-flex justify-content-between align-items-center mb-3"
-        >
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
             <h5 class="card-title mb-0">
                 Corrective Action Records
@@ -75,9 +516,6 @@
 
 
             <div class="d-flex gap-2">
-
-
-                <!-- Status Filter -->
 
                 <select
                     id="statusFilter"
@@ -107,8 +545,6 @@
                 </select>
 
 
-                <!-- Refresh Button -->
-
                 <button
                     type="button"
                     class="btn btn-primary"
@@ -117,25 +553,19 @@
                     Refresh
                 </button>
 
-
             </div>
 
         </div>
 
 
-        <!-- Message -->
-
         <div id="message"></div>
 
-
-        <!-- Table -->
 
         <div class="table-responsive">
 
             <table
                 class="table table-bordered table-hover align-middle"
             >
-
 
                 <thead class="table-dark">
 
@@ -161,6 +591,8 @@
 
                         <th>Created By</th>
 
+                        <th>Actions</th>
+
                     </tr>
 
                 </thead>
@@ -171,7 +603,7 @@
                     <tr>
 
                         <td
-                            colspan="10"
+                            colspan="11"
                             class="text-center"
                         >
                             Loading...
@@ -181,11 +613,9 @@
 
                 </tbody>
 
-
             </table>
 
         </div>
-
 
     </div>
 
@@ -197,10 +627,9 @@
 <script>
 
 
-/*
- * Return a Bootstrap badge
- * based on the corrective action status.
- */
+/* =========================================================
+   STATUS BADGE
+========================================================= */
 
 function getStatusBadge(status) {
 
@@ -213,20 +642,17 @@ function getStatusBadge(status) {
 
     }
 
-
     else if (status === "IN_PROGRESS") {
 
         badgeClass = "bg-warning text-dark";
 
     }
 
-
     else if (status === "COMPLETED") {
 
         badgeClass = "bg-success";
 
     }
-
 
     else if (status === "CANCELLED") {
 
@@ -237,7 +663,7 @@ function getStatusBadge(status) {
 
     return `
         <span class="badge ${badgeClass}">
-            ${status}
+            ${status || "UNKNOWN"}
         </span>
     `;
 
@@ -245,12 +671,206 @@ function getStatusBadge(status) {
 
 
 
-/*
- * Load corrective actions from the API.
- */
+/* =========================================================
+   CREATE FORM
+========================================================= */
+
+function showCreateForm() {
+
+    document.getElementById(
+        "createForm"
+    ).style.display = "block";
+
+}
+
+
+function hideCreateForm() {
+
+    document.getElementById(
+        "createForm"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "correctiveActionForm"
+    ).reset();
+
+
+    document.getElementById(
+        "createFormMessage"
+    ).innerHTML = "";
+
+}
+
+
+
+/* =========================================================
+   EDIT FORM
+========================================================= */
+
+async function showEditForm(id) {
+
+    const editForm =
+        document.getElementById("editForm");
+
+    const message =
+        document.getElementById("editFormMessage");
+
+    const accessToken =
+        localStorage.getItem("access_token");
+
+
+    if (!accessToken) {
+
+        alert(
+            "Authentication token not found. Please log in again."
+        );
+
+        return;
+
+    }
+
+
+    message.innerHTML = `
+        <div class="alert alert-info">
+            Loading corrective action...
+        </div>
+    `;
+
+
+    editForm.style.display = "block";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/corrective-actions/${id}/`,
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Failed to load corrective action."
+            );
+
+        }
+
+
+        document.getElementById(
+            "editId"
+        ).value = data.id;
+
+
+        document.getElementById(
+            "editInspection"
+        ).value = data.inspection || "";
+
+
+        document.getElementById(
+            "editQuestion"
+        ).value = data.question || "";
+
+
+        document.getElementById(
+            "editObservation"
+        ).value = data.observation || "";
+
+
+        document.getElementById(
+            "editActionRequired"
+        ).value =
+            data.action_required || "";
+
+
+        document.getElementById(
+            "editAssignedTo"
+        ).value =
+            data.assigned_to || "";
+
+
+        document.getElementById(
+            "editDueDate"
+        ).value =
+            data.due_date || "";
+
+
+        document.getElementById(
+            "editActionTaken"
+        ).value =
+            data.action_taken || "";
+
+
+        document.getElementById(
+            "editStatus"
+        ).value =
+            data.status || "OPEN";
+
+
+        message.innerHTML = "";
+
+
+        editForm.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+
+    catch (error) {
+
+        message.innerHTML = `
+            <div class="alert alert-danger">
+                ${error.message}
+            </div>
+        `;
+
+    }
+
+}
+
+
+
+function hideEditForm() {
+
+    document.getElementById(
+        "editForm"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "editCorrectiveActionForm"
+    ).reset();
+
+
+    document.getElementById(
+        "editFormMessage"
+    ).innerHTML = "";
+
+}
+
+
+
+/* =========================================================
+   LOAD CORRECTIVE ACTIONS
+========================================================= */
 
 async function loadCorrectiveActions() {
-
 
     const tableBody =
         document.getElementById(
@@ -270,15 +890,11 @@ async function loadCorrectiveActions() {
         ).value;
 
 
-    /*
-     * Show loading message.
-     */
-
     tableBody.innerHTML = `
         <tr>
 
             <td
-                colspan="10"
+                colspan="11"
                 class="text-center"
             >
                 Loading...
@@ -291,51 +907,45 @@ async function loadCorrectiveActions() {
     message.innerHTML = "";
 
 
+    const accessToken =
+        localStorage.getItem(
+            "access_token"
+        );
+
+
+    if (!accessToken) {
+
+        tableBody.innerHTML = `
+            <tr>
+
+                <td
+                    colspan="11"
+                    class="text-center text-danger"
+                >
+                    Authentication token not found.
+                </td>
+
+            </tr>
+        `;
+
+        return;
+
+    }
+
+
     try {
-
-
-        /*
-         * Get JWT access token.
-         */
-
-        const accessToken =
-            localStorage.getItem(
-                "access_token"
-            );
-
-
-        if (!accessToken) {
-
-            throw new Error(
-                "Authentication token not found. Please log in again."
-            );
-
-        }
-
-
-        /*
-         * Build API URL.
-         */
 
         let apiUrl =
             "/api/corrective-actions/";
 
 
-        /*
-         * Add status filter if selected.
-         */
-
         if (statusFilter) {
 
             apiUrl +=
-                `?status=${statusFilter}`;
+                `?status=${encodeURIComponent(statusFilter)}`;
 
         }
 
-
-        /*
-         * Call API.
-         */
 
         const response =
             await fetch(
@@ -347,7 +957,10 @@ async function loadCorrectiveActions() {
                     headers: {
 
                         "Authorization":
-                            `Bearer ${accessToken}`
+                            `Bearer ${accessToken}`,
+
+                        "Accept":
+                            "application/json"
 
                     }
 
@@ -355,9 +968,9 @@ async function loadCorrectiveActions() {
             );
 
 
-        /*
-         * Handle API errors.
-         */
+        const data =
+            await response.json();
+
 
         if (!response.ok) {
 
@@ -380,6 +993,7 @@ async function loadCorrectiveActions() {
 
 
             throw new Error(
+                data.detail ||
                 "Failed to load corrective actions."
             );
 
@@ -387,31 +1001,36 @@ async function loadCorrectiveActions() {
 
 
         /*
-         * Convert response to JSON.
+         * Support both:
+         *
+         * [
+         *     {...},
+         *     {...}
+         * ]
+         *
+         * and:
+         *
+         * {
+         *     "results": [...]
+         * }
          */
 
-        const data =
-            await response.json();
+        const actions =
+            Array.isArray(data)
+                ? data
+                : (data.results || []);
 
-
-        /*
-         * Clear existing table rows.
-         */
 
         tableBody.innerHTML = "";
 
 
-        /*
-         * Handle empty results.
-         */
-
-        if (data.length === 0) {
+        if (actions.length === 0) {
 
             tableBody.innerHTML = `
                 <tr>
 
                     <td
-                        colspan="10"
+                        colspan="11"
                         class="text-center text-muted"
                     >
                         No corrective actions found.
@@ -425,13 +1044,8 @@ async function loadCorrectiveActions() {
         }
 
 
-        /*
-         * Display each corrective action.
-         */
-
-        data.forEach(
+        actions.forEach(
             action => {
-
 
                 const row =
                     document.createElement(
@@ -442,17 +1056,17 @@ async function loadCorrectiveActions() {
                 row.innerHTML = `
 
                     <td>
-                        ${action.id}
+                        ${action.id ?? ""}
                     </td>
 
 
                     <td>
-                        ${action.inspection}
+                        ${action.inspection ?? ""}
                     </td>
 
 
                     <td>
-                        ${action.question}
+                        ${action.question ?? ""}
                     </td>
 
 
@@ -468,7 +1082,7 @@ async function loadCorrectiveActions() {
 
                     <td>
                         ${
-                            action.assigned_to ||
+                            action.assigned_to ??
                             "Not assigned"
                         }
                     </td>
@@ -483,7 +1097,10 @@ async function loadCorrectiveActions() {
 
 
                     <td>
-                        ${action.action_taken || ""}
+                        ${
+                            action.action_taken ||
+                            ""
+                        }
                     </td>
 
 
@@ -495,7 +1112,44 @@ async function loadCorrectiveActions() {
 
 
                     <td>
-                        ${action.created_by}
+                        ${
+                            action.created_by ??
+                            ""
+                        }
+                    </td>
+
+
+                    <td>
+
+                        ${
+                            action.status === "COMPLETED" ||
+                            action.status === "CANCELLED"
+
+                            ?
+
+                            `
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-secondary"
+                                disabled
+                            >
+                                Locked
+                            </button>
+                            `
+
+                            :
+
+                            `
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-primary"
+                                onclick="showEditForm(${action.id})"
+                            >
+                                Edit
+                            </button>
+                            `
+                        }
+
                     </td>
 
                 `;
@@ -508,22 +1162,16 @@ async function loadCorrectiveActions() {
             }
         );
 
-
     }
 
 
     catch (error) {
 
-
-        /*
-         * Show error in table.
-         */
-
         tableBody.innerHTML = `
             <tr>
 
                 <td
-                    colspan="10"
+                    colspan="11"
                     class="text-center text-danger"
                 >
                     Unable to load corrective actions.
@@ -532,10 +1180,6 @@ async function loadCorrectiveActions() {
             </tr>
         `;
 
-
-        /*
-         * Show detailed error message.
-         */
 
         message.innerHTML = `
             <div class="alert alert-danger">
@@ -549,13 +1193,416 @@ async function loadCorrectiveActions() {
 
 
 
-/*
- * Reload records whenever
- * the status filter changes.
- */
+/* =========================================================
+   CREATE CORRECTIVE ACTION
+========================================================= */
 
 document
-    .getElementById("statusFilter")
+    .getElementById(
+        "correctiveActionForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "createFormMessage"
+                );
+
+
+            const accessToken =
+                localStorage.getItem(
+                    "access_token"
+                );
+
+
+            if (!accessToken) {
+
+                message.innerHTML = `
+                    <div class="alert alert-danger">
+                        Authentication token not found.
+                        Please log in again.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            message.innerHTML = `
+                <div class="alert alert-info">
+                    Creating corrective action...
+                </div>
+            `;
+
+
+            const requestData = {
+
+                inspection:
+                    Number(
+                        document.getElementById(
+                            "inspection"
+                        ).value
+                    ),
+
+                question:
+                    Number(
+                        document.getElementById(
+                            "question"
+                        ).value
+                    ),
+
+                observation:
+                    document.getElementById(
+                        "observation"
+                    ).value,
+
+                action_required:
+                    document.getElementById(
+                        "actionRequired"
+                    ).value,
+
+                action_taken:
+                    document.getElementById(
+                        "actionTaken"
+                    ).value
+
+            };
+
+
+            const assignedTo =
+                document.getElementById(
+                    "assignedTo"
+                ).value;
+
+
+            const dueDate =
+                document.getElementById(
+                    "dueDate"
+                ).value;
+
+
+            if (assignedTo) {
+
+                requestData.assigned_to =
+                    Number(assignedTo);
+
+            }
+
+
+            if (dueDate) {
+
+                requestData.due_date =
+                    dueDate;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/corrective-actions/",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${accessToken}`
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    requestData
+                                )
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    let errorMessage =
+                        data.detail ||
+                        "Failed to create corrective action.";
+
+
+                    if (!data.detail) {
+
+                        errorMessage =
+                            Object.values(data)
+                                .flat()
+                                .join(" ");
+
+                    }
+
+
+                    throw new Error(
+                        errorMessage
+                    );
+
+                }
+
+
+                message.innerHTML = `
+                    <div class="alert alert-success">
+                        Corrective action #${data.id}
+                        created successfully.
+                    </div>
+                `;
+
+
+                document
+                    .getElementById(
+                        "correctiveActionForm"
+                    )
+                    .reset();
+
+
+                loadCorrectiveActions();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${error.message}
+                    </div>
+                `;
+
+            }
+
+        }
+    );
+
+
+
+/* =========================================================
+   UPDATE CORRECTIVE ACTION
+========================================================= */
+
+document
+    .getElementById(
+        "editCorrectiveActionForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "editFormMessage"
+                );
+
+
+            const accessToken =
+                localStorage.getItem(
+                    "access_token"
+                );
+
+
+            if (!accessToken) {
+
+                message.innerHTML = `
+                    <div class="alert alert-danger">
+                        Authentication token not found.
+                        Please log in again.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            const id =
+                document.getElementById(
+                    "editId"
+                ).value;
+
+
+            const requestData = {
+
+                inspection:
+                    Number(
+                        document.getElementById(
+                            "editInspection"
+                        ).value
+                    ),
+
+                question:
+                    Number(
+                        document.getElementById(
+                            "editQuestion"
+                        ).value
+                    ),
+
+                observation:
+                    document.getElementById(
+                        "editObservation"
+                    ).value,
+
+                action_required:
+                    document.getElementById(
+                        "editActionRequired"
+                    ).value,
+
+                action_taken:
+                    document.getElementById(
+                        "editActionTaken"
+                    ).value,
+
+                status:
+                    document.getElementById(
+                        "editStatus"
+                    ).value
+
+            };
+
+
+            const assignedTo =
+                document.getElementById(
+                    "editAssignedTo"
+                ).value;
+
+
+            const dueDate =
+                document.getElementById(
+                    "editDueDate"
+                ).value;
+
+
+            requestData.assigned_to =
+                assignedTo
+                    ? Number(assignedTo)
+                    : null;
+
+
+            requestData.due_date =
+                dueDate
+                    ? dueDate
+                    : null;
+
+
+            message.innerHTML = `
+                <div class="alert alert-info">
+                    Updating corrective action...
+                </div>
+            `;
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/corrective-actions/${id}/`,
+                        {
+
+                            method: "PATCH",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json",
+
+                                "Authorization":
+                                    `Bearer ${accessToken}`
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    requestData
+                                )
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    let errorMessage =
+                        data.detail ||
+                        "Failed to update corrective action.";
+
+
+                    if (!data.detail) {
+
+                        errorMessage =
+                            Object.values(data)
+                                .flat()
+                                .join(" ");
+
+                    }
+
+
+                    throw new Error(
+                        errorMessage
+                    );
+
+                }
+
+
+                message.innerHTML = `
+                    <div class="alert alert-success">
+                        Corrective action #${data.id}
+                        updated successfully.
+                    </div>
+                `;
+
+
+                loadCorrectiveActions();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+                    <div class="alert alert-danger">
+                        ${error.message}
+                    </div>
+                `;
+
+            }
+
+        }
+    );
+
+
+
+/* =========================================================
+   STATUS FILTER
+========================================================= */
+
+document
+    .getElementById(
+        "statusFilter"
+    )
     .addEventListener(
         "change",
         loadCorrectiveActions
@@ -563,9 +1610,9 @@ document
 
 
 
-/*
- * Load records when the page opens.
- */
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
 
 loadCorrectiveActions();
 

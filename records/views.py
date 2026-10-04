@@ -19,6 +19,8 @@ from .serializers import (
     DailyRecordsSerializer,
 )
 
+from corrective_actions.models import CorrectiveAction
+
 from .serializers import CombinedRecordSerializer
 
 
@@ -284,6 +286,50 @@ class CombinedRecordsAPIView(generics.ListAPIView):
                     }
                 )
 
+                    # -----------------------------------------
+        # Corrective Actions
+        # -----------------------------------------
+
+        corrective_action_records = (
+            CorrectiveAction.objects
+            .filter(
+                inspection__plant=plant,
+                inspection__inspection_date=selected_date,
+            )
+            .select_related(
+                "inspection",
+                "question",
+                "assigned_to",
+                "created_by",
+            )
+        )
+
+        corrective_action_data = []
+
+        for item in corrective_action_records:
+
+            corrective_action_data.append(
+                {
+                    "id": item.id,
+                    "inspection": item.inspection.id,
+                    "question": item.question.id,
+                    "observation": item.observation,
+                    "action_required": item.action_required,
+                    "assigned_to": (
+                        item.assigned_to.username
+                        if item.assigned_to
+                        else None
+                    ),
+                    "due_date": item.due_date,
+                    "action_taken": item.action_taken,
+                    "status": item.status,
+                    "created_by": item.created_by.username,
+                    "created_at": item.created_at,
+                    "updated_at": item.updated_at,
+                    "completed_at": item.completed_at,
+                }
+            )
+
         # Sort newest records first
         records.sort(
             key=lambda record: record["created_at"],
@@ -530,6 +576,7 @@ class DailyRecordsAPIView(generics.GenericAPIView):
             "chloragel_titrations": chloragel_data,
             "inspections": inspection_data,
             "atp_reports": atp_data,
+            
         }
 
         serializer = self.get_serializer(

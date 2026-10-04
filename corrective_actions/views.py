@@ -3,13 +3,29 @@ from django.utils import timezone
 
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
-from accounts.permissions import IsInspector
+from accounts.permissions import IsInspector, IsAdmin
 from audit.models import AuditLog
 
 from .models import CorrectiveAction
 from .serializers import CorrectiveActionSerializer
+
+
+class IsInspectorOrAdmin(BasePermission):
+    """
+    Allow Inspectors or Admin users to create/update corrective actions.
+    """
+
+    def has_permission(self, request, view):
+
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        return (
+            IsInspector().has_permission(request, view)
+            or IsAdmin().has_permission(request, view)
+        )
 
 
 class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
@@ -37,7 +53,7 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
     def get_permissions(self):
 
         if self.request.method == "POST":
-            return [IsInspector()]
+            return [IsInspectorOrAdmin()]
 
         return [IsAuthenticated()]
 
@@ -89,7 +105,7 @@ class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
     def get_permissions(self):
 
         if self.request.method in ["PUT", "PATCH"]:
-            return [IsInspector()]
+            return [IsInspectorOrAdmin()]
 
         return [IsAuthenticated()]
 
@@ -179,4 +195,3 @@ class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
         )
 
         return response
-
