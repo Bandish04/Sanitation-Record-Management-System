@@ -22,6 +22,7 @@ from django.urls import path, include
 from accounts.views import signup, dashboard
 from accounts.views import (
     browser_login,
+    browser_logout,
     signup,
     dashboard,
     plants_page,
@@ -46,6 +47,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     path("login/",browser_login,name="login"),
+    path("logout/", browser_logout, name="logout"),
 
     path("titrations/sanitizer/",sanitizer_page,name="sanitizer-page"),
     path("titrations/chloragel/",chloragel_page,name="chloragel-page"),

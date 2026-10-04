@@ -14,11 +14,12 @@ from audit.models import AuditLog
 from django.contrib.auth.models import User, Group
 from rest_framework import generics, status
 
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+
 
 @login_required
 def admin_users_page(request):
@@ -121,6 +122,13 @@ def browser_login(request):
         request,
         "registration/login.html",
     )
+
+
+def browser_logout(request):
+
+    logout(request)
+
+    return redirect("login")
 
 def signup(request):
 
