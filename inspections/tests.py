@@ -1,7 +1,9 @@
 from datetime import date
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.test import TestCase
+
+from rest_framework.test import APITestCase
 
 from plants.models import Plant
 
@@ -18,6 +20,10 @@ from .serializers import (
     InspectionAnswerSerializer,
 )
 
+
+# ============================================================
+# INSPECTION SERIALIZER TESTS
+# ============================================================
 
 class SanitationInspectionTest(TestCase):
 
@@ -55,7 +61,6 @@ class SanitationInspectionTest(TestCase):
             active=True,
         )
 
-
     def get_request_context(self):
 
         request = type(
@@ -69,7 +74,6 @@ class SanitationInspectionTest(TestCase):
         return {
             "request": request,
         }
-
 
     def test_inspection_creation(self):
 
@@ -109,7 +113,6 @@ class SanitationInspectionTest(TestCase):
             inspection.template,
             self.template,
         )
-
 
     def test_no_answer_requires_observation(self):
 
@@ -151,7 +154,6 @@ class SanitationInspectionTest(TestCase):
             serializer.errors,
         )
 
-
     def test_no_answer_with_observation_is_valid(self):
 
         inspection = SanitationInspection.objects.create(
@@ -187,7 +189,6 @@ class SanitationInspectionTest(TestCase):
             serializer.is_valid(),
             serializer.errors,
         )
-
 
     def test_question_from_wrong_template_is_rejected(self):
 
@@ -248,7 +249,6 @@ class SanitationInspectionTest(TestCase):
             serializer.errors,
         )
 
-
     def test_duplicate_answer_is_rejected(self):
 
         inspection = SanitationInspection.objects.create(
@@ -294,4 +294,92 @@ class SanitationInspectionTest(TestCase):
         self.assertIn(
             "question",
             serializer.errors,
+        )
+
+
+# ============================================================
+# INSPECTION API VIEW TESTS
+# ============================================================
+
+class SanitationInspectionAPITest(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+
+        cls.inspector = User.objects.create_user(
+            username="api_inspector",
+            password="TestPassword123",
+        )
+
+        # Create the Inspector group.
+        inspector_group = Group.objects.create(
+            name="Inspector",
+        )
+
+        # Assign the test user to the Inspector group.
+        cls.inspector.groups.add(
+            inspector_group
+        )
+
+        cls.other_inspector = User.objects.create_user(
+            username="other_inspector",
+            password="TestPassword123",
+        )
+
+        cls.plant = Plant.objects.create(
+            code="API_TEST",
+            name="API Test Plant",
+            active=True,
+        )
+
+        cls.template = InspectionTemplate.objects.create(
+            name="API Test Template",
+            description="Template for API tests",
+            active=True,
+        )
+
+        cls.section = InspectionSection.objects.create(
+            template=cls.template,
+            name="General",
+            order=1,
+        )
+
+        cls.question = InspectionQuestion.objects.create(
+            section=cls.section,
+            question_text="Is the area clean?",
+            order=1,
+            requires_observation_on_no=True,
+            active=True,
+        )
+
+    def test_inspector_can_create_inspection(self):
+
+        self.client.force_authenticate(
+            user=self.inspector
+        )
+
+        response = self.client.post(
+            "/api/inspections/",
+            {
+                "plant": self.plant.id,
+                "template": self.template.id,
+                "inspection_date": date.today(),
+                "general_notes": "API test inspection",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            201,
+        )
+
+        self.assertEqual(
+            response.data["status"],
+            "DRAFT",
+        )
+
+        self.assertEqual(
+            response.data["inspector"],
+            self.inspector.id,
         )
