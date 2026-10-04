@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import date
 
 from django.utils import timezone
 
@@ -6,26 +6,25 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from plants.models import Plant
+
 from inspections.models import (
     ATPReport,
     SanitationInspection,
 )
+
 from titrations.models import (
     SanitizerTitration,
     ChloragelTitration,
 )
+
 from .serializers import (
     CombinedRecordSerializer,
     DailyRecordsSerializer,
 )
 
-from corrective_actions.models import CorrectiveAction
-
-from .serializers import CombinedRecordSerializer
-
 
 class CombinedRecordsAPIView(generics.ListAPIView):
-
     serializer_class = CombinedRecordSerializer
     permission_classes = [IsAuthenticated]
 
@@ -40,15 +39,19 @@ class CombinedRecordsAPIView(generics.ListAPIView):
 
         records = []
 
-        # --------------------------------------------------
+        # ==================================================
         # Sanitizer / Maxquat
-        # --------------------------------------------------
+        # ==================================================
 
         if not record_type or record_type == "sanitizer":
 
-            sanitizer_queryset = SanitizerTitration.objects.select_related(
-                "plant",
-                "created_by",
+            sanitizer_queryset = (
+                SanitizerTitration.objects
+                .select_related(
+                    "plant",
+                    "created_by",
+                )
+                .order_by("-created_at")
             )
 
             if plant_id:
@@ -97,19 +100,24 @@ class CombinedRecordsAPIView(generics.ListAPIView):
                             ),
                             "ppm": str(item.ppm),
                             "percent_vv": str(item.percent_vv),
+                            "result_status": item.result_status,
                         },
                     }
                 )
 
-        # --------------------------------------------------
+        # ==================================================
         # Chloragel
-        # --------------------------------------------------
+        # ==================================================
 
         if not record_type or record_type == "chloragel":
 
-            chloragel_queryset = ChloragelTitration.objects.select_related(
-                "plant",
-                "created_by",
+            chloragel_queryset = (
+                ChloragelTitration.objects
+                .select_related(
+                    "plant",
+                    "created_by",
+                )
+                .order_by("-created_at")
             )
 
             if plant_id:
@@ -159,20 +167,28 @@ class CombinedRecordsAPIView(generics.ListAPIView):
                             "result_percent": str(
                                 item.result_percent
                             ),
+                            "result_status": item.result_status,
                         },
                     }
                 )
 
-        # --------------------------------------------------
-        # Sanitation Inspection
-        # --------------------------------------------------
+        # ==================================================
+        # Sanitation Inspections
+        # ==================================================
 
         if not record_type or record_type == "inspection":
 
-            inspection_queryset = SanitationInspection.objects.select_related(
-                "plant",
-                "template",
-                "inspector",
+            inspection_queryset = (
+                SanitationInspection.objects
+                .select_related(
+                    "plant",
+                    "template",
+                    "inspector",
+                )
+                .prefetch_related(
+                    "answers__question"
+                )
+                .order_by("-created_at")
             )
 
             if plant_id:
@@ -202,6 +218,19 @@ class CombinedRecordsAPIView(generics.ListAPIView):
 
             for item in inspection_queryset:
 
+                answers = []
+
+                for answer in item.answers.all():
+
+                    answers.append(
+                        {
+                            "question_id": answer.question.id,
+                            "question": answer.question.question_text,
+                            "answer": answer.answer,
+                            "observation": answer.observation,
+                        }
+                    )
+
                 records.append(
                     {
                         "id": item.id,
@@ -216,22 +245,28 @@ class CombinedRecordsAPIView(generics.ListAPIView):
                         "created_at": item.created_at,
                         "data": {
                             "template": item.template.name,
+                            "inspection_date": item.inspection_date,
                             "general_notes": item.general_notes,
                             "signed_at": item.signed_at,
+                            "answers": answers,
                         },
                     }
                 )
 
-        # --------------------------------------------------
+        # ==================================================
         # ATP Reports
-        # --------------------------------------------------
+        # ==================================================
 
         if not record_type or record_type == "atp":
 
-            atp_queryset = ATPReport.objects.select_related(
-                "plant",
-                "inspection",
-                "uploaded_by",
+            atp_queryset = (
+                ATPReport.objects
+                .select_related(
+                    "plant",
+                    "inspection",
+                    "uploaded_by",
+                )
+                .order_by("-uploaded_at")
             )
 
             if plant_id:
@@ -286,59 +321,25 @@ class CombinedRecordsAPIView(generics.ListAPIView):
                     }
                 )
 
-                    # -----------------------------------------
-        # Corrective Actions
-        # -----------------------------------------
+        # ==================================================
+        # Sort all record types together
+        # ==================================================
 
-        corrective_action_records = (
-            CorrectiveAction.objects
-            .filter(
-                inspection__plant=plant,
-                inspection__inspection_date=selected_date,
-            )
-            .select_related(
-                "inspection",
-                "question",
-                "assigned_to",
-                "created_by",
-            )
-        )
-
-        corrective_action_data = []
-
-        for item in corrective_action_records:
-
-            corrective_action_data.append(
-                {
-                    "id": item.id,
-                    "inspection": item.inspection.id,
-                    "question": item.question.id,
-                    "observation": item.observation,
-                    "action_required": item.action_required,
-                    "assigned_to": (
-                        item.assigned_to.username
-                        if item.assigned_to
-                        else None
-                    ),
-                    "due_date": item.due_date,
-                    "action_taken": item.action_taken,
-                    "status": item.status,
-                    "created_by": item.created_by.username,
-                    "created_at": item.created_at,
-                    "updated_at": item.updated_at,
-                    "completed_at": item.completed_at,
-                }
-            )
-
-        # Sort newest records first
         records.sort(
             key=lambda record: record["created_at"],
             reverse=True,
         )
 
-        serializer = self.get_serializer(records, many=True)
+        serializer = self.get_serializer(
+            records,
+            many=True,
+        )
 
-        return Response(serializer.data)
+        return Response(
+            serializer.data,
+            status=200,
+        )
+
 
 class DailyRecordsAPIView(generics.GenericAPIView):
 
@@ -349,6 +350,10 @@ class DailyRecordsAPIView(generics.GenericAPIView):
 
         plant_id = request.query_params.get("plant")
         date_value = request.query_params.get("date")
+
+        # ==================================================
+        # Validate parameters
+        # ==================================================
 
         if not plant_id:
             return Response(
@@ -367,12 +372,11 @@ class DailyRecordsAPIView(generics.GenericAPIView):
             )
 
         try:
-            from datetime import date
-
-            selected_date = date.fromisoformat(date_value)
+            selected_date = date.fromisoformat(
+                date_value
+            )
 
         except ValueError:
-
             return Response(
                 {
                     "detail": (
@@ -383,20 +387,16 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 status=400,
             )
 
-        # -----------------------------------------
+        # ==================================================
         # Get Plant
-        # -----------------------------------------
-
-        from plants.models import Plant
+        # ==================================================
 
         try:
-
             plant = Plant.objects.get(
                 id=plant_id
             )
 
         except Plant.DoesNotExist:
-
             return Response(
                 {
                     "detail": "Plant not found."
@@ -404,9 +404,9 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 status=404,
             )
 
-        # -----------------------------------------
-        # Sanitizer
-        # -----------------------------------------
+        # ==================================================
+        # Sanitizer Titrations
+        # ==================================================
 
         sanitizer_records = (
             SanitizerTitration.objects
@@ -415,6 +415,7 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 created_at__date=selected_date,
             )
             .select_related("created_by")
+            .order_by("-created_at")
         )
 
         sanitizer_data = []
@@ -433,14 +434,16 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                         item.percent_vv
                     ),
                     "status": item.status,
+                    "result_status": item.result_status,
                     "created_by": item.created_by.username,
+                    "created_by_id": item.created_by.id,
                     "created_at": item.created_at,
                 }
             )
 
-        # -----------------------------------------
-        # Chloragel
-        # -----------------------------------------
+        # ==================================================
+        # Chloragel Titrations
+        # ==================================================
 
         chloragel_records = (
             ChloragelTitration.objects
@@ -449,6 +452,7 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 created_at__date=selected_date,
             )
             .select_related("created_by")
+            .order_by("-created_at")
         )
 
         chloragel_data = []
@@ -466,14 +470,16 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                         item.result_percent
                     ),
                     "status": item.status,
+                    "result_status": item.result_status,
                     "created_by": item.created_by.username,
+                    "created_by_id": item.created_by.id,
                     "created_at": item.created_at,
                 }
             )
 
-        # -----------------------------------------
-        # Inspections
-        # -----------------------------------------
+        # ==================================================
+        # Sanitation Inspections
+        # ==================================================
 
         inspection_records = (
             SanitationInspection.objects
@@ -482,12 +488,14 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 inspection_date=selected_date,
             )
             .select_related(
+                "plant",
                 "template",
                 "inspector",
             )
             .prefetch_related(
                 "answers__question"
             )
+            .order_by("-created_at")
         )
 
         inspection_data = []
@@ -501,9 +509,7 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 answers.append(
                     {
                         "question_id": answer.question.id,
-                        "question": (
-                            answer.question.question_text
-                        ),
+                        "question": answer.question.question_text,
                         "answer": answer.answer,
                         "observation": answer.observation,
                     }
@@ -512,9 +518,15 @@ class DailyRecordsAPIView(generics.GenericAPIView):
             inspection_data.append(
                 {
                     "id": item.id,
+                    "plant": item.plant.id,
+                    "plant_code": item.plant.code,
+                    "plant_name": item.plant.name,
                     "template": item.template.name,
+                    "template_id": item.template.id,
                     "status": item.status,
+                    "inspection_date": item.inspection_date,
                     "inspector": item.inspector.username,
+                    "inspector_id": item.inspector.id,
                     "general_notes": item.general_notes,
                     "signed_at": item.signed_at,
                     "answers": answers,
@@ -522,9 +534,9 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 }
             )
 
-        # -----------------------------------------
+        # ==================================================
         # ATP Reports
-        # -----------------------------------------
+        # ==================================================
 
         atp_records = (
             ATPReport.objects
@@ -533,9 +545,11 @@ class DailyRecordsAPIView(generics.GenericAPIView):
                 uploaded_at__date=selected_date,
             )
             .select_related(
+                "plant",
                 "inspection",
                 "uploaded_by",
             )
+            .order_by("-uploaded_at")
         )
 
         atp_data = []
@@ -545,27 +559,28 @@ class DailyRecordsAPIView(generics.GenericAPIView):
             atp_data.append(
                 {
                     "id": item.id,
-                    "original_filename": (
-                        item.original_filename
-                    ),
+                    "plant": item.plant.id,
+                    "plant_code": item.plant.code,
+                    "plant_name": item.plant.name,
+                    "original_filename": item.original_filename,
                     "file": item.file.url,
+                    "file_url": item.file.url,
                     "inspection": (
                         item.inspection.id
                         if item.inspection
                         else None
                     ),
-                    "uploaded_by": (
-                        item.uploaded_by.username
-                    ),
+                    "uploaded_by": item.uploaded_by.username,
+                    "uploaded_by_id": item.uploaded_by.id,
                     "uploaded_at": item.uploaded_at,
                     "status": item.status,
                     "notes": item.notes,
                 }
             )
 
-        # -----------------------------------------
-        # Final Response
-        # -----------------------------------------
+        # ==================================================
+        # Final Daily Response
+        # ==================================================
 
         daily_data = {
             "plant": plant.id,
@@ -576,7 +591,6 @@ class DailyRecordsAPIView(generics.GenericAPIView):
             "chloragel_titrations": chloragel_data,
             "inspections": inspection_data,
             "atp_reports": atp_data,
-            
         }
 
         serializer = self.get_serializer(

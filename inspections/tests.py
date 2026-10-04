@@ -486,3 +486,47 @@ class SanitationInspectionAPITest(APITestCase):
             inspection.status,
             SanitationInspection.Status.DRAFT,
         )
+
+    def test_inspection_can_be_submitted_after_all_questions_are_answered(self):
+
+        inspection = SanitationInspection.objects.create(
+            plant=self.plant,
+            template=self.template,
+            inspection_date=date.today(),
+            inspector=self.inspector,
+            status=SanitationInspection.Status.DRAFT,
+            general_notes="Complete inspection",
+        )
+
+        InspectionAnswer.objects.create(
+            inspection=inspection,
+            question=self.question,
+            answer=InspectionAnswer.AnswerChoices.YES,
+            observation="Area is clean.",
+        )
+
+        self.client.force_authenticate(
+            user=self.inspector
+        )
+
+        response = self.client.post(
+            f"/api/inspections/{inspection.id}/submit/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            200,
+        )
+
+        inspection.refresh_from_db()
+
+        self.assertEqual(
+            inspection.status,
+            SanitationInspection.Status.SUBMITTED,
+        )
+
+        self.assertIsNotNone(
+            inspection.signed_at,
+        )

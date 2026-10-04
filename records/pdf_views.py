@@ -1,3 +1,4 @@
+from datetime import date as date_class
 from io import BytesIO
 from pathlib import Path
 
@@ -27,10 +28,12 @@ from reportlab.platypus import (
 )
 
 from plants.models import Plant
+
 from titrations.models import (
     SanitizerTitration,
     ChloragelTitration,
 )
+
 from inspections.models import (
     SanitationInspection,
     ATPReport,
@@ -44,60 +47,142 @@ class DailyRecordsPDFAPIView(APIView):
     def get(self, request):
 
         plant_id = request.query_params.get("plant")
-        date = request.query_params.get("date")
+        date_value = request.query_params.get("date")
+
+        # ==================================================
+        # Validate parameters
+        # ==================================================
 
         if not plant_id:
             return Response(
-                {"detail": "Plant is required."},
+                {
+                    "detail": "Plant is required."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if not date:
+        if not date_value:
             return Response(
-                {"detail": "Date is required."},
+                {
+                    "detail": "Date is required."
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        try:
+            selected_date = date_class.fromisoformat(
+                date_value
+            )
+
+        except ValueError:
+            return Response(
+                {
+                    "detail": (
+                        "Invalid date format. "
+                        "Use YYYY-MM-DD."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # ==================================================
+        # Get Plant
+        # ==================================================
 
         plant = get_object_or_404(
             Plant,
             id=plant_id,
         )
 
+        # ==================================================
+        # DAILY RECORDS
+        #
+        # These filters intentionally match
+        # DailyRecordsAPIView.
+        # ==================================================
+
         # -----------------------------------------
-        # GET DAILY RECORDS
+        # Sanitizer
         # -----------------------------------------
 
         sanitizer_records = (
-            SanitizerTitration.objects.filter(
+            SanitizerTitration.objects
+            .filter(
                 plant=plant,
-                created_at__date=date,
-            ).order_by("id")
+                created_at__date=selected_date,
+            )
+            .select_related(
+                "created_by",
+            )
+            .order_by("-created_at")
         )
+
+        # -----------------------------------------
+        # Chloragel
+        # -----------------------------------------
 
         chloragel_records = (
-            ChloragelTitration.objects.filter(
+            ChloragelTitration.objects
+            .filter(
                 plant=plant,
-                created_at__date=date,
-            ).order_by("id")
+                created_at__date=selected_date,
+            )
+            .select_related(
+                "created_by",
+            )
+            .order_by("-created_at")
         )
+
+        # -----------------------------------------
+        # Sanitation Inspections
+        # -----------------------------------------
+        #
+        # IMPORTANT:
+        # Use inspection_date, NOT created_at__date.
+        #
 
         inspection_records = (
-            SanitationInspection.objects.filter(
+            SanitationInspection.objects
+            .filter(
                 plant=plant,
-                created_at__date=date,
-            ).order_by("id")
+                inspection_date=selected_date,
+            )
+            .select_related(
+                "plant",
+                "template",
+                "inspector",
+            )
+            .prefetch_related(
+                "answers__question",
+            )
+            .order_by("-created_at")
         )
+
+        # -----------------------------------------
+        # ATP Reports
+        # -----------------------------------------
+        #
+        # Match DailyRecordsAPIView:
+        # plant + uploaded_at date.
+        #
 
         atp_records = (
-            ATPReport.objects.filter(
-                inspection__plant=plant,
-                uploaded_at__date=date,
-            ).order_by("id")
+            ATPReport.objects
+            .filter(
+                plant=plant,
+                uploaded_at__date=selected_date,
+            )
+            .select_related(
+                "plant",
+                "inspection",
+                "uploaded_by",
+            )
+            .order_by("-uploaded_at")
         )
 
-        # -----------------------------------------
+        # ==================================================
         # PDF SETUP
-        # -----------------------------------------
+        # ==================================================
 
         buffer = BytesIO()
 
@@ -146,9 +231,9 @@ class DailyRecordsPDFAPIView(APIView):
 
         story = []
 
-        # -----------------------------------------
+        # ==================================================
         # TITLE
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -159,14 +244,17 @@ class DailyRecordsPDFAPIView(APIView):
 
         story.append(
             Paragraph(
-                f"<b>Plant:</b> {plant.code} - {plant.name}",
+                (
+                    f"<b>Plant:</b> "
+                    f"{plant.code} - {plant.name}"
+                ),
                 normal_style,
             )
         )
 
         story.append(
             Paragraph(
-                f"<b>Date:</b> {date}",
+                f"<b>Date:</b> {selected_date.isoformat()}",
                 normal_style,
             )
         )
@@ -178,9 +266,9 @@ class DailyRecordsPDFAPIView(APIView):
             )
         )
 
-        # -----------------------------------------
+        # ==================================================
         # REPORT SUMMARY
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -196,19 +284,27 @@ class DailyRecordsPDFAPIView(APIView):
             ],
             [
                 "Sanitizer Titrations",
-                str(sanitizer_records.count()),
+                str(
+                    sanitizer_records.count()
+                ),
             ],
             [
                 "Chloragel Titrations",
-                str(chloragel_records.count()),
+                str(
+                    chloragel_records.count()
+                ),
             ],
             [
                 "Sanitation Inspections",
-                str(inspection_records.count()),
+                str(
+                    inspection_records.count()
+                ),
             ],
             [
                 "ATP Reports",
-                str(atp_records.count()),
+                str(
+                    atp_records.count()
+                ),
             ],
         ]
 
@@ -282,11 +378,13 @@ class DailyRecordsPDFAPIView(APIView):
             )
         )
 
-        story.append(summary_table)
+        story.append(
+            summary_table
+        )
 
-        # -----------------------------------------
+        # ==================================================
         # SANITIZER TITRATIONS
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -341,7 +439,9 @@ class DailyRecordsPDFAPIView(APIView):
                 self._table_style()
             )
 
-            story.append(sanitizer_table)
+            story.append(
+                sanitizer_table
+            )
 
         else:
 
@@ -352,9 +452,9 @@ class DailyRecordsPDFAPIView(APIView):
                 )
             )
 
-        # -----------------------------------------
+        # ==================================================
         # CHLORAGEL TITRATIONS
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -406,7 +506,9 @@ class DailyRecordsPDFAPIView(APIView):
                 self._table_style()
             )
 
-            story.append(chloragel_table)
+            story.append(
+                chloragel_table
+            )
 
         else:
 
@@ -417,9 +519,9 @@ class DailyRecordsPDFAPIView(APIView):
                 )
             )
 
-        # -----------------------------------------
+        # ==================================================
         # SANITATION INSPECTIONS
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -433,8 +535,10 @@ class DailyRecordsPDFAPIView(APIView):
             inspection_data = [
                 [
                     "ID",
+                    "Inspection Date",
+                    "Template",
                     "Status",
-                    "Created By",
+                    "Inspector",
                     "Created At",
                 ]
             ]
@@ -444,9 +548,17 @@ class DailyRecordsPDFAPIView(APIView):
                 inspection_data.append(
                     [
                         str(record.id),
+                        str(record.inspection_date),
+                        Paragraph(
+                            record.template.name,
+                            small_style,
+                        ),
                         str(record.status),
                         str(record.inspector.username),
-                        str(record.created_at),
+                        Paragraph(
+                            str(record.created_at),
+                            small_style,
+                        ),
                     ]
                 )
 
@@ -454,10 +566,12 @@ class DailyRecordsPDFAPIView(APIView):
                 inspection_data,
                 repeatRows=1,
                 colWidths=[
-                    0.5 * inch,
+                    0.4 * inch,
+                    0.85 * inch,
+                    1.55 * inch,
+                    0.85 * inch,
                     1.0 * inch,
-                    1.3 * inch,
-                    2.5 * inch,
+                    1.45 * inch,
                 ],
             )
 
@@ -465,7 +579,155 @@ class DailyRecordsPDFAPIView(APIView):
                 self._table_style()
             )
 
-            story.append(inspection_table)
+            story.append(
+                inspection_table
+            )
+
+            # -----------------------------------------
+            # Inspection details
+            # -----------------------------------------
+
+            for record in inspection_records:
+
+                story.append(
+                    Spacer(
+                        1,
+                        8,
+                    )
+                )
+
+                story.append(
+                    Paragraph(
+                        (
+                            f"Inspection #{record.id} "
+                            f"- Details"
+                        ),
+                        heading_style,
+                    )
+                )
+
+                inspection_detail_data = [
+                    [
+                        "Field",
+                        "Value",
+                    ],
+                    [
+                        "Plant",
+                        (
+                            f"{record.plant.code} - "
+                            f"{record.plant.name}"
+                        ),
+                    ],
+                    [
+                        "Inspection Date",
+                        str(
+                            record.inspection_date
+                        ),
+                    ],
+                    [
+                        "Template",
+                        record.template.name,
+                    ],
+                    [
+                        "Inspector",
+                        record.inspector.username,
+                    ],
+                    [
+                        "Status",
+                        record.status,
+                    ],
+                    [
+                        "Signed At",
+                        (
+                            str(record.signed_at)
+                            if record.signed_at
+                            else ""
+                        ),
+                    ],
+                    [
+                        "General Notes",
+                        (
+                            record.general_notes
+                            or ""
+                        ),
+                    ],
+                ]
+
+                inspection_detail_table = Table(
+                    inspection_detail_data,
+                    colWidths=[
+                        1.5 * inch,
+                        4.8 * inch,
+                    ],
+                )
+
+                inspection_detail_table.setStyle(
+                    self._table_style()
+                )
+
+                story.append(
+                    inspection_detail_table
+                )
+
+                # -----------------------------------------
+                # Answers
+                # -----------------------------------------
+
+                answers = record.answers.all()
+
+                if answers:
+
+                    answer_data = [
+                        [
+                            "Question",
+                            "Answer",
+                            "Observation",
+                        ]
+                    ]
+
+                    for answer in answers:
+
+                        answer_data.append(
+                            [
+                                Paragraph(
+                                    answer.question.question_text,
+                                    small_style,
+                                ),
+                                str(
+                                    answer.answer
+                                ),
+                                Paragraph(
+                                    answer.observation
+                                    or "",
+                                    small_style,
+                                ),
+                            ]
+                        )
+
+                    answer_table = Table(
+                        answer_data,
+                        repeatRows=1,
+                        colWidths=[
+                            3.0 * inch,
+                            0.75 * inch,
+                            2.55 * inch,
+                        ],
+                    )
+
+                    answer_table.setStyle(
+                        self._table_style()
+                    )
+
+                    story.append(
+                        Spacer(
+                            1,
+                            6,
+                        )
+                    )
+
+                    story.append(
+                        answer_table
+                    )
 
         else:
 
@@ -476,9 +738,9 @@ class DailyRecordsPDFAPIView(APIView):
                 )
             )
 
-        # -----------------------------------------
+        # ==================================================
         # ATP REPORTS
-        # -----------------------------------------
+        # ==================================================
 
         story.append(
             Paragraph(
@@ -530,12 +792,16 @@ class DailyRecordsPDFAPIView(APIView):
                             record.inspection_id
                             or ""
                         ),
-                        str(record.uploaded_by),
+                        str(
+                            record.uploaded_by
+                        ),
                         Paragraph(
                             uploaded_at,
                             small_style,
                         ),
-                        str(record.status),
+                        str(
+                            record.status
+                        ),
                         Paragraph(
                             notes,
                             small_style,
@@ -561,7 +827,9 @@ class DailyRecordsPDFAPIView(APIView):
                 self._table_style()
             )
 
-            story.append(atp_table)
+            story.append(
+                atp_table
+            )
 
             # -----------------------------------------
             # ATP FILE PREVIEW
@@ -591,6 +859,7 @@ class DailyRecordsPDFAPIView(APIView):
                     ".png",
                     ".gif",
                     ".bmp",
+                    ".webp",
                 ]
 
                 if (
@@ -634,7 +903,10 @@ class DailyRecordsPDFAPIView(APIView):
 
                     story.append(
                         Paragraph(
-                            "Unable to display the ATP image.",
+                            (
+                                "Unable to display "
+                                "the ATP image."
+                            ),
                             normal_style,
                         )
                     )
@@ -648,16 +920,20 @@ class DailyRecordsPDFAPIView(APIView):
                 )
             )
 
-        # -----------------------------------------
+        # ==================================================
         # BUILD PDF
-        # -----------------------------------------
+        # ==================================================
 
-        doc.build(story)
+        doc.build(
+            story
+        )
 
         buffer.seek(0)
 
         filename = (
-            f"daily_records_{plant.code}_{date}.pdf"
+            f"daily_records_"
+            f"{plant.code}_"
+            f"{selected_date.isoformat()}.pdf"
         )
 
         return FileResponse(
@@ -667,9 +943,9 @@ class DailyRecordsPDFAPIView(APIView):
             content_type="application/pdf",
         )
 
-    # -----------------------------------------
+    # ==================================================
     # TABLE STYLE
-    # -----------------------------------------
+    # ==================================================
 
     @staticmethod
     def _table_style():
