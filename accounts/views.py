@@ -23,7 +23,14 @@ from django.shortcuts import render
 
 @login_required
 def admin_users_page(request):
-    return render(request, "admin/users.html")
+
+    if not request.user.groups.filter(name="Admin").exists():
+        return redirect("dashboard")
+
+    return render(
+        request,
+        "admin/users.html"
+    )
 
 @login_required
 def plants_page(request):
