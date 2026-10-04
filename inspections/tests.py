@@ -453,3 +453,36 @@ class SanitationInspectionAPITest(APITestCase):
             inspection.general_notes,
             "Submitted inspection",
         )
+
+    def test_inspection_cannot_be_submitted_with_unanswered_questions(self):
+
+        inspection = SanitationInspection.objects.create(
+            plant=self.plant,
+            template=self.template,
+            inspection_date=date.today(),
+            inspector=self.inspector,
+            status=SanitationInspection.Status.DRAFT,
+            general_notes="Incomplete inspection",
+        )
+
+        self.client.force_authenticate(
+            user=self.inspector
+        )
+
+        response = self.client.post(
+            f"/api/inspections/{inspection.id}/submit/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            400,
+        )
+
+        inspection.refresh_from_db()
+
+        self.assertEqual(
+            inspection.status,
+            SanitationInspection.Status.DRAFT,
+        )
