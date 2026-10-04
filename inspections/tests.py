@@ -418,3 +418,38 @@ class SanitationInspectionAPITest(APITestCase):
             inspection.general_notes,
             "Original notes",
         )
+
+    def test_submitted_inspection_cannot_be_edited(self):
+
+        inspection = SanitationInspection.objects.create(
+            plant=self.plant,
+            template=self.template,
+            inspection_date=date.today(),
+            inspector=self.inspector,
+            status=SanitationInspection.Status.SUBMITTED,
+            general_notes="Submitted inspection",
+        )
+
+        self.client.force_authenticate(
+            user=self.inspector
+        )
+
+        response = self.client.patch(
+            f"/api/inspections/{inspection.id}/",
+            {
+                "general_notes": "Attempted modification",
+            },
+            format="json",
+        )
+
+        self.assertEqual(
+            response.status_code,
+            403,
+        )
+
+        inspection.refresh_from_db()
+
+        self.assertEqual(
+            inspection.general_notes,
+            "Submitted inspection",
+        )
