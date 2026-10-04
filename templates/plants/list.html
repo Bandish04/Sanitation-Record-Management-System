@@ -19,7 +19,7 @@
 
 </head>
 
-<body>
+<body class="bg-light">
 
 <div class="container py-5">
 
@@ -33,9 +33,33 @@
                 Plant Management
             </h1>
 
-            <p class="text-muted mb-0">
-                Manage Plant A and Plant B.
+            <p class="text-muted mb-2">
+                View Plant A and Plant B.
             </p>
+
+            <div>
+
+                <span class="text-muted">
+                    Logged in as:
+                </span>
+
+                <strong>
+                    {{ user.username }}
+                </strong>
+
+                {% if user.groups.all %}
+
+                    {% for group in user.groups.all %}
+
+                        <span class="badge bg-primary ms-2">
+                            {{ group.name }}
+                        </span>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            </div>
 
         </div>
 
@@ -57,113 +81,9 @@
     ></div>
 
 
-    <!-- Create Plant -->
-
-    <div
-        id="createPlantSection"
-        class="card mb-4"
-    >
-
-        <div class="card-header">
-
-            <h5 class="mb-0">
-                Create Plant
-            </h5>
-
-        </div>
-
-        <div class="card-body">
-
-            <form id="createPlantForm">
-
-                <div class="row">
-
-                    <div class="col-md-4 mb-3">
-
-                        <label
-                            for="code"
-                            class="form-label"
-                        >
-                            Plant Code
-                        </label>
-
-                        <input
-                            type="text"
-                            id="code"
-                            class="form-control"
-                            placeholder="PLANT_C"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="col-md-5 mb-3">
-
-                        <label
-                            for="name"
-                            class="form-label"
-                        >
-                            Plant Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="name"
-                            class="form-control"
-                            placeholder="Plant C"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="col-md-3 mb-3">
-
-                        <label
-                            for="active"
-                            class="form-label"
-                        >
-                            Status
-                        </label>
-
-                        <select
-                            id="active"
-                            class="form-select"
-                        >
-
-                            <option value="true">
-                                Active
-                            </option>
-
-                            <option value="false">
-                                Inactive
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Create Plant
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
     <!-- Plants -->
 
-    <div class="card">
+    <div class="card shadow-sm">
 
         <div class="card-header">
 
@@ -177,9 +97,9 @@
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover align-middle">
 
-                    <thead>
+                    <thead class="table-dark">
 
                         <tr>
 
@@ -257,6 +177,7 @@ async function loadPlants() {
     const token =
         getAccessToken();
 
+
     if (!token) {
 
         showMessage(
@@ -265,6 +186,7 @@ async function loadPlants() {
         );
 
         return;
+
     }
 
 
@@ -302,6 +224,7 @@ async function loadPlants() {
                 "plantsTableBody"
             );
 
+
         tableBody.innerHTML = "";
 
 
@@ -327,7 +250,9 @@ async function loadPlants() {
                         </td>
 
                         <td>
-                            ${plant.code}
+                            <strong>
+                                ${plant.code}
+                            </strong>
                         </td>
 
                         <td>
@@ -345,6 +270,26 @@ async function loadPlants() {
             }
         );
 
+
+        if (data.length === 0) {
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="text-center text-muted"
+                    >
+                        No plants found.
+                    </td>
+
+                </tr>
+
+            `;
+
+        }
+
     } catch (error) {
 
         showMessage(
@@ -357,118 +302,14 @@ async function loadPlants() {
 }
 
 
-document
-    .getElementById(
-        "createPlantForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
-
-            event.preventDefault();
-
-
-            const token =
-                getAccessToken();
-
-
-            if (!token) {
-
-                showMessage(
-                    "Authentication token not found.",
-                    "danger"
-                );
-
-                return;
-
-            }
-
-
-            const data = {
-
-                code:
-                    document.getElementById(
-                        "code"
-                    ).value.trim(),
-
-                name:
-                    document.getElementById(
-                        "name"
-                    ).value.trim(),
-
-                active:
-                    document.getElementById(
-                        "active"
-                    ).value === "true"
-
-            };
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        API_URL,
-                        {
-                            method: "POST",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-                            },
-
-                            body:
-                                JSON.stringify(data)
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        JSON.stringify(result)
-                    );
-
-                }
-
-
-                showMessage(
-                    "Plant created successfully."
-                );
-
-
-                document
-                    .getElementById(
-                        "createPlantForm"
-                    )
-                    .reset();
-
-
-                loadPlants();
-
-            } catch (error) {
-
-                showMessage(
-                    error.message,
-                    "danger"
-                );
-
-            }
-
-        }
-    );
-
-
 loadPlants();
 
 </script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
 
 </body>
 
