@@ -2,7 +2,9 @@ from rest_framework import serializers
 
 
 class CombinedRecordSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    id = serializers.IntegerField(
+    allow_null=True
+    )
 
     record_type = serializers.CharField()
 

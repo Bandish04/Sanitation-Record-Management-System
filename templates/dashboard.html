@@ -354,6 +354,8 @@
 
                     <div class="card-body">
 
+                        <h5 class="card-body">
+
                         <h5 class="card-title">
                             Audit Logs
                         </h5>
@@ -374,6 +376,47 @@
                 </div>
 
             </div>
+
+
+            <!-- User Management - ADMIN ONLY -->
+
+            {% if user.groups.all %}
+                {% for group in user.groups.all %}
+
+                    {% if group.name == "Admin" %}
+
+                        <div class="col-md-6 col-lg-4">
+
+                            <div class="card h-100 shadow-sm border-danger">
+
+                                <div class="card-body">
+
+                                    <h5 class="card-title">
+                                        User Management
+                                    </h5>
+
+                                    <p class="card-text text-muted">
+                                        Create users, manage accounts, and assign
+                                        roles such as Inspector, Team Lead, or Admin.
+                                    </p>
+
+                                    <a
+                                        href="/admin/users/"
+                                        class="btn btn-danger"
+                                    >
+                                        Manage Users
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+            {% endif %}
 
 
         </div>

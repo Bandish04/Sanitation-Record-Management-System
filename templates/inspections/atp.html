@@ -19,19 +19,30 @@
 
 </head>
 
+
 <body>
 
 <div class="container py-5">
 
+
+    <!-- ================================================== -->
+    <!-- HEADER -->
+    <!-- ================================================== -->
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
-            <h2>ATP Reports</h2>
+
+            <h2>
+                ATP Reports
+            </h2>
 
             <p class="text-muted mb-0">
-                View and upload UltraSnap ATP reports.
+                View historical UltraSnap ATP reports.
             </p>
+
         </div>
+
 
         <a
             href="/dashboard/"
@@ -43,19 +54,24 @@
     </div>
 
 
+    <!-- ================================================== -->
     <!-- MESSAGE -->
+    <!-- ================================================== -->
 
     <div
         id="message"
         class="alert d-none"
+        role="alert"
     ></div>
 
 
-    <!-- UPLOAD SECTION -->
+    <!-- ================================================== -->
+    <!-- ADMIN UPLOAD SECTION -->
+    <!-- ================================================== -->
 
     <div
         id="uploadSection"
-        class="card shadow mb-4"
+        class="card shadow mb-4 d-none"
     >
 
         <div class="card-header">
@@ -71,7 +87,9 @@
 
             <form id="uploadForm">
 
+                <!-- ====================================== -->
                 <!-- PLANT -->
+                <!-- ====================================== -->
 
                 <div class="mb-3">
 
@@ -81,6 +99,7 @@
                     >
                         Plant
                     </label>
+
 
                     <select
                         id="plant"
@@ -97,7 +116,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- INSPECTION -->
+                <!-- ====================================== -->
 
                 <div class="mb-3">
 
@@ -110,6 +131,7 @@
                             (Optional)
                         </span>
                     </label>
+
 
                     <select
                         id="inspection"
@@ -125,7 +147,9 @@
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- FILE -->
+                <!-- ====================================== -->
 
                 <div class="mb-3">
 
@@ -136,6 +160,7 @@
                         ATP Report File
                     </label>
 
+
                     <input
                         type="file"
                         id="file"
@@ -144,15 +169,23 @@
                         required
                     >
 
+
                     <div class="form-text">
-                        Allowed: PDF, JPG, JPEG, PNG, WEBP.
-                        Maximum size: 10 MB.
+
+                        Allowed:
+                        PDF, JPG, JPEG, PNG, WEBP.
+
+                        Maximum size:
+                        10 MB.
+
                     </div>
 
                 </div>
 
 
+                <!-- ====================================== -->
                 <!-- NOTES -->
+                <!-- ====================================== -->
 
                 <div class="mb-3">
 
@@ -162,6 +195,7 @@
                     >
                         Notes
                     </label>
+
 
                     <textarea
                         id="notes"
@@ -187,20 +221,23 @@
     </div>
 
 
+    <!-- ================================================== -->
     <!-- REPORT LIST -->
+    <!-- ================================================== -->
 
     <div class="card shadow">
 
         <div class="card-header">
 
             <h5 class="mb-0">
-                ATP Reports
+                Previous ATP Reports
             </h5>
 
         </div>
 
 
         <div class="card-body">
+
 
             <div
                 id="loading"
@@ -219,31 +256,59 @@
 
 
             <div
-                class="table-responsive"
+                class="table-responsive d-none"
                 id="tableContainer"
             >
 
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover align-middle">
 
-                    <thead>
+                    <thead class="table-light">
 
                         <tr>
 
-                            <th>ID</th>
+                            <!-- ID is only displayed to Admin -->
 
-                            <th>Plant</th>
+                            <th
+                                id="idHeader"
+                                class="d-none"
+                            >
+                                ID
+                            </th>
 
-                            <th>Inspection</th>
 
-                            <th>File</th>
+                            <th>
+                                Plant
+                            </th>
 
-                            <th>Uploaded By</th>
 
-                            <th>Uploaded At</th>
+                            <th>
+                                Inspection
+                            </th>
 
-                            <th>Status</th>
 
-                            <th>Notes</th>
+                            <th>
+                                File
+                            </th>
+
+
+                            <th>
+                                Uploaded By
+                            </th>
+
+
+                            <th>
+                                Uploaded At
+                            </th>
+
+
+                            <th>
+                                Status
+                            </th>
+
+
+                            <th>
+                                Notes
+                            </th>
 
                         </tr>
 
@@ -267,32 +332,63 @@
 
 <script>
 
-const token =
-    localStorage.getItem("access_token");
 
+// ============================================================
+// ACCESS TOKEN
+// ============================================================
+
+const token =
+    localStorage.getItem(
+        "access_token"
+    );
+
+
+if (!token) {
+
+    window.location.href =
+        "/login/";
+
+}
+
+
+// ============================================================
+// PAGE ELEMENTS
+// ============================================================
 
 const plantSelect =
-    document.getElementById("plant");
+    document.getElementById(
+        "plant"
+    );
 
 
 const inspectionSelect =
-    document.getElementById("inspection");
+    document.getElementById(
+        "inspection"
+    );
 
 
 const uploadSection =
-    document.getElementById("uploadSection");
+    document.getElementById(
+        "uploadSection"
+    );
 
 
 const uploadForm =
-    document.getElementById("uploadForm");
+    document.getElementById(
+        "uploadForm"
+    );
 
 
 const uploadButton =
-    document.getElementById("uploadButton");
+    document.getElementById(
+        "uploadButton"
+    );
 
 
 const message =
-    document.getElementById("message");
+    document.getElementById(
+        "message"
+    );
 
 
 const reportsTableBody =
@@ -302,7 +398,9 @@ const reportsTableBody =
 
 
 const loading =
-    document.getElementById("loading");
+    document.getElementById(
+        "loading"
+    );
 
 
 const emptyMessage =
@@ -317,26 +415,40 @@ const tableContainer =
     );
 
 
-if (!token) {
+const idHeader =
+    document.getElementById(
+        "idHeader"
+    );
 
-    window.location.href =
-        "/login/";
 
-}
+// ============================================================
+// USER ROLE
+// ============================================================
 
+let isAdmin = false;
+
+
+// ============================================================
+// SHOW MESSAGE
+// ============================================================
 
 function showMessage(
     text,
     type = "success"
 ) {
 
-    message.textContent = text;
+    message.textContent =
+        text;
 
     message.className =
         `alert alert-${type}`;
 
 }
 
+
+// ============================================================
+// HIDE MESSAGE
+// ============================================================
 
 function hideMessage() {
 
@@ -347,23 +459,196 @@ function hideMessage() {
 }
 
 
-/* ============================================================
-   LOAD PLANTS
-============================================================ */
+// ============================================================
+// GET LIST
+// ============================================================
 
-async function loadPlants() {
+function getList(data) {
+
+    if (Array.isArray(data)) {
+
+        return data;
+
+    }
+
+
+    if (
+        data &&
+        Array.isArray(data.results)
+    ) {
+
+        return data.results;
+
+    }
+
+
+    return [];
+
+}
+
+
+// ============================================================
+// LOAD CURRENT USER
+// ============================================================
+
+async function loadCurrentUser() {
 
     try {
 
-        const response = await fetch(
-            "/api/plants/",
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
+        const response =
+            await fetch(
+                "/api/auth/me/",
+                {
+                    method: "GET",
+
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
                 }
-            }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load user information."
+            );
+
+        }
+
+
+        /*
+         * Your /api/auth/me/ response contains
+         * the user's group/role information.
+         *
+         * Check several possible field names
+         * so the page remains compatible with
+         * the existing API response.
+         */
+
+        const groups =
+            data.groups ||
+            data.group_names ||
+            data.roles ||
+            [];
+
+
+        if (Array.isArray(groups)) {
+
+            isAdmin =
+                groups.some(
+                    function(group) {
+
+                        const groupName =
+                            typeof group === "string"
+                                ? group
+                                : group.name;
+
+                        return groupName === "Admin";
+
+                    }
+                );
+
+        }
+
+
+        /*
+         * Some versions of the API may return
+         * a direct role field.
+         */
+
+        if (
+            data.role === "Admin" ||
+            data.group === "Admin"
+        ) {
+
+            isAdmin = true;
+
+        }
+
+
+        /*
+         * Only Admin gets the upload section.
+         */
+
+        if (isAdmin) {
+
+            uploadSection.classList.remove(
+                "d-none"
+            );
+
+            idHeader.classList.remove(
+                "d-none"
+            );
+
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "User loading error:",
+            error
         );
+
+        /*
+         * Fail closed.
+         *
+         * If we cannot determine the role,
+         * do NOT show the upload section.
+         */
+
+        isAdmin = false;
+
+        uploadSection.classList.add(
+            "d-none"
+        );
+
+        idHeader.classList.add(
+            "d-none"
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD PLANTS
+// ============================================================
+
+async function loadPlants() {
+
+    /*
+     * Plants are only required for the Admin
+     * upload form.
+     */
+
+    if (!isAdmin) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/plants/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
+                }
+            );
 
 
         if (!response.ok) {
@@ -375,14 +660,20 @@ async function loadPlants() {
         }
 
 
-        const plants =
+        const data =
             await response.json();
 
 
+        const plants =
+            getList(data);
+
+
         plantSelect.innerHTML =
-            `<option value="">
-                Select Plant
-            </option>`;
+            `
+                <option value="">
+                    Select Plant
+                </option>
+            `;
 
 
         plants.forEach(
@@ -393,11 +684,14 @@ async function loadPlants() {
                         "option"
                     );
 
+
                 option.value =
                     plant.id;
 
+
                 option.textContent =
                     `${plant.code} - ${plant.name}`;
+
 
                 plantSelect.appendChild(
                     option
@@ -406,8 +700,8 @@ async function loadPlants() {
             }
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         showMessage(
             error.message,
@@ -419,23 +713,36 @@ async function loadPlants() {
 }
 
 
-/* ============================================================
-   LOAD INSPECTIONS
-============================================================ */
+// ============================================================
+// LOAD INSPECTIONS
+// ============================================================
 
 async function loadInspections() {
 
+    /*
+     * Only Admin needs the inspection dropdown
+     * because only Admin can upload ATP reports.
+     */
+
+    if (!isAdmin) {
+
+        return;
+
+    }
+
+
     try {
 
-        const response = await fetch(
-            "/api/inspections/",
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
+        const response =
+            await fetch(
+                "/api/inspections/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
                 }
-            }
-        );
+            );
 
 
         if (!response.ok) {
@@ -452,13 +759,15 @@ async function loadInspections() {
 
 
         const inspections =
-            data.results || data;
+            getList(data);
 
 
         inspectionSelect.innerHTML =
-            `<option value="">
-                No inspection
-            </option>`;
+            `
+                <option value="">
+                    No inspection
+                </option>
+            `;
 
 
         inspections.forEach(
@@ -469,14 +778,32 @@ async function loadInspections() {
                         "option"
                     );
 
+
                 option.value =
                     inspection.id;
 
+
+                /*
+                 * Display names instead of numeric
+                 * Plant and Template/Inspection IDs.
+                 */
+
+                const plantName =
+                    inspection.plant_name ||
+                    inspection.plant_code ||
+                    "Unknown Plant";
+
+
+                const inspectorName =
+                    inspection.inspector_username ||
+                    inspection.inspector_name ||
+                    inspection.inspector ||
+                    "Unknown Inspector";
+
+
                 option.textContent =
-                    `Inspection #${inspection.id}
-                     - Plant ${inspection.plant}
-                     - ${inspection.inspection_date}
-                     - ${inspection.status}`;
+                    `${plantName} - ${inspectorName} - ${inspection.inspection_date} - ${inspection.status}`;
+
 
                 inspectionSelect.appendChild(
                     option
@@ -485,8 +812,8 @@ async function loadInspections() {
             }
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         showMessage(
             error.message,
@@ -498,9 +825,9 @@ async function loadInspections() {
 }
 
 
-/* ============================================================
-   LOAD ATP REPORTS
-============================================================ */
+// ============================================================
+// LOAD ATP REPORTS
+// ============================================================
 
 async function loadReports() {
 
@@ -508,9 +835,11 @@ async function loadReports() {
         "d-none"
     );
 
+
     tableContainer.classList.add(
         "d-none"
     );
+
 
     emptyMessage.classList.add(
         "d-none"
@@ -519,15 +848,16 @@ async function loadReports() {
 
     try {
 
-        const response = await fetch(
-            "/api/inspections/atp/",
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${token}`
+        const response =
+            await fetch(
+                "/api/inspections/atp/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${token}`
+                    }
                 }
-            }
-        );
+            );
 
 
         if (!response.ok) {
@@ -544,7 +874,7 @@ async function loadReports() {
 
 
         const reports =
-            data.results || data;
+            getList(data);
 
 
         reportsTableBody.innerHTML =
@@ -571,19 +901,31 @@ async function loadReports() {
                     );
 
 
+                // ==========================================
+                // FILE LINK
+                // ==========================================
+
                 const fileLink =
                     document.createElement(
                         "a"
                     );
 
+
                 fileLink.href =
                     report.file;
+
 
                 fileLink.target =
                     "_blank";
 
+
+                fileLink.rel =
+                    "noopener noreferrer";
+
+
                 fileLink.textContent =
-                    report.original_filename;
+                    report.original_filename ||
+                    "View File";
 
 
                 const fileCell =
@@ -591,30 +933,77 @@ async function loadReports() {
                         "td"
                     );
 
+
                 fileCell.appendChild(
                     fileLink
                 );
 
 
+                // ==========================================
+                // PLANT NAME
+                // ==========================================
+
+                const plantName =
+                    report.plant_name ||
+                    report.plant_code ||
+                    (
+                        typeof report.plant === "string"
+                            ? report.plant
+                            : "-"
+                    );
+
+
+                // ==========================================
+                // INSPECTION NAME
+                // ==========================================
+
+                const inspectionName =
+                    report.inspection_inspector ||
+                    report.inspector_name ||
+                    report.inspector_username ||
+                    (
+                        typeof report.inspection === "string"
+                            ? report.inspection
+                            : "-"
+                    );
+
+
+                // ==========================================
+                // ROW
+                // ==========================================
+
                 row.innerHTML = `
-                    <td>${report.id}</td>
+
+                    ${
+                        isAdmin
+                            ? `
+                                <td>
+                                    ${report.id ?? "-"}
+                                </td>
+                              `
+                            : ""
+                    }
+
 
                     <td>
-                        ${report.plant}
+                        ${plantName}
                     </td>
 
+
                     <td>
-                        ${
-                            report.inspection
-                            || "-"
-                        }
+                        ${inspectionName}
                     </td>
+
 
                     <td></td>
 
+
                     <td>
-                        ${report.uploaded_by}
+                        ${report.uploaded_by_username ||
+                          report.uploaded_by ||
+                          "-"}
                     </td>
+
 
                     <td>
                         ${formatDate(
@@ -622,22 +1011,39 @@ async function loadReports() {
                         )}
                     </td>
 
+
                     <td>
+
                         <span class="badge bg-success">
-                            ${report.status}
+
+                            ${report.status || "-"}
+
                         </span>
+
                     </td>
+
 
                     <td>
                         ${report.notes || ""}
                     </td>
+
                 `;
 
 
-                row.children[3]
-                    .appendChild(
-                        fileLink
-                    );
+                /*
+                 * File link goes into the correct
+                 * file column.
+                 */
+
+                const fileColumnIndex =
+                    isAdmin ? 3 : 2;
+
+
+                row.children[
+                    fileColumnIndex
+                ].appendChild(
+                    fileLink
+                );
 
 
                 reportsTableBody.appendChild(
@@ -652,16 +1058,16 @@ async function loadReports() {
             "d-none"
         );
 
-
-    } catch (error) {
+    }
+    catch (error) {
 
         showMessage(
             error.message,
             "danger"
         );
 
-
-    } finally {
+    }
+    finally {
 
         loading.classList.add(
             "d-none"
@@ -672,17 +1078,20 @@ async function loadReports() {
 }
 
 
-/* ============================================================
-   FORMAT DATE
-============================================================ */
+// ============================================================
+// FORMAT DATE
+// ============================================================
 
 function formatDate(
     dateString
 ) {
 
     if (!dateString) {
+
         return "-";
+
     }
+
 
     return new Date(
         dateString
@@ -691,29 +1100,9 @@ function formatDate(
 }
 
 
-/* ============================================================
-   PLANT CHANGE
-============================================================ */
-
-plantSelect.addEventListener(
-    "change",
-    function() {
-
-        /*
-         * The inspection dropdown is
-         * intentionally kept simple here.
-         *
-         * The backend still validates
-         * the selected inspection.
-         */
-
-    }
-);
-
-
-/* ============================================================
-   UPLOAD
-============================================================ */
+// ============================================================
+// UPLOAD ATP REPORT
+// ============================================================
 
 uploadForm.addEventListener(
     "submit",
@@ -721,19 +1110,43 @@ uploadForm.addEventListener(
 
         event.preventDefault();
 
+
+        /*
+         * Extra frontend security.
+         *
+         * Even though the upload section is hidden
+         * for non-admin users, do not allow the
+         * JavaScript upload function to execute.
+         */
+
+        if (!isAdmin) {
+
+            showMessage(
+                "Only Admin users can upload ATP reports.",
+                "danger"
+            );
+
+            return;
+
+        }
+
+
         hideMessage();
 
 
         const plant =
             plantSelect.value;
 
+
         const inspection =
             inspectionSelect.value;
+
 
         const file =
             document.getElementById(
                 "file"
             ).files[0];
+
 
         const notes =
             document.getElementById(
@@ -816,6 +1229,7 @@ uploadForm.addEventListener(
         uploadButton.disabled =
             true;
 
+
         uploadButton.textContent =
             "Uploading...";
 
@@ -885,19 +1299,26 @@ uploadForm.addEventListener(
 
             await loadReports();
 
+        }
+        catch (error) {
 
-        } catch (error) {
+            console.error(
+                "ATP upload error:",
+                error
+            );
+
 
             showMessage(
                 "Unable to connect to the server.",
                 "danger"
             );
 
-
-        } finally {
+        }
+        finally {
 
             uploadButton.disabled =
                 false;
+
 
             uploadButton.textContent =
                 "Upload ATP Report";
@@ -908,15 +1329,32 @@ uploadForm.addEventListener(
 );
 
 
-/* ============================================================
-   INITIAL LOAD
-============================================================ */
+// ============================================================
+// INITIALIZE
+// ============================================================
 
 async function initialize() {
+
+    /*
+     * First determine the user's role.
+     */
+
+    await loadCurrentUser();
+
+
+    /*
+     * Only Admin needs these two endpoints
+     * for uploading.
+     */
 
     await loadPlants();
 
     await loadInspections();
+
+
+    /*
+     * Everyone can view historical reports.
+     */
 
     await loadReports();
 
@@ -926,6 +1364,7 @@ async function initialize() {
 initialize();
 
 </script>
+
 
 </body>
 

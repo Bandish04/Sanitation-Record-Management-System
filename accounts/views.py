@@ -19,6 +19,8 @@ from django.shortcuts import render, redirect
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from plants.models import Plant
+from inspections.models import InspectionTemplate
 
 
 @login_required
@@ -63,9 +65,18 @@ def chloragel_page(request):
     )
 @login_required
 def inspection_page(request):
+
+    plants = Plant.objects.all().order_by("id")
+
+    templates = InspectionTemplate.objects.all().order_by("id")
+
     return render(
         request,
         "inspections/inspection.html",
+        {
+            "plants": plants,
+            "inspection_templates": templates,
+        },
     )
 @login_required
 def atp_page(request):

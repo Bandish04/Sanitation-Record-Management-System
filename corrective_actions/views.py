@@ -1,9 +1,10 @@
-
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.response import Response
 
 from accounts.permissions import IsInspector, IsAdmin
 from audit.models import AuditLog
@@ -18,7 +19,6 @@ class IsInspectorOrAdmin(BasePermission):
     """
 
     def has_permission(self, request, view):
-
         if not request.user or not request.user.is_authenticated:
             return False
 
@@ -28,12 +28,54 @@ class IsInspectorOrAdmin(BasePermission):
         )
 
 
-class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
+class CorrectiveActionOptionsAPIView(generics.GenericAPIView):
+    """
+    Return users that can be selected for a corrective action.
+    """
 
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        users = User.objects.filter(
+            is_active=True
+        ).order_by(
+            "first_name",
+            "last_name",
+            "username",
+        )
+
+        user_list = []
+
+        for user in users:
+            if user.first_name or user.last_name:
+                display_name = (
+                    f"{user.first_name} {user.last_name}"
+                ).strip()
+                display_name = (
+                    f"{display_name} ({user.username})"
+                )
+            else:
+                display_name = user.username
+
+            user_list.append(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "name": display_name,
+                }
+            )
+
+        return Response(
+            {
+                "users": user_list,
+            }
+        )
+
+
+class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = CorrectiveActionSerializer
 
     def get_queryset(self):
-
         queryset = CorrectiveAction.objects.select_related(
             "inspection",
             "question",
@@ -51,14 +93,12 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
         return queryset
 
     def get_permissions(self):
-
         if self.request.method == "POST":
             return [IsInspectorOrAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-
         corrective_action = serializer.save()
 
         AuditLog.objects.create(
@@ -89,12 +129,12 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
         )
 
 
-class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
-
+class CorrectiveActionDetailAPIView(
+    generics.RetrieveUpdateAPIView
+):
     serializer_class = CorrectiveActionSerializer
 
     def get_queryset(self):
-
         return CorrectiveAction.objects.select_related(
             "inspection",
             "question",
@@ -103,24 +143,20 @@ class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
         ).all()
 
     def get_permissions(self):
-
         if self.request.method in ["PUT", "PATCH"]:
             return [IsInspectorOrAdmin()]
 
         return [IsAuthenticated()]
 
     def update(self, request, *args, **kwargs):
-
         corrective_action = self.get_object()
 
         if corrective_action.status == CorrectiveAction.Status.COMPLETED:
-
             raise PermissionDenied(
                 "Completed corrective actions cannot be modified."
             )
 
         if corrective_action.status == CorrectiveAction.Status.CANCELLED:
-
             raise PermissionDenied(
                 "Cancelled corrective actions cannot be modified."
             )
@@ -152,10 +188,11 @@ class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
 
         corrective_action.refresh_from_db()
 
-        if corrective_action.status == CorrectiveAction.Status.COMPLETED:
-
+        if (
+            corrective_action.status
+            == CorrectiveAction.Status.COMPLETED
+        ):
             if corrective_action.completed_at is None:
-
                 corrective_action.completed_at = timezone.now()
 
                 corrective_action.save(

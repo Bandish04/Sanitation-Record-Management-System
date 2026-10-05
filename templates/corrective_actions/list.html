@@ -1,464 +1,600 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
 
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Corrective Actions</title>
+    <title>Corrective Actions</title>
 
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
-```
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
 </head>
+
 
 <body class="bg-light">
 
 <div class="container py-4">
 
-```
-<!-- PAGE HEADER -->
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- ================================================== -->
+    <!-- HEADER -->
+    <!-- ================================================== -->
 
-    <div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <h1 class="mb-1">
-            Corrective Actions
-        </h1>
+        <div>
 
-        <p class="text-muted mb-0">
-            Manage sanitation corrective actions.
-        </p>
+            <h1 class="mb-1">
+                Corrective Actions
+            </h1>
 
-    </div>
-
-
-    <div class="d-flex gap-2">
-
-        <button
-            type="button"
-            class="btn btn-success"
-            onclick="showCreateForm()"
-        >
-            Create Corrective Action
-        </button>
-
-
-        <a
-            href="/dashboard/"
-            class="btn btn-secondary"
-        >
-            Dashboard
-        </a>
-
-    </div>
-
-</div>
-
-
-
-<!-- CREATE FORM -->
-
-<div
-    id="createForm"
-    class="card shadow-sm mb-4"
-    style="display: none;"
->
-
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="card-title mb-0">
-                Create Corrective Action
-            </h5>
-
-
-            <button
-                type="button"
-                class="btn btn-outline-secondary"
-                onclick="hideCreateForm()"
-            >
-                Cancel
-            </button>
+            <p class="text-muted mb-0">
+                Manage sanitation corrective actions.
+            </p>
 
         </div>
 
 
-        <form id="correctiveActionForm">
+        <div class="d-flex gap-2">
 
-            <div class="row">
-
-                <!-- Inspection -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="inspection"
-                        class="form-label"
-                    >
-                        Inspection ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="inspection"
-                        class="form-control"
-                        required
-                    >
-
-                </div>
+            <button
+                type="button"
+                class="btn btn-success"
+                onclick="showCreateForm()"
+            >
+                Create Corrective Action
+            </button>
 
 
-                <!-- Question -->
+            <a
+                href="/dashboard/"
+                class="btn btn-secondary"
+            >
+                Dashboard
+            </a>
 
-                <div class="col-md-6 mb-3">
+        </div>
 
-                    <label
-                        for="question"
-                        class="form-label"
-                    >
-                        Question ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="question"
-                        class="form-control"
-                        required
-                    >
-
-                </div>
+    </div>
 
 
-                <!-- Observation -->
+    <!-- ================================================== -->
+    <!-- CREATE FORM -->
+    <!-- ================================================== -->
 
-                <div class="col-md-12 mb-3">
+    <div
+        id="createForm"
+        class="card shadow-sm mb-4"
+        style="display: none;"
+    >
 
-                    <label
-                        for="observation"
-                        class="form-label"
-                    >
-                        Observation
-                    </label>
+        <div class="card-body">
 
-                    <textarea
-                        id="observation"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                </div>
-
-
-                <!-- Action Required -->
-
-                <div class="col-md-12 mb-3">
-
-                    <label
-                        for="actionRequired"
-                        class="form-label"
-                    >
-                        Action Required
-                    </label>
-
-                    <textarea
-                        id="actionRequired"
-                        class="form-control"
-                        rows="3"
-                        required
-                    ></textarea>
-
-                </div>
+                <h5 class="card-title mb-0">
+                    Create Corrective Action
+                </h5>
 
 
-                <!-- Assigned To -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="assignedTo"
-                        class="form-label"
-                    >
-                        Assigned To User ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="assignedTo"
-                        class="form-control"
-                    >
-
-                </div>
-
-
-                <!-- Due Date -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="dueDate"
-                        class="form-label"
-                    >
-                        Due Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="dueDate"
-                        class="form-control"
-                    >
-
-                </div>
-
-
-                <!-- Action Taken -->
-
-                <div class="col-md-12 mb-3">
-
-                    <label
-                        for="actionTaken"
-                        class="form-label"
-                    >
-                        Action Taken
-                    </label>
-
-                    <textarea
-                        id="actionTaken"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
-
-                </div>
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="hideCreateForm()"
+                >
+                    Cancel
+                </button>
 
             </div>
 
 
-            <div id="createFormMessage"></div>
+            <form id="correctiveActionForm">
 
 
-            <button
-                type="submit"
-                class="btn btn-success"
-            >
-                Create Corrective Action
-            </button>
+                <!-- ====================================== -->
+                <!-- AUTOMATIC INSPECTION -->
+                <!-- ====================================== -->
 
-        </form>
+                <div class="alert alert-info">
 
-    </div>
+                    <strong>Inspection:</strong>
 
-</div>
+                    <span id="selectedInspectionDisplay">
+                        Detecting latest inspection...
+                    </span>
 
+                    <input
+                        type="hidden"
+                        id="inspection"
+                    >
 
-
-<!-- EDIT FORM -->
-
-<div
-    id="editForm"
-    class="card shadow-sm mb-4"
-    style="display: none;"
->
-
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="card-title mb-0">
-                Edit Corrective Action
-            </h5>
+                </div>
 
 
-            <button
-                type="button"
-                class="btn btn-outline-secondary"
-                onclick="hideEditForm()"
-            >
-                Cancel
-            </button>
+                <div class="row">
+
+
+                    <!-- ================================== -->
+                    <!-- QUESTION -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="question"
+                            class="form-label"
+                        >
+                            Question
+                        </label>
+
+
+                        <select
+                            id="question"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Question
+                            </option>
+
+                        </select>
+
+
+                        <div class="form-text">
+                            Only questions answered NO are shown.
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ASSIGNED TO -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="assignedTo"
+                            class="form-label"
+                        >
+                            Assigned To
+                        </label>
+
+
+                        <select
+                            id="assignedTo"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Select User
+                            </option>
+
+                        </select>
+
+                        <div class="form-text">
+                            Select any active user in the system.
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- OBSERVATION -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="observation"
+                            class="form-label"
+                        >
+                            Observation
+                        </label>
+
+
+                        <textarea
+                            id="observation"
+                            class="form-control"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ACTION REQUIRED -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="actionRequired"
+                            class="form-label"
+                        >
+                            Action Required
+                        </label>
+
+
+                        <textarea
+                            id="actionRequired"
+                            class="form-control"
+                            rows="3"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- DUE DATE -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="dueDate"
+                            class="form-label"
+                        >
+                            Due Date
+                        </label>
+
+
+                        <input
+                            type="date"
+                            id="dueDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ACTION TAKEN -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="actionTaken"
+                            class="form-label"
+                        >
+                            Action Taken
+                        </label>
+
+
+                        <textarea
+                            id="actionTaken"
+                            class="form-control"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div id="createFormMessage"></div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-success"
+                >
+                    Create Corrective Action
+                </button>
+
+            </form>
 
         </div>
 
-
-        <form id="editCorrectiveActionForm">
-
-            <input
-                type="hidden"
-                id="editId"
-            >
+    </div>
 
 
-            <div class="row">
+    <!-- ================================================== -->
+    <!-- EDIT FORM -->
+    <!-- ================================================== -->
 
-                <!-- Inspection -->
+    <div
+        id="editForm"
+        class="card shadow-sm mb-4"
+        style="display: none;"
+    >
 
-                <div class="col-md-6 mb-3">
+        <div class="card-body">
 
-                    <label
-                        for="editInspection"
-                        class="form-label"
-                    >
-                        Inspection ID
-                    </label>
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                    <input
-                        type="number"
-                        id="editInspection"
-                        class="form-control"
-                        required
-                    >
-
-                </div>
+                <h5 class="card-title mb-0">
+                    Edit Corrective Action
+                </h5>
 
 
-                <!-- Question -->
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="hideEditForm()"
+                >
+                    Cancel
+                </button>
 
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="editQuestion"
-                        class="form-label"
-                    >
-                        Question ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="editQuestion"
-                        class="form-control"
-                        required
-                    >
-
-                </div>
+            </div>
 
 
-                <!-- Observation -->
+            <form id="editCorrectiveActionForm">
 
-                <div class="col-md-12 mb-3">
+                <input
+                    type="hidden"
+                    id="editId"
+                >
 
-                    <label
-                        for="editObservation"
-                        class="form-label"
-                    >
-                        Observation
-                    </label>
 
-                    <textarea
-                        id="editObservation"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
+                <!-- ====================================== -->
+                <!-- AUTOMATIC INSPECTION -->
+                <!-- ====================================== -->
+
+                <div class="alert alert-info">
+
+                    <strong>Inspection:</strong>
+
+                    <span id="editInspectionDisplay">
+                        -
+                    </span>
 
                 </div>
 
 
-                <!-- Action Required -->
+                <div class="row">
 
-                <div class="col-md-12 mb-3">
 
-                    <label
-                        for="editActionRequired"
-                        class="form-label"
-                    >
-                        Action Required
-                    </label>
+                    <!-- ================================== -->
+                    <!-- QUESTION -->
+                    <!-- ================================== -->
 
-                    <textarea
-                        id="editActionRequired"
-                        class="form-control"
-                        rows="3"
-                        required
-                    ></textarea>
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="editQuestion"
+                            class="form-label"
+                        >
+                            Question
+                        </label>
+
+
+                        <select
+                            id="editQuestion"
+                            class="form-select"
+                            required
+                        >
+
+                            <option value="">
+                                Select Question
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ASSIGNED TO -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="editAssignedTo"
+                            class="form-label"
+                        >
+                            Assigned To
+                        </label>
+
+
+                        <select
+                            id="editAssignedTo"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                Select User
+                            </option>
+
+                        </select>
+
+                        <div class="form-text">
+                            Select any active user in the system.
+                        </div>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- OBSERVATION -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="editObservation"
+                            class="form-label"
+                        >
+                            Observation
+                        </label>
+
+
+                        <textarea
+                            id="editObservation"
+                            class="form-control"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ACTION REQUIRED -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="editActionRequired"
+                            class="form-label"
+                        >
+                            Action Required
+                        </label>
+
+
+                        <textarea
+                            id="editActionRequired"
+                            class="form-control"
+                            rows="3"
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- DUE DATE -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="editDueDate"
+                            class="form-label"
+                        >
+                            Due Date
+                        </label>
+
+
+                        <input
+                            type="date"
+                            id="editDueDate"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- ACTION TAKEN -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-12 mb-3">
+
+                        <label
+                            for="editActionTaken"
+                            class="form-label"
+                        >
+                            Action Taken
+                        </label>
+
+
+                        <textarea
+                            id="editActionTaken"
+                            class="form-control"
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+
+                    <!-- ================================== -->
+                    <!-- STATUS -->
+                    <!-- ================================== -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="editStatus"
+                            class="form-label"
+                        >
+                            Status
+                        </label>
+
+
+                        <select
+                            id="editStatus"
+                            class="form-select"
+                        >
+
+                            <option value="OPEN">
+                                Open
+                            </option>
+
+                            <option value="IN_PROGRESS">
+                                In Progress
+                            </option>
+
+                            <option value="COMPLETED">
+                                Completed
+                            </option>
+
+                            <option value="CANCELLED">
+                                Cancelled
+                            </option>
+
+                        </select>
+
+                    </div>
 
                 </div>
 
 
-                <!-- Assigned To -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="editAssignedTo"
-                        class="form-label"
-                    >
-                        Assigned To User ID
-                    </label>
-
-                    <input
-                        type="number"
-                        id="editAssignedTo"
-                        class="form-control"
-                    >
-
-                </div>
+                <div id="editFormMessage"></div>
 
 
-                <!-- Due Date -->
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Update Corrective Action
+                </button>
 
-                <div class="col-md-6 mb-3">
+            </form>
 
-                    <label
-                        for="editDueDate"
-                        class="form-label"
-                    >
-                        Due Date
-                    </label>
+        </div>
 
-                    <input
-                        type="date"
-                        id="editDueDate"
-                        class="form-control"
-                    >
-
-                </div>
+    </div>
 
 
-                <!-- Action Taken -->
+    <!-- ================================================== -->
+    <!-- RECORDS -->
+    <!-- ================================================== -->
 
-                <div class="col-md-12 mb-3">
+    <div class="card shadow-sm">
 
-                    <label
-                        for="editActionTaken"
-                        class="form-label"
-                    >
-                        Action Taken
-                    </label>
+        <div class="card-body">
 
-                    <textarea
-                        id="editActionTaken"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-                </div>
+                <h5 class="card-title mb-0">
+                    Corrective Action Records
+                </h5>
 
 
-                <!-- Status -->
-
-                <div class="col-md-6 mb-3">
-
-                    <label
-                        for="editStatus"
-                        class="form-label"
-                    >
-                        Status
-                    </label>
+                <div class="d-flex gap-2">
 
                     <select
-                        id="editStatus"
+                        id="statusFilter"
                         class="form-select"
                     >
+
+                        <option value="">
+                            All Statuses
+                        </option>
 
                         <option value="OPEN">
                             Open
@@ -478,188 +614,209 @@
 
                     </select>
 
+
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="loadCorrectiveActions()"
+                    >
+                        Refresh
+                    </button>
+
                 </div>
 
             </div>
 
 
-            <div id="editFormMessage"></div>
+            <div id="message"></div>
 
 
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                Update Corrective Action
-            </button>
+            <div class="table-responsive">
 
-        </form>
-
-    </div>
-
-</div>
-
-
-
-<!-- CORRECTIVE ACTION RECORDS -->
-
-<div class="card shadow-sm">
-
-    <div class="card-body">
-
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-
-            <h5 class="card-title mb-0">
-                Corrective Action Records
-            </h5>
-
-
-            <div class="d-flex gap-2">
-
-                <select
-                    id="statusFilter"
-                    class="form-select"
+                <table
+                    class="table table-bordered table-hover align-middle"
                 >
 
-                    <option value="">
-                        All Statuses
-                    </option>
+                    <thead class="table-dark">
 
-                    <option value="OPEN">
-                        Open
-                    </option>
+                        <tr>
 
-                    <option value="IN_PROGRESS">
-                        In Progress
-                    </option>
+                            <th>ID</th>
 
-                    <option value="COMPLETED">
-                        Completed
-                    </option>
+                            <th>Inspection</th>
 
-                    <option value="CANCELLED">
-                        Cancelled
-                    </option>
+                            <th>Question</th>
 
-                </select>
+                            <th>Observation</th>
+
+                            <th>Action Required</th>
+
+                            <th>Assigned To</th>
+
+                            <th>Due Date</th>
+
+                            <th>Action Taken</th>
+
+                            <th>Status</th>
+
+                            <th>Created By</th>
+
+                            <th>Actions</th>
+
+                        </tr>
+
+                    </thead>
 
 
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    onclick="loadCorrectiveActions()"
-                >
-                    Refresh
-                </button>
+                    <tbody id="correctiveActionsTableBody">
+
+                        <tr>
+
+                            <td
+                                colspan="11"
+                                class="text-center"
+                            >
+                                Loading...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
 
             </div>
 
         </div>
 
-
-        <div id="message"></div>
-
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-bordered table-hover align-middle"
-            >
-
-                <thead class="table-dark">
-
-                    <tr>
-
-                        <th>ID</th>
-
-                        <th>Inspection</th>
-
-                        <th>Question</th>
-
-                        <th>Observation</th>
-
-                        <th>Action Required</th>
-
-                        <th>Assigned To</th>
-
-                        <th>Due Date</th>
-
-                        <th>Action Taken</th>
-
-                        <th>Status</th>
-
-                        <th>Created By</th>
-
-                        <th>Actions</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="correctiveActionsTableBody">
-
-                    <tr>
-
-                        <td
-                            colspan="11"
-                            class="text-center"
-                        >
-                            Loading...
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
     </div>
 
 </div>
-```
 
-</div>
 
 <script>
 
 
-/* =========================================================
-   STATUS BADGE
-========================================================= */
+// ============================================================
+// API
+// ============================================================
+
+const INSPECTIONS_API =
+    "/api/inspections/";
+
+const CORRECTIVE_ACTIONS_API =
+    "/api/corrective-actions/";
+
+const CORRECTIVE_ACTION_OPTIONS_API =
+    "/api/corrective-actions/options/";
+
+
+// ============================================================
+// PAGE STATE
+// ============================================================
+
+let selectedInspectionId = null;
+
+let selectedInspectionData = null;
+
+
+// ============================================================
+// TOKEN
+// ============================================================
+
+function getAccessToken() {
+
+    return localStorage.getItem(
+        "access_token"
+    );
+
+}
+
+
+// ============================================================
+// HEADERS
+// ============================================================
+
+function getHeaders() {
+
+    return {
+
+        "Content-Type":
+            "application/json",
+
+        "Authorization":
+            `Bearer ${getAccessToken()}`,
+
+        "Accept":
+            "application/json"
+
+    };
+
+}
+
+
+// ============================================================
+// GET LIST
+// ============================================================
+
+function getList(data) {
+
+    if (Array.isArray(data)) {
+
+        return data;
+
+    }
+
+    if (
+        data &&
+        Array.isArray(data.results)
+    ) {
+
+        return data.results;
+
+    }
+
+    return [];
+
+}
+
+
+// ============================================================
+// STATUS BADGE
+// ============================================================
 
 function getStatusBadge(status) {
 
-    let badgeClass = "bg-secondary";
-
+    let badgeClass =
+        "bg-secondary";
 
     if (status === "OPEN") {
 
-        badgeClass = "bg-danger";
+        badgeClass =
+            "bg-danger";
 
     }
 
     else if (status === "IN_PROGRESS") {
 
-        badgeClass = "bg-warning text-dark";
+        badgeClass =
+            "bg-warning text-dark";
 
     }
 
     else if (status === "COMPLETED") {
 
-        badgeClass = "bg-success";
+        badgeClass =
+            "bg-success";
 
     }
 
     else if (status === "CANCELLED") {
 
-        badgeClass = "bg-dark";
+        badgeClass =
+            "bg-dark";
 
     }
-
 
     return `
         <span class="badge ${badgeClass}">
@@ -670,55 +827,516 @@ function getStatusBadge(status) {
 }
 
 
+// ============================================================
+// SHOW CREATE FORM
+// ============================================================
 
-/* =========================================================
-   CREATE FORM
-========================================================= */
+async function showCreateForm() {
 
-function showCreateForm() {
+    const form =
+        document.getElementById(
+            "createForm"
+        );
 
-    document.getElementById(
-        "createForm"
-    ).style.display = "block";
+    form.style.display =
+        "block";
+
+    const message =
+        document.getElementById(
+            "createFormMessage"
+        );
+
+    message.innerHTML = `
+        <div class="alert alert-info">
+            Loading inspection and users...
+        </div>
+    `;
+
+    await detectLatestInspection();
+
+    await loadUsers(
+        "assignedTo"
+    );
 
 }
 
+
+// ============================================================
+// HIDE CREATE FORM
+// ============================================================
 
 function hideCreateForm() {
 
     document.getElementById(
         "createForm"
-    ).style.display = "none";
-
+    ).style.display =
+        "none";
 
     document.getElementById(
         "correctiveActionForm"
     ).reset();
 
+    document.getElementById(
+        "question"
+    ).innerHTML = `
+        <option value="">
+            Select Question
+        </option>
+    `;
+
+    document.getElementById(
+        "assignedTo"
+    ).innerHTML = `
+        <option value="">
+            Select User
+        </option>
+    `;
+
+    document.getElementById(
+        "selectedInspectionDisplay"
+    ).textContent =
+        "Detecting latest inspection...";
 
     document.getElementById(
         "createFormMessage"
     ).innerHTML = "";
 
+    selectedInspectionId =
+        null;
+
+    selectedInspectionData =
+        null;
+
 }
 
 
+// ============================================================
+// DETECT LATEST INSPECTION
+// ============================================================
 
-/* =========================================================
-   EDIT FORM
-========================================================= */
+async function detectLatestInspection() {
+
+    const message =
+        document.getElementById(
+            "createFormMessage"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                `${INSPECTIONS_API}?ordering=-created_at`,
+                {
+                    method: "GET",
+                    headers: getHeaders()
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load inspections."
+            );
+
+        }
+
+        const inspections =
+            getList(data);
+
+        if (
+            inspections.length === 0
+        ) {
+
+            throw new Error(
+                "No inspections are available."
+            );
+
+        }
+
+        const inspection =
+            inspections[0];
+
+        selectedInspectionId =
+            inspection.id;
+
+        selectedInspectionData =
+            inspection;
+
+        document.getElementById(
+            "inspection"
+        ).value =
+            inspection.id;
+
+        document.getElementById(
+            "selectedInspectionDisplay"
+        ).textContent =
+            `${
+                inspection.plant_name ||
+                `Plant ${inspection.plant}`
+            } - ${
+                inspection.inspection_date
+            } - ${
+                inspection.status
+            }`;
+
+        await loadQuestionsForInspection(
+            inspection.id
+        );
+
+        message.innerHTML = `
+            <div class="alert alert-success">
+                Inspection automatically detected.
+            </div>
+        `;
+
+    }
+    catch (error) {
+
+        console.error(
+            "Inspection detection error:",
+            error
+        );
+
+        message.innerHTML = `
+            <div class="alert alert-danger">
+                ${error.message}
+            </div>
+        `;
+
+    }
+
+}
+
+
+// ============================================================
+// LOAD QUESTIONS FOR INSPECTION
+// ============================================================
+
+async function loadQuestionsForInspection(
+    inspectionId
+) {
+
+    const questionSelect =
+        document.getElementById(
+            "question"
+        );
+
+    questionSelect.innerHTML = `
+        <option value="">
+            Loading questions...
+        </option>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                `${INSPECTIONS_API}${inspectionId}/`,
+                {
+                    method: "GET",
+                    headers: getHeaders()
+                }
+            );
+
+        const inspection =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                inspection.detail ||
+                "Unable to load inspection."
+            );
+
+        }
+
+        const answers =
+            inspection.answers || [];
+
+        const noAnswers =
+            answers.filter(
+                answer =>
+                    answer.answer === "NO"
+            );
+
+        questionSelect.innerHTML = `
+            <option value="">
+                Select Question
+            </option>
+        `;
+
+        noAnswers.forEach(
+            function(answer) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    answer.question;
+
+                const questionText =
+                    getQuestionText(
+                        answer.question,
+                        inspection
+                    );
+
+                option.textContent =
+                    questionText;
+
+                option.dataset.observation =
+                    answer.observation || "";
+
+                questionSelect.appendChild(
+                    option
+                );
+
+            }
+        );
+
+        if (
+            noAnswers.length === 0
+        ) {
+
+            questionSelect.innerHTML = `
+                <option value="">
+                    No questions answered NO
+                </option>
+            `;
+
+        }
+
+    }
+    catch (error) {
+
+        console.error(
+            "Question loading error:",
+            error
+        );
+
+        questionSelect.innerHTML = `
+            <option value="">
+                Unable to load questions
+            </option>
+        `;
+
+    }
+
+}
+
+
+// ============================================================
+// GET QUESTION TEXT
+// ============================================================
+
+function getQuestionText(
+    questionId,
+    inspection
+) {
+
+    const answers =
+        inspection.answers || [];
+
+    const answer =
+        answers.find(
+            item =>
+                item.question === questionId
+        );
+
+    if (
+        answer &&
+        answer.question_text
+    ) {
+
+        return answer.question_text;
+
+    }
+
+    if (
+        answer &&
+        answer.question_name
+    ) {
+
+        return answer.question_name;
+
+    }
+
+    return `Question #${questionId}`;
+
+}
+
+
+// ============================================================
+// QUESTION CHANGE
+// ============================================================
+
+document.getElementById(
+    "question"
+).addEventListener(
+    "change",
+    function() {
+
+        const selected =
+            this.options[
+                this.selectedIndex
+            ];
+
+        if (
+            selected &&
+            selected.dataset.observation
+        ) {
+
+            document.getElementById(
+                "observation"
+            ).value =
+                selected.dataset.observation;
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// LOAD USERS
+// ============================================================
+
+async function loadUsers(
+    selectId
+) {
+
+    const select =
+        document.getElementById(
+            selectId
+        );
+
+    select.innerHTML = `
+        <option value="">
+            Loading users...
+        </option>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                CORRECTIVE_ACTION_OPTIONS_API,
+                {
+                    method: "GET",
+                    headers: getHeaders()
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Unable to load users."
+            );
+
+        }
+
+        /*
+         * The options API returns:
+         *
+         * {
+         *     "users": [...]
+         * }
+         */
+
+        const users =
+            Array.isArray(data.users)
+                ? data.users
+                : [];
+
+        select.innerHTML = `
+            <option value="">
+                Select User
+            </option>
+        `;
+
+        if (
+            users.length === 0
+        ) {
+
+            select.innerHTML = `
+                <option value="">
+                    No active users found
+                </option>
+            `;
+
+            return;
+
+        }
+
+        users.forEach(
+            function(user) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    user.id;
+
+                option.textContent =
+                    user.name ||
+                    user.username ||
+                    `User ${user.id}`;
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+    }
+    catch (error) {
+
+        console.error(
+            "Unable to load users:",
+            error
+        );
+
+        select.innerHTML = `
+            <option value="">
+                Unable to load users
+            </option>
+        `;
+
+    }
+
+}
+
+
+// ============================================================
+// EDIT FORM
+// ============================================================
 
 async function showEditForm(id) {
 
     const editForm =
-        document.getElementById("editForm");
+        document.getElementById(
+            "editForm"
+        );
 
     const message =
-        document.getElementById("editFormMessage");
+        document.getElementById(
+            "editFormMessage"
+        );
 
     const accessToken =
-        localStorage.getItem("access_token");
-
+        getAccessToken();
 
     if (!accessToken) {
 
@@ -730,36 +1348,28 @@ async function showEditForm(id) {
 
     }
 
-
     message.innerHTML = `
         <div class="alert alert-info">
             Loading corrective action...
         </div>
     `;
 
-
-    editForm.style.display = "block";
-
+    editForm.style.display =
+        "block";
 
     try {
 
         const response =
             await fetch(
-                `/api/corrective-actions/${id}/`,
+                `${CORRECTIVE_ACTIONS_API}${id}/`,
                 {
                     method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
+                    headers: getHeaders()
                 }
             );
 
-
         const data =
             await response.json();
-
 
         if (!response.ok) {
 
@@ -770,59 +1380,61 @@ async function showEditForm(id) {
 
         }
 
-
         document.getElementById(
             "editId"
-        ).value = data.id;
-
-
-        document.getElementById(
-            "editInspection"
-        ).value = data.inspection || "";
-
-
-        document.getElementById(
-            "editQuestion"
-        ).value = data.question || "";
-
-
-        document.getElementById(
-            "editObservation"
-        ).value = data.observation || "";
-
-
-        document.getElementById(
-            "editActionRequired"
         ).value =
-            data.action_required || "";
+            data.id;
 
+        document.getElementById(
+            "editInspectionDisplay"
+        ).textContent =
+            data.inspection_display ||
+            (
+                data.plant_name
+                    ? `${data.plant_name} - ${data.inspection_date || ""}`
+                    : `Inspection #${data.inspection || "-"}`
+            );
+
+        await loadEditQuestions(
+            data.inspection,
+            data.question
+        );
+
+        await loadUsers(
+            "editAssignedTo"
+        );
 
         document.getElementById(
             "editAssignedTo"
         ).value =
             data.assigned_to || "";
 
+        document.getElementById(
+            "editObservation"
+        ).value =
+            data.observation || "";
+
+        document.getElementById(
+            "editActionRequired"
+        ).value =
+            data.action_required || "";
 
         document.getElementById(
             "editDueDate"
         ).value =
             data.due_date || "";
 
-
         document.getElementById(
             "editActionTaken"
         ).value =
             data.action_taken || "";
-
 
         document.getElementById(
             "editStatus"
         ).value =
             data.status || "OPEN";
 
-
         message.innerHTML = "";
-
 
         editForm.scrollIntoView({
             behavior: "smooth",
@@ -830,8 +1442,6 @@ async function showEditForm(id) {
         });
 
     }
-
-
     catch (error) {
 
         message.innerHTML = `
@@ -845,30 +1455,134 @@ async function showEditForm(id) {
 }
 
 
+// ============================================================
+// LOAD EDIT QUESTIONS
+// ============================================================
+
+async function loadEditQuestions(
+    inspectionId,
+    selectedQuestionId
+) {
+
+    const select =
+        document.getElementById(
+            "editQuestion"
+        );
+
+    select.innerHTML = `
+        <option value="">
+            Loading questions...
+        </option>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                `${INSPECTIONS_API}${inspectionId}/`,
+                {
+                    method: "GET",
+                    headers: getHeaders()
+                }
+            );
+
+        const inspection =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to load inspection questions."
+            );
+
+        }
+
+        const answers =
+            inspection.answers || [];
+
+        const noAnswers =
+            answers.filter(
+                answer =>
+                    answer.answer === "NO"
+            );
+
+        select.innerHTML = `
+            <option value="">
+                Select Question
+            </option>
+        `;
+
+        noAnswers.forEach(
+            function(answer) {
+
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    answer.question;
+
+                option.textContent =
+                    answer.question_text ||
+                    answer.question_name ||
+                    `Question #${answer.question}`;
+
+                select.appendChild(
+                    option
+                );
+
+            }
+        );
+
+        select.value =
+            selectedQuestionId || "";
+
+    }
+    catch (error) {
+
+        console.error(
+            "Edit question loading error:",
+            error
+        );
+
+        select.innerHTML = `
+            <option value="">
+                Unable to load questions
+            </option>
+        `;
+
+    }
+
+}
+
+
+// ============================================================
+// HIDE EDIT FORM
+// ============================================================
 
 function hideEditForm() {
 
     document.getElementById(
         "editForm"
-    ).style.display = "none";
-
+    ).style.display =
+        "none";
 
     document.getElementById(
         "editCorrectiveActionForm"
     ).reset();
 
-
     document.getElementById(
         "editFormMessage"
-    ).innerHTML = "";
+    ).innerHTML =
+        "";
 
 }
 
 
-
-/* =========================================================
-   LOAD CORRECTIVE ACTIONS
-========================================================= */
+// ============================================================
+// LOAD CORRECTIVE ACTIONS
+// ============================================================
 
 async function loadCorrectiveActions() {
 
@@ -877,54 +1591,43 @@ async function loadCorrectiveActions() {
             "correctiveActionsTableBody"
         );
 
-
     const message =
         document.getElementById(
             "message"
         );
-
 
     const statusFilter =
         document.getElementById(
             "statusFilter"
         ).value;
 
-
     tableBody.innerHTML = `
         <tr>
-
             <td
                 colspan="11"
                 class="text-center"
             >
                 Loading...
             </td>
-
         </tr>
     `;
 
-
-    message.innerHTML = "";
-
+    message.innerHTML =
+        "";
 
     const accessToken =
-        localStorage.getItem(
-            "access_token"
-        );
-
+        getAccessToken();
 
     if (!accessToken) {
 
         tableBody.innerHTML = `
             <tr>
-
                 <td
                     colspan="11"
                     class="text-center text-danger"
                 >
                     Authentication token not found.
                 </td>
-
             </tr>
         `;
 
@@ -932,49 +1635,37 @@ async function loadCorrectiveActions() {
 
     }
 
-
     try {
 
         let apiUrl =
-            "/api/corrective-actions/";
-
+            CORRECTIVE_ACTIONS_API;
 
         if (statusFilter) {
 
             apiUrl +=
-                `?status=${encodeURIComponent(statusFilter)}`;
+                `?status=${encodeURIComponent(
+                    statusFilter
+                )}`;
 
         }
-
 
         const response =
             await fetch(
                 apiUrl,
                 {
-
                     method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${accessToken}`,
-
-                        "Accept":
-                            "application/json"
-
-                    }
-
+                    headers: getHeaders()
                 }
             );
-
 
         const data =
             await response.json();
 
-
         if (!response.ok) {
 
-            if (response.status === 401) {
+            if (
+                response.status === 401
+            ) {
 
                 throw new Error(
                     "Your session has expired. Please log in again."
@@ -982,15 +1673,15 @@ async function loadCorrectiveActions() {
 
             }
 
-
-            if (response.status === 403) {
+            if (
+                response.status === 403
+            ) {
 
                 throw new Error(
                     "You do not have permission to view corrective actions."
                 );
 
             }
-
 
             throw new Error(
                 data.detail ||
@@ -999,43 +1690,29 @@ async function loadCorrectiveActions() {
 
         }
 
-
-        /*
-         * Support both:
-         *
-         * [
-         *     {...},
-         *     {...}
-         * ]
-         *
-         * and:
-         *
-         * {
-         *     "results": [...]
-         * }
-         */
-
         const actions =
             Array.isArray(data)
                 ? data
-                : (data.results || []);
+                : (
+                    data.results ||
+                    []
+                );
 
+        tableBody.innerHTML =
+            "";
 
-        tableBody.innerHTML = "";
-
-
-        if (actions.length === 0) {
+        if (
+            actions.length === 0
+        ) {
 
             tableBody.innerHTML = `
                 <tr>
-
                     <td
                         colspan="11"
                         class="text-center text-muted"
                     >
                         No corrective actions found.
                     </td>
-
                 </tr>
             `;
 
@@ -1043,15 +1720,13 @@ async function loadCorrectiveActions() {
 
         }
 
-
         actions.forEach(
-            action => {
+            function(action) {
 
                 const row =
                     document.createElement(
                         "tr"
                     );
-
 
                 row.innerHTML = `
 
@@ -1059,34 +1734,48 @@ async function loadCorrectiveActions() {
                         ${action.id ?? ""}
                     </td>
 
-
                     <td>
-                        ${action.inspection ?? ""}
+                        ${
+                             action.inspection_display ||
+                            "Unknown Inspection"
+                        }
+
+                       
+
+                       
                     </td>
-
-
-                    <td>
-                        ${action.question ?? ""}
-                    </td>
-
-
-                    <td>
-                        ${action.observation || ""}
-                    </td>
-
-
-                    <td>
-                        ${action.action_required || ""}
-                    </td>
-
 
                     <td>
                         ${
-                            action.assigned_to ??
-                            "Not assigned"
+                            action.question_text ||
+                            (
+                                action.question
+                                    ? `Question #${action.question}`
+                                    : ""
+                            )
                         }
                     </td>
 
+                    <td>
+                        ${
+                            action.observation ||
+                            ""
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            action.action_required ||
+                            ""
+                        }
+                    </td>
+
+                    <td>
+                        ${
+                            action.assigned_to_username ||
+                            "Not assigned"
+                        }
+                    </td>
 
                     <td>
                         ${
@@ -1095,7 +1784,6 @@ async function loadCorrectiveActions() {
                         }
                     </td>
 
-
                     <td>
                         ${
                             action.action_taken ||
@@ -1103,21 +1791,18 @@ async function loadCorrectiveActions() {
                         }
                     </td>
 
-
                     <td>
                         ${getStatusBadge(
                             action.status
                         )}
                     </td>
 
-
                     <td>
                         ${
-                            action.created_by ??
+                            action.created_by_username ||
                             ""
                         }
                     </td>
-
 
                     <td>
 
@@ -1154,7 +1839,6 @@ async function loadCorrectiveActions() {
 
                 `;
 
-
                 tableBody.appendChild(
                     row
                 );
@@ -1163,23 +1847,18 @@ async function loadCorrectiveActions() {
         );
 
     }
-
-
     catch (error) {
 
         tableBody.innerHTML = `
             <tr>
-
                 <td
                     colspan="11"
                     class="text-center text-danger"
                 >
                     Unable to load corrective actions.
                 </td>
-
             </tr>
         `;
-
 
         message.innerHTML = `
             <div class="alert alert-danger">
@@ -1192,432 +1871,401 @@ async function loadCorrectiveActions() {
 }
 
 
+// ============================================================
+// CREATE CORRECTIVE ACTION
+// ============================================================
 
-/* =========================================================
-   CREATE CORRECTIVE ACTION
-========================================================= */
+document.getElementById(
+    "correctiveActionForm"
+).addEventListener(
+    "submit",
+    async function(event) {
 
-document
-    .getElementById(
-        "correctiveActionForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
+        event.preventDefault();
 
-            event.preventDefault();
+        const message =
+            document.getElementById(
+                "createFormMessage"
+            );
 
+        const accessToken =
+            getAccessToken();
 
-            const message =
-                document.getElementById(
-                    "createFormMessage"
-                );
-
-
-            const accessToken =
-                localStorage.getItem(
-                    "access_token"
-                );
-
-
-            if (!accessToken) {
-
-                message.innerHTML = `
-                    <div class="alert alert-danger">
-                        Authentication token not found.
-                        Please log in again.
-                    </div>
-                `;
-
-                return;
-
-            }
-
+        if (!accessToken) {
 
             message.innerHTML = `
-                <div class="alert alert-info">
-                    Creating corrective action...
+                <div class="alert alert-danger">
+                    Authentication token not found.
+                    Please log in again.
                 </div>
             `;
 
-
-            const requestData = {
-
-                inspection:
-                    Number(
-                        document.getElementById(
-                            "inspection"
-                        ).value
-                    ),
-
-                question:
-                    Number(
-                        document.getElementById(
-                            "question"
-                        ).value
-                    ),
-
-                observation:
-                    document.getElementById(
-                        "observation"
-                    ).value,
-
-                action_required:
-                    document.getElementById(
-                        "actionRequired"
-                    ).value,
-
-                action_taken:
-                    document.getElementById(
-                        "actionTaken"
-                    ).value
-
-            };
-
-
-            const assignedTo =
-                document.getElementById(
-                    "assignedTo"
-                ).value;
-
-
-            const dueDate =
-                document.getElementById(
-                    "dueDate"
-                ).value;
-
-
-            if (assignedTo) {
-
-                requestData.assigned_to =
-                    Number(assignedTo);
-
-            }
-
-
-            if (dueDate) {
-
-                requestData.due_date =
-                    dueDate;
-
-            }
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/corrective-actions/",
-                        {
-
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${accessToken}`
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    requestData
-                                )
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    let errorMessage =
-                        data.detail ||
-                        "Failed to create corrective action.";
-
-
-                    if (!data.detail) {
-
-                        errorMessage =
-                            Object.values(data)
-                                .flat()
-                                .join(" ");
-
-                    }
-
-
-                    throw new Error(
-                        errorMessage
-                    );
-
-                }
-
-
-                message.innerHTML = `
-                    <div class="alert alert-success">
-                        Corrective action #${data.id}
-                        created successfully.
-                    </div>
-                `;
-
-
-                document
-                    .getElementById(
-                        "correctiveActionForm"
-                    )
-                    .reset();
-
-
-                loadCorrectiveActions();
-
-            }
-
-
-            catch (error) {
-
-                message.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${error.message}
-                    </div>
-                `;
-
-            }
+            return;
 
         }
-    );
 
+        if (!selectedInspectionId) {
 
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    Inspection could not be detected.
+                    Please refresh the page and try again.
+                </div>
+            `;
 
-/* =========================================================
-   UPDATE CORRECTIVE ACTION
-========================================================= */
+            return;
 
-document
-    .getElementById(
-        "editCorrectiveActionForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
+        }
 
-            event.preventDefault();
+        const question =
+            document.getElementById(
+                "question"
+            ).value;
 
+        if (!question) {
 
-            const message =
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    Please select a question.
+                </div>
+            `;
+
+            return;
+
+        }
+
+        message.innerHTML = `
+            <div class="alert alert-info">
+                Creating corrective action...
+            </div>
+        `;
+
+        const requestData = {
+
+            inspection:
+                Number(
+                    selectedInspectionId
+                ),
+
+            question:
+                Number(question),
+
+            observation:
                 document.getElementById(
-                    "editFormMessage"
-                );
+                    "observation"
+                ).value,
 
-
-            const accessToken =
-                localStorage.getItem(
-                    "access_token"
-                );
-
-
-            if (!accessToken) {
-
-                message.innerHTML = `
-                    <div class="alert alert-danger">
-                        Authentication token not found.
-                        Please log in again.
-                    </div>
-                `;
-
-                return;
-
-            }
-
-
-            const id =
+            action_required:
                 document.getElementById(
-                    "editId"
-                ).value;
+                    "actionRequired"
+                ).value,
 
-
-            const requestData = {
-
-                inspection:
-                    Number(
-                        document.getElementById(
-                            "editInspection"
-                        ).value
-                    ),
-
-                question:
-                    Number(
-                        document.getElementById(
-                            "editQuestion"
-                        ).value
-                    ),
-
-                observation:
-                    document.getElementById(
-                        "editObservation"
-                    ).value,
-
-                action_required:
-                    document.getElementById(
-                        "editActionRequired"
-                    ).value,
-
-                action_taken:
-                    document.getElementById(
-                        "editActionTaken"
-                    ).value,
-
-                status:
-                    document.getElementById(
-                        "editStatus"
-                    ).value
-
-            };
-
-
-            const assignedTo =
+            action_taken:
                 document.getElementById(
-                    "editAssignedTo"
-                ).value;
+                    "actionTaken"
+                ).value
 
+        };
 
-            const dueDate =
-                document.getElementById(
-                    "editDueDate"
-                ).value;
+        const assignedTo =
+            document.getElementById(
+                "assignedTo"
+            ).value;
 
+        const dueDate =
+            document.getElementById(
+                "dueDate"
+            ).value;
+
+        if (assignedTo) {
 
             requestData.assigned_to =
-                assignedTo
-                    ? Number(assignedTo)
-                    : null;
+                Number(
+                    assignedTo
+                );
 
+        }
+
+        if (dueDate) {
 
             requestData.due_date =
-                dueDate
-                    ? dueDate
-                    : null;
+                dueDate;
 
+        }
 
-            message.innerHTML = `
-                <div class="alert alert-info">
-                    Updating corrective action...
-                </div>
-            `;
+        try {
 
+            const response =
+                await fetch(
+                    CORRECTIVE_ACTIONS_API,
+                    {
+                        method: "POST",
 
-            try {
+                        headers: getHeaders(),
 
-                const response =
-                    await fetch(
-                        `/api/corrective-actions/${id}/`,
-                        {
-
-                            method: "PATCH",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${accessToken}`
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    requestData
-                                )
-
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    let errorMessage =
-                        data.detail ||
-                        "Failed to update corrective action.";
-
-
-                    if (!data.detail) {
-
-                        errorMessage =
-                            Object.values(data)
-                                .flat()
-                                .join(" ");
-
+                        body:
+                            JSON.stringify(
+                                requestData
+                            )
                     }
+                );
 
+            const data =
+                await response.json();
 
-                    throw new Error(
-                        errorMessage
-                    );
+            if (!response.ok) {
+
+                let errorMessage =
+                    data.detail ||
+                    "Failed to create corrective action.";
+
+                if (!data.detail) {
+
+                    errorMessage =
+                        Object.values(data)
+                            .flat()
+                            .join(" ");
 
                 }
 
-
-                message.innerHTML = `
-                    <div class="alert alert-success">
-                        Corrective action #${data.id}
-                        updated successfully.
-                    </div>
-                `;
-
-
-                loadCorrectiveActions();
+                throw new Error(
+                    errorMessage
+                );
 
             }
 
+            message.innerHTML = `
+                <div class="alert alert-success">
+                    Corrective action created successfully.
+                </div>
+            `;
 
-            catch (error) {
+            document.getElementById(
+                "correctiveActionForm"
+            ).reset();
 
-                message.innerHTML = `
-                    <div class="alert alert-danger">
-                        ${error.message}
-                    </div>
-                `;
+            selectedInspectionId =
+                null;
 
-            }
+            selectedInspectionData =
+                null;
+
+            loadCorrectiveActions();
 
         }
-    );
+        catch (error) {
+
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    ${error.message}
+                </div>
+            `;
+
+        }
+
+    }
+);
 
 
+// ============================================================
+// UPDATE CORRECTIVE ACTION
+// ============================================================
 
-/* =========================================================
-   STATUS FILTER
-========================================================= */
+document.getElementById(
+    "editCorrectiveActionForm"
+).addEventListener(
+    "submit",
+    async function(event) {
 
-document
-    .getElementById(
-        "statusFilter"
-    )
-    .addEventListener(
-        "change",
-        loadCorrectiveActions
-    );
+        event.preventDefault();
+
+        const message =
+            document.getElementById(
+                "editFormMessage"
+            );
+
+        const accessToken =
+            getAccessToken();
+
+        if (!accessToken) {
+
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    Authentication token not found.
+                    Please log in again.
+                </div>
+            `;
+
+            return;
+
+        }
+
+        const id =
+            document.getElementById(
+                "editId"
+            ).value;
+
+        const question =
+            document.getElementById(
+                "editQuestion"
+            ).value;
+
+        if (!question) {
+
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    Please select a question.
+                </div>
+            `;
+
+            return;
+
+        }
+
+        const requestData = {
+
+            question:
+                Number(question),
+
+            observation:
+                document.getElementById(
+                    "editObservation"
+                ).value,
+
+            action_required:
+                document.getElementById(
+                    "editActionRequired"
+                ).value,
+
+            action_taken:
+                document.getElementById(
+                    "editActionTaken"
+                ).value,
+
+            status:
+                document.getElementById(
+                    "editStatus"
+                ).value
+
+        };
+
+        const assignedTo =
+            document.getElementById(
+                "editAssignedTo"
+            ).value;
+
+        const dueDate =
+            document.getElementById(
+                "editDueDate"
+            ).value;
+
+        requestData.assigned_to =
+            assignedTo
+                ? Number(assignedTo)
+                : null;
+
+        requestData.due_date =
+            dueDate
+                ? dueDate
+                : null;
+
+        message.innerHTML = `
+            <div class="alert alert-info">
+                Updating corrective action...
+            </div>
+        `;
+
+        try {
+
+            const response =
+                await fetch(
+                    `${CORRECTIVE_ACTIONS_API}${id}/`,
+                    {
+                        method: "PATCH",
+
+                        headers: getHeaders(),
+
+                        body:
+                            JSON.stringify(
+                                requestData
+                            )
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                let errorMessage =
+                    data.detail ||
+                    "Failed to update corrective action.";
+
+                if (!data.detail) {
+
+                    errorMessage =
+                        Object.values(data)
+                            .flat()
+                            .join(" ");
+
+                }
+
+                throw new Error(
+                    errorMessage
+                );
+
+            }
+
+            message.innerHTML = `
+                <div class="alert alert-success">
+                    Corrective action updated successfully.
+                </div>
+            `;
+
+            loadCorrectiveActions();
+
+        }
+        catch (error) {
+
+            message.innerHTML = `
+                <div class="alert alert-danger">
+                    ${error.message}
+                </div>
+            `;
+
+        }
+
+    }
+);
 
 
+// ============================================================
+// STATUS FILTER
+// ============================================================
 
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
+document.getElementById(
+    "statusFilter"
+).addEventListener(
+    "change",
+    loadCorrectiveActions
+);
 
-loadCorrectiveActions();
+
+// ============================================================
+// INITIAL LOAD
+// ============================================================
+
+async function initializePage() {
+
+    await loadCorrectiveActions();
+
+}
+
+initializePage();
 
 
 </script>
+
 
 </body>
 

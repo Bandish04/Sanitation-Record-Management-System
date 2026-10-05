@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.utils import timezone
 from .models import (
     InspectionTemplate,
     InspectionSection,
@@ -80,10 +80,12 @@ class InspectionTemplateSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
 
+
 class InspectionAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InspectionAnswer
+
         fields = [
             "id",
             "inspection",
@@ -93,6 +95,7 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
         read_only_fields = [
             "id",
             "inspection",
@@ -106,6 +109,7 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
         # GET INSPECTION
         # ----------------------------------------------------
         if self.instance is None:
+
             inspection_id = self.context["request"].data.get(
                 "inspection"
             )
@@ -240,12 +244,27 @@ class InspectionAnswerSerializer(serializers.ModelSerializer):
             )
 
         return data
-        
+
 
 class SanitationInspectionSerializer(serializers.ModelSerializer):
 
     answers = InspectionAnswerSerializer(
         many=True,
+        read_only=True,
+    )
+
+    plant_code = serializers.CharField(
+        source="plant.code",
+        read_only=True,
+    )
+
+    plant_name = serializers.CharField(
+        source="plant.name",
+        read_only=True,
+    )
+
+    template_name = serializers.CharField(
+        source="template.name",
         read_only=True,
     )
 
@@ -255,7 +274,10 @@ class SanitationInspectionSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "plant",
+            "plant_code",
+            "plant_name",
             "template",
+            "template_name",
             "inspection_date",
             "inspector",
             "status",
@@ -268,6 +290,10 @@ class SanitationInspectionSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "id",
+            "plant_code",
+            "plant_name",
+            "template_name",
+            "inspection_date",
             "inspector",
             "status",
             "signed_at",
@@ -280,6 +306,7 @@ class SanitationInspectionSerializer(serializers.ModelSerializer):
 
         return SanitationInspection.objects.create(
             **validated_data,
+            inspection_date=timezone.localdate(),
             inspector=self.context["request"].user,
             status=SanitationInspection.Status.DRAFT,
         )
@@ -287,12 +314,41 @@ class SanitationInspectionSerializer(serializers.ModelSerializer):
 
 class ATPReportSerializer(serializers.ModelSerializer):
 
+    # --------------------------------------------------------
+    # PLANT DISPLAY INFORMATION
+    # --------------------------------------------------------
+    plant_name = serializers.CharField(
+        source="plant.name",
+        read_only=True,
+    )
+
+    plant_code = serializers.CharField(
+        source="plant.code",
+        read_only=True,
+    )
+
+    # --------------------------------------------------------
+    # INSPECTION PERFORMER
+    # --------------------------------------------------------
+    inspection_inspector = serializers.SerializerMethodField()
+
+    def get_inspection_inspector(self, obj):
+
+        if obj.inspection and obj.inspection.inspector:
+            return obj.inspection.inspector.username
+
+        return None
+
     class Meta:
         model = ATPReport
+
         fields = [
             "id",
             "plant",
+            "plant_name",
+            "plant_code",
             "inspection",
+            "inspection_inspector",
             "file",
             "original_filename",
             "uploaded_by",
@@ -303,6 +359,9 @@ class ATPReportSerializer(serializers.ModelSerializer):
 
         read_only_fields = [
             "id",
+            "plant_name",
+            "plant_code",
+            "inspection_inspector",
             "original_filename",
             "uploaded_by",
             "uploaded_at",

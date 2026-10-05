@@ -5,10 +5,13 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from accounts.permissions import IsInspector
+from accounts.permissions import IsInspectorTeamLeadAdmin
 from audit.models import AuditLog
 
-from .models import SanitizerTitration, ChloragelTitration
+from .models import (
+    SanitizerTitration,
+    ChloragelTitration,
+)
 from .serializers import (
     SanitizerTitrationSerializer,
     ChloragelTitrationSerializer,
@@ -23,6 +26,7 @@ from .serializers import (
 class SanitizerTitrationListCreateAPIView(
     generics.ListCreateAPIView
 ):
+
     serializer_class = SanitizerTitrationSerializer
 
     def get_queryset(self):
@@ -32,13 +36,17 @@ class SanitizerTitrationListCreateAPIView(
         ).all()
 
     def get_permissions(self):
+
         if self.request.method == "POST":
-            return [IsInspector()]
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        titration = serializer.save()
+
+        titration = serializer.save(
+        
+        )
 
         AuditLog.objects.create(
             user=self.request.user,
@@ -50,7 +58,9 @@ class SanitizerTitrationListCreateAPIView(
                 "plant": titration.plant_id,
                 "r71_drops": titration.r71_drops,
                 "ppm": str(titration.ppm),
-                "percent_vv": str(titration.percent_vv),
+                "percent_vv": str(
+                    titration.percent_vv
+                ),
                 "status": titration.status,
                 "result_status": titration.result_status,
             },
@@ -61,6 +71,7 @@ class SanitizerTitrationListCreateAPIView(
 class SanitizerTitrationDetailAPIView(
     generics.RetrieveUpdateAPIView
 ):
+
     serializer_class = SanitizerTitrationSerializer
 
     def get_queryset(self):
@@ -70,23 +81,39 @@ class SanitizerTitrationDetailAPIView(
         ).all()
 
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH"]:
-            return [IsInspector()]
+
+        if self.request.method in [
+            "PUT",
+            "PATCH",
+        ]:
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def update(self, request, *args, **kwargs):
+
         titration = self.get_object()
 
-        # Only the Inspector who created the titration
-        # can edit it.
-        if titration.created_by != request.user:
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
+
+        # Inspectors and Team Leads can only edit
+        # their own records.
+        #
+        # Admins can edit any record.
+        if (
+            not is_admin
+            and titration.created_by != request.user
+        ):
             raise PermissionDenied(
                 "You can only edit your own titrations."
             )
 
         # Submitted records are locked.
-        if titration.status != SanitizerTitration.Status.DRAFT:
+        if titration.status != (
+            SanitizerTitration.Status.DRAFT
+        ):
             raise PermissionDenied(
                 "Only draft titrations can be modified."
             )
@@ -95,7 +122,9 @@ class SanitizerTitrationDetailAPIView(
             "plant": titration.plant_id,
             "r71_drops": titration.r71_drops,
             "ppm": str(titration.ppm),
-            "percent_vv": str(titration.percent_vv),
+            "percent_vv": str(
+                titration.percent_vv
+            ),
             "status": titration.status,
             "result_status": titration.result_status,
         }
@@ -112,7 +141,9 @@ class SanitizerTitrationDetailAPIView(
             "plant": titration.plant_id,
             "r71_drops": titration.r71_drops,
             "ppm": str(titration.ppm),
-            "percent_vv": str(titration.percent_vv),
+            "percent_vv": str(
+                titration.percent_vv
+            ),
             "status": titration.status,
             "result_status": titration.result_status,
         }
@@ -133,7 +164,10 @@ class SanitizerTitrationDetailAPIView(
 class SanitizerTitrationSubmitAPIView(
     generics.GenericAPIView
 ):
-    permission_classes = [IsInspector]
+
+    permission_classes = [
+        IsInspectorTeamLeadAdmin
+    ]
 
     def post(self, request, pk):
 
@@ -141,20 +175,32 @@ class SanitizerTitrationSubmitAPIView(
             titration = SanitizerTitration.objects.get(
                 pk=pk
             )
+
         except SanitizerTitration.DoesNotExist:
             raise NotFound(
                 "Sanitizer titration not found."
             )
 
-        # Only the Inspector who created the titration
-        # can submit it.
-        if titration.created_by != request.user:
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
+
+        # Inspectors and Team Leads can only submit
+        # their own records.
+        #
+        # Admins can submit any record.
+        if (
+            not is_admin
+            and titration.created_by != request.user
+        ):
             raise PermissionDenied(
                 "You can only submit your own titrations."
             )
 
         # Only DRAFT records can be submitted.
-        if titration.status != SanitizerTitration.Status.DRAFT:
+        if titration.status != (
+            SanitizerTitration.Status.DRAFT
+        ):
             raise PermissionDenied(
                 "Only draft titrations can be submitted."
             )
@@ -220,6 +266,7 @@ class SanitizerTitrationSubmitAPIView(
 class ChloragelTitrationListCreateAPIView(
     generics.ListCreateAPIView
 ):
+
     serializer_class = ChloragelTitrationSerializer
 
     def get_queryset(self):
@@ -229,13 +276,17 @@ class ChloragelTitrationListCreateAPIView(
         ).all()
 
     def get_permissions(self):
+
         if self.request.method == "POST":
-            return [IsInspector()]
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        titration = serializer.save()
+
+        titration = serializer.save(
+           
+        )
 
         AuditLog.objects.create(
             user=self.request.user,
@@ -259,6 +310,7 @@ class ChloragelTitrationListCreateAPIView(
 class ChloragelTitrationDetailAPIView(
     generics.RetrieveUpdateAPIView
 ):
+
     serializer_class = ChloragelTitrationSerializer
 
     def get_queryset(self):
@@ -268,23 +320,39 @@ class ChloragelTitrationDetailAPIView(
         ).all()
 
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH"]:
-            return [IsInspector()]
+
+        if self.request.method in [
+            "PUT",
+            "PATCH",
+        ]:
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def update(self, request, *args, **kwargs):
+
         titration = self.get_object()
 
-        # Only the Inspector who created the titration
-        # can edit it.
-        if titration.created_by != request.user:
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
+
+        # Inspectors and Team Leads can only edit
+        # their own records.
+        #
+        # Admins can edit any record.
+        if (
+            not is_admin
+            and titration.created_by != request.user
+        ):
             raise PermissionDenied(
                 "You can only edit your own titrations."
             )
 
         # Submitted records are locked.
-        if titration.status != ChloragelTitration.Status.DRAFT:
+        if titration.status != (
+            ChloragelTitration.Status.DRAFT
+        ):
             raise PermissionDenied(
                 "Only draft titrations can be modified."
             )
@@ -333,7 +401,10 @@ class ChloragelTitrationDetailAPIView(
 class ChloragelTitrationSubmitAPIView(
     generics.GenericAPIView
 ):
-    permission_classes = [IsInspector]
+
+    permission_classes = [
+        IsInspectorTeamLeadAdmin
+    ]
 
     def post(self, request, pk):
 
@@ -341,20 +412,32 @@ class ChloragelTitrationSubmitAPIView(
             titration = ChloragelTitration.objects.get(
                 pk=pk
             )
+
         except ChloragelTitration.DoesNotExist:
             raise NotFound(
                 "Chloragel titration not found."
             )
 
-        # Only the Inspector who created the titration
-        # can submit it.
-        if titration.created_by != request.user:
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
+
+        # Inspectors and Team Leads can only submit
+        # their own records.
+        #
+        # Admins can submit any record.
+        if (
+            not is_admin
+            and titration.created_by != request.user
+        ):
             raise PermissionDenied(
                 "You can only submit your own titrations."
             )
 
         # Only DRAFT records can be submitted.
-        if titration.status != ChloragelTitration.Status.DRAFT:
+        if titration.status != (
+            ChloragelTitration.Status.DRAFT
+        ):
             raise PermissionDenied(
                 "Only draft titrations can be submitted."
             )

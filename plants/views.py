@@ -9,12 +9,25 @@ from .serializers import PlantSerializer
 
 class PlantListCreateAPIView(generics.ListCreateAPIView):
 
-    queryset = Plant.objects.all()
+    queryset = Plant.objects.all().order_by("id")
     serializer_class = PlantSerializer
 
     def get_permissions(self):
 
         if self.request.method == "POST":
+            return [IsAdmin()]
+
+        return [IsAuthenticated()]
+
+
+class PlantDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = Plant.objects.all()
+    serializer_class = PlantSerializer
+
+    def get_permissions(self):
+
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
             return [IsAdmin()]
 
         return [IsAuthenticated()]

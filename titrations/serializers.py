@@ -9,11 +9,17 @@ from .models import SanitizerTitration, ChloragelTitration
 
 class SanitizerTitrationSerializer(serializers.ModelSerializer):
 
+    plant_name = serializers.CharField(
+        source="plant.name",
+        read_only=True,
+    )
+
     class Meta:
         model = SanitizerTitration
         fields = [
             "id",
             "plant",
+            "plant_name",
             "sample_volume_ml",
             "r71_drops",
             "ppm",
@@ -27,6 +33,7 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "plant_name",
             "sample_volume_ml",
             "ppm",
             "percent_vv",
@@ -106,11 +113,17 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
 
 class ChloragelTitrationSerializer(serializers.ModelSerializer):
 
+    plant_name = serializers.CharField(
+        source="plant.name",
+        read_only=True,
+    )
+
     class Meta:
         model = ChloragelTitration
         fields = [
             "id",
             "plant",
+            "plant_name",
             "sample_volume_ml",
             "r9_drops",
             "result_percent",
@@ -123,6 +136,7 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "id",
+            "plant_name",
             "sample_volume_ml",
             "result_percent",
             "status",

@@ -23,7 +23,11 @@ from .serializers import (
     SanitationInspectionSerializer,
 )
 
-from accounts.permissions import IsAdmin, IsInspector
+from accounts.permissions import (
+    IsAdmin,
+    IsInspectorTeamLeadAdmin,
+)
+
 from audit.models import AuditLog
 
 
@@ -39,6 +43,7 @@ class InspectionTemplateListCreateAPIView(
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
+
         if self.request.method == "POST":
             return [IsAdmin()]
 
@@ -60,6 +65,7 @@ class InspectionSectionListCreateAPIView(
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
+
         if self.request.method == "POST":
             return [IsAdmin()]
 
@@ -76,6 +82,7 @@ class InspectionQuestionListCreateAPIView(
     serializer_class = InspectionQuestionSerializer
 
     def get_queryset(self):
+
         queryset = InspectionQuestion.objects.select_related(
             "section",
             "section__template",
@@ -86,6 +93,7 @@ class InspectionQuestionListCreateAPIView(
         )
 
         if template_id:
+
             queryset = queryset.filter(
                 section__template_id=template_id
             )
@@ -93,6 +101,7 @@ class InspectionQuestionListCreateAPIView(
         return queryset
 
     def get_permissions(self):
+
         if self.request.method == "POST":
             return [IsAdmin()]
 
@@ -109,8 +118,10 @@ class SanitationInspectionListCreateAPIView(
     serializer_class = SanitationInspectionSerializer
 
     def get_queryset(self):
+
         return (
-            SanitationInspection.objects.select_related(
+            SanitationInspection.objects
+            .select_related(
                 "plant",
                 "template",
                 "inspector",
@@ -122,12 +133,14 @@ class SanitationInspectionListCreateAPIView(
         )
 
     def get_permissions(self):
+
         if self.request.method == "POST":
-            return [IsInspector()]
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
+
         inspection = serializer.save()
 
         AuditLog.objects.create(
@@ -160,8 +173,10 @@ class SanitationInspectionDetailAPIView(
     serializer_class = SanitationInspectionSerializer
 
     def get_queryset(self):
+
         return (
-            SanitationInspection.objects.select_related(
+            SanitationInspection.objects
+            .select_related(
                 "plant",
                 "template",
                 "inspector",
@@ -173,28 +188,89 @@ class SanitationInspectionDetailAPIView(
         )
 
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH"]:
-            return [IsInspector()]
+
+        if self.request.method in [
+            "PUT",
+            "PATCH",
+        ]:
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
-    def update(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
+
         inspection = self.get_object()
 
-        # Only the inspector who created the inspection
-        # can edit it.
-        if inspection.inspector != request.user:
-            raise PermissionDenied(
-                "You can only edit your own inspections."
-            )
+        serializer = self.get_serializer(
+            inspection
+        )
 
+        data = serializer.data
+
+        # ----------------------------------------------------
+        # Explicit human-readable values.
+        # ----------------------------------------------------
+
+        data["plant_name"] = (
+            inspection.plant.name
+        )
+
+        data["plant_code"] = (
+            inspection.plant.code
+        )
+
+        data["template_name"] = (
+            inspection.template.name
+        )
+
+        data["inspector_name"] = (
+            inspection.inspector.username
+            if inspection.inspector
+            else None
+        )
+
+        return Response(
+            data,
+            status=status.HTTP_200_OK,
+        )
+
+    def update(self, request, *args, **kwargs):
+
+        inspection = self.get_object()
+
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
+
+        # ----------------------------------------------------
+        # Ownership check
+        # ----------------------------------------------------
+
+        if not is_admin:
+
+            if inspection.inspector != request.user:
+
+                raise PermissionDenied(
+                    "You can only edit your own inspections."
+                )
+
+        # ----------------------------------------------------
         # Only draft inspections can be edited.
-        if inspection.status != SanitationInspection.Status.DRAFT:
+        # ----------------------------------------------------
+
+        if (
+            inspection.status
+            != SanitationInspection.Status.DRAFT
+        ):
+
             raise PermissionDenied(
                 "Only draft inspections can be modified."
             )
 
+        # ----------------------------------------------------
         # Store old values before modification.
+        # ----------------------------------------------------
+
         old_values = {
             "plant": inspection.plant_id,
             "template": inspection.template_id,
@@ -205,17 +281,26 @@ class SanitationInspectionDetailAPIView(
             "general_notes": inspection.general_notes,
         }
 
+        # ----------------------------------------------------
         # Perform the actual update.
+        # ----------------------------------------------------
+
         response = super().update(
             request,
             *args,
             **kwargs,
         )
 
+        # ----------------------------------------------------
         # Reload the object after the update.
+        # ----------------------------------------------------
+
         inspection.refresh_from_db()
 
-        # Store new values after modification.
+        # ----------------------------------------------------
+        # Store new values after the update.
+        # ----------------------------------------------------
+
         new_values = {
             "plant": inspection.plant_id,
             "template": inspection.template_id,
@@ -226,7 +311,10 @@ class SanitationInspectionDetailAPIView(
             "general_notes": inspection.general_notes,
         }
 
+        # ----------------------------------------------------
         # Create audit record.
+        # ----------------------------------------------------
+
         AuditLog.objects.create(
             user=request.user,
             action="EDIT_INSPECTION",
@@ -248,33 +336,56 @@ class InspectionAnswerCreateAPIView(
     generics.CreateAPIView
 ):
     serializer_class = InspectionAnswerSerializer
-    permission_classes = [IsInspector]
+
+    permission_classes = [
+        IsInspectorTeamLeadAdmin
+    ]
 
     def perform_create(self, serializer):
+
         inspection_id = self.request.data.get(
             "inspection"
         )
 
         try:
-            inspection = SanitationInspection.objects.get(
-                id=inspection_id
+
+            inspection = (
+                SanitationInspection.objects.get(
+                    id=inspection_id
+                )
             )
 
         except SanitationInspection.DoesNotExist:
+
             raise NotFound(
                 "Inspection not found."
             )
 
-        # Inspector can only add answers
-        # to their own inspection.
-        if inspection.inspector != self.request.user:
-            raise PermissionDenied(
-                "You can only add answers to your own inspections."
-            )
+        is_admin = self.request.user.groups.filter(
+            name="Admin"
+        ).exists()
 
-        # Answers can only be added while
-        # the inspection is still a draft.
-        if inspection.status != SanitationInspection.Status.DRAFT:
+        # ----------------------------------------------------
+        # Ownership check
+        # ----------------------------------------------------
+
+        if not is_admin:
+
+            if inspection.inspector != self.request.user:
+
+                raise PermissionDenied(
+                    "You can only add answers to your own inspection."
+                )
+
+        # ----------------------------------------------------
+        # Answers can only be added to draft inspections.
+        # ----------------------------------------------------
+
+        if (
+            inspection.status
+            != SanitationInspection.Status.DRAFT
+        ):
+
             raise PermissionDenied(
                 "Answers can only be added to draft inspections."
             )
@@ -294,33 +405,55 @@ class InspectionAnswerDetailAPIView(
     serializer_class = InspectionAnswerSerializer
 
     def get_queryset(self):
-        return InspectionAnswer.objects.select_related(
-            "inspection",
-            "question",
-        ).all()
+
+        return (
+            InspectionAnswer.objects
+            .select_related(
+                "inspection",
+                "question",
+            )
+            .all()
+        )
 
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH"]:
-            return [IsInspector()]
+
+        if self.request.method in [
+            "PUT",
+            "PATCH",
+        ]:
+            return [IsInspectorTeamLeadAdmin()]
 
         return [IsAuthenticated()]
 
     def update(self, request, *args, **kwargs):
+
         answer = self.get_object()
 
-        # Only the inspector who owns
-        # the inspection can edit its answers.
-        if answer.inspection.inspector != request.user:
-            raise PermissionDenied(
-                "You can only edit your own inspection answers."
-            )
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
 
-        # Answers can only be modified
-        # while the inspection is a draft.
+        # ----------------------------------------------------
+        # Ownership check
+        # ----------------------------------------------------
+
+        if not is_admin:
+
+            if answer.inspection.inspector != request.user:
+
+                raise PermissionDenied(
+                    "You can only edit your own inspection answers."
+                )
+
+        # ----------------------------------------------------
+        # Answers can only be modified while draft.
+        # ----------------------------------------------------
+
         if (
             answer.inspection.status
             != SanitationInspection.Status.DRAFT
         ):
+
             raise PermissionDenied(
                 "Answers can only be modified while "
                 "the inspection is in draft."
@@ -340,10 +473,14 @@ class InspectionAnswerDetailAPIView(
 class SanitationInspectionSubmitAPIView(
     generics.GenericAPIView
 ):
-    permission_classes = [IsInspector]
+    permission_classes = [
+        IsInspectorTeamLeadAdmin
+    ]
 
     def post(self, request, pk):
+
         try:
+
             inspection = (
                 SanitationInspection.objects
                 .prefetch_related(
@@ -353,30 +490,42 @@ class SanitationInspectionSubmitAPIView(
             )
 
         except SanitationInspection.DoesNotExist:
+
             raise NotFound(
                 "Inspection not found."
             )
 
-        # ----------------------------------------------------
-        # Inspector ownership check
-        # ----------------------------------------------------
-
-        if inspection.inspector != request.user:
-            raise PermissionDenied(
-                "You can only submit your own inspections."
-            )
+        is_admin = request.user.groups.filter(
+            name="Admin"
+        ).exists()
 
         # ----------------------------------------------------
-        # Only draft inspections can be submitted
+        # Ownership check
         # ----------------------------------------------------
 
-        if inspection.status != SanitationInspection.Status.DRAFT:
+        if not is_admin:
+
+            if inspection.inspector != request.user:
+
+                raise PermissionDenied(
+                    "You can only submit your own inspections."
+                )
+
+        # ----------------------------------------------------
+        # Only draft inspections can be submitted.
+        # ----------------------------------------------------
+
+        if (
+            inspection.status
+            != SanitationInspection.Status.DRAFT
+        ):
+
             raise PermissionDenied(
                 "Only draft inspections can be submitted."
             )
 
         # ----------------------------------------------------
-        # Get all active questions from the template
+        # Get all active questions from the template.
         # ----------------------------------------------------
 
         questions = InspectionQuestion.objects.filter(
@@ -385,7 +534,7 @@ class SanitationInspectionSubmitAPIView(
         )
 
         # ----------------------------------------------------
-        # Get questions already answered
+        # Get questions already answered.
         # ----------------------------------------------------
 
         answered_question_ids = set(
@@ -396,22 +545,25 @@ class SanitationInspectionSubmitAPIView(
         )
 
         # ----------------------------------------------------
-        # Find unanswered questions
+        # Find unanswered questions.
         # ----------------------------------------------------
 
         unanswered_questions = []
 
         for question in questions:
+
             if question.id not in answered_question_ids:
+
                 unanswered_questions.append(
                     question.id
                 )
 
         # ----------------------------------------------------
-        # Prevent submission if questions are missing
+        # Prevent submission if questions are missing.
         # ----------------------------------------------------
 
         if unanswered_questions:
+
             return Response(
                 {
                     "detail": (
@@ -426,27 +578,30 @@ class SanitationInspectionSubmitAPIView(
             )
 
         # ----------------------------------------------------
-        # Validate NO answers requiring observations
+        # Validate NO answers requiring observations.
         # ----------------------------------------------------
 
         invalid_answers = []
 
         for answer in inspection.answers.all():
+
             if (
                 answer.answer
                 == InspectionAnswer.AnswerChoices.NO
                 and answer.question.requires_observation_on_no
                 and not answer.observation.strip()
             ):
+
                 invalid_answers.append(
                     answer.question_id
                 )
 
         # ----------------------------------------------------
-        # Prevent submission if required observations missing
+        # Prevent submission if required observations missing.
         # ----------------------------------------------------
 
         if invalid_answers:
+
             return Response(
                 {
                     "detail": (
@@ -459,7 +614,7 @@ class SanitationInspectionSubmitAPIView(
             )
 
         # ----------------------------------------------------
-        # Store old values for audit
+        # Store old values for audit.
         # ----------------------------------------------------
 
         old_values = {
@@ -472,7 +627,7 @@ class SanitationInspectionSubmitAPIView(
         }
 
         # ----------------------------------------------------
-        # Submit the inspection
+        # Submit the inspection.
         # ----------------------------------------------------
 
         inspection.status = (
@@ -490,7 +645,7 @@ class SanitationInspectionSubmitAPIView(
         )
 
         # ----------------------------------------------------
-        # Create submission audit log
+        # Create submission audit log.
         # ----------------------------------------------------
 
         AuditLog.objects.create(
@@ -509,7 +664,7 @@ class SanitationInspectionSubmitAPIView(
         )
 
         # ----------------------------------------------------
-        # Return successful response
+        # Return successful response.
         # ----------------------------------------------------
 
         return Response(
@@ -535,6 +690,7 @@ class ATPReportListCreateAPIView(
     serializer_class = ATPReportSerializer
 
     def get_queryset(self):
+
         return ATPReport.objects.select_related(
             "plant",
             "inspection",
@@ -542,17 +698,20 @@ class ATPReportListCreateAPIView(
         ).all()
 
     def get_permissions(self):
+
         if self.request.method == "POST":
             return [IsAdmin()]
 
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
+
         # IMPORTANT:
         # uploaded_by is already assigned inside
         # ATPReportSerializer.create().
         #
         # Therefore we must NOT pass uploaded_by here.
+
         atp_report = serializer.save()
 
         AuditLog.objects.create(
@@ -564,8 +723,12 @@ class ATPReportListCreateAPIView(
             new_values={
                 "plant": atp_report.plant_id,
                 "inspection": atp_report.inspection_id,
-                "original_filename": atp_report.original_filename,
-                "uploaded_by": atp_report.uploaded_by_id,
+                "original_filename": (
+                    atp_report.original_filename
+                ),
+                "uploaded_by": (
+                    atp_report.uploaded_by_id
+                ),
                 "status": atp_report.status,
                 "notes": atp_report.notes,
             },
@@ -581,11 +744,16 @@ class SanitationInspectionCorrectionAPIView(
     generics.UpdateAPIView
 ):
     serializer_class = SanitationInspectionSerializer
-    permission_classes = [IsAdmin]
+
+    permission_classes = [
+        IsAdmin
+    ]
 
     def get_queryset(self):
+
         return (
-            SanitationInspection.objects.select_related(
+            SanitationInspection.objects
+            .select_related(
                 "plant",
                 "template",
                 "inspector",
@@ -597,26 +765,44 @@ class SanitationInspectionCorrectionAPIView(
         )
 
     def update(self, request, *args, **kwargs):
+
         inspection = self.get_object()
 
+        # ----------------------------------------------------
         # Only submitted inspections can be corrected.
-        if inspection.status != SanitationInspection.Status.SUBMITTED:
+        # ----------------------------------------------------
+
+        if (
+            inspection.status
+            != SanitationInspection.Status.SUBMITTED
+        ):
+
             raise PermissionDenied(
                 "Only submitted inspections can be corrected."
             )
 
+        # ----------------------------------------------------
         # A correction reason is required.
-        reason = request.data.get("reason")
+        # ----------------------------------------------------
+
+        reason = request.data.get(
+            "reason"
+        )
 
         if not reason or not str(reason).strip():
+
             return Response(
                 {
-                    "detail": "A correction reason is required."
+                    "detail":
+                    "A correction reason is required."
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Store the original values before correction.
+        # ----------------------------------------------------
+        # Store original values before correction.
+        # ----------------------------------------------------
+
         old_values = {
             "plant": inspection.plant_id,
             "template": inspection.template_id,
@@ -627,9 +813,16 @@ class SanitationInspectionCorrectionAPIView(
             "general_notes": inspection.general_notes,
         }
 
-        # Remove "reason" before passing data to the serializer.
+        # ----------------------------------------------------
+        # Remove reason before serializer.
+        # ----------------------------------------------------
+
         correction_data = request.data.copy()
-        correction_data.pop("reason", None)
+
+        correction_data.pop(
+            "reason",
+            None
+        )
 
         serializer = self.get_serializer(
             inspection,
@@ -647,7 +840,10 @@ class SanitationInspectionCorrectionAPIView(
 
         inspection.refresh_from_db()
 
-        # Store the corrected values.
+        # ----------------------------------------------------
+        # Store corrected values.
+        # ----------------------------------------------------
+
         new_values = {
             "plant": inspection.plant_id,
             "template": inspection.template_id,
@@ -658,7 +854,10 @@ class SanitationInspectionCorrectionAPIView(
             "general_notes": inspection.general_notes,
         }
 
+        # ----------------------------------------------------
         # Create audit record.
+        # ----------------------------------------------------
+
         AuditLog.objects.create(
             user=request.user,
             action="ADMIN_CORRECTION",
@@ -674,10 +873,11 @@ class SanitationInspectionCorrectionAPIView(
                 "message": (
                     "Sanitation inspection corrected successfully."
                 ),
-                "inspection": SanitationInspectionSerializer(
-                    inspection
-                ).data,
+                "inspection": (
+                    SanitationInspectionSerializer(
+                        inspection
+                    ).data
+                ),
             },
             status=status.HTTP_200_OK,
         )
-

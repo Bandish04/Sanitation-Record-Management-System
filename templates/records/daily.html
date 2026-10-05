@@ -4,7 +4,6 @@
 
 <head>
 
-```
 <meta charset="UTF-8">
 
 <meta
@@ -18,7 +17,6 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     rel="stylesheet"
 >
-```
 
 </head>
 
@@ -26,7 +24,6 @@
 
 <div class="container py-5">
 
-```
 <!-- ==================================================
      HEADER
 ================================================== -->
@@ -47,7 +44,6 @@
         </p>
 
     </div>
-
 
     <a
         href="/dashboard/"
@@ -82,9 +78,7 @@
             Record Filters
         </h5>
 
-
         <div class="row g-3 align-items-end">
-
 
             <!-- PLANT -->
 
@@ -182,7 +176,6 @@
                 ></p>
 
             </div>
-
 
             <span
                 id="totalRecordsBadge"
@@ -283,7 +276,11 @@
 
                     <tr>
 
-                        <th>ID</th>
+                        <th
+                            class="admin-only"
+                        >
+                            ID
+                        </th>
 
                         <th>Date</th>
 
@@ -300,7 +297,6 @@
                     </tr>
 
                 </thead>
-
 
                 <tbody
                     id="sanitizerTable"
@@ -358,7 +354,11 @@
 
                     <tr>
 
-                        <th>ID</th>
+                        <th
+                            class="admin-only"
+                        >
+                            ID
+                        </th>
 
                         <th>Date</th>
 
@@ -373,7 +373,6 @@
                     </tr>
 
                 </thead>
-
 
                 <tbody
                     id="chloragelTable"
@@ -431,7 +430,11 @@
 
                     <tr>
 
-                        <th>ID</th>
+                        <th
+                            class="admin-only"
+                        >
+                            ID
+                        </th>
 
                         <th>Plant</th>
 
@@ -448,7 +451,6 @@
                     </tr>
 
                 </thead>
-
 
                 <tbody
                     id="inspectionTable"
@@ -475,7 +477,8 @@
     <div class="card-header bg-warning">
 
         <div
-            class="d-flex justify-content-between align-items-center"
+            class="d-flex justify-content-between align-items-center
+"
         >
 
             <h5 class="mb-0">
@@ -506,11 +509,15 @@
 
                     <tr>
 
-                        <th>ID</th>
+                        <th
+                            class="admin-only"
+                        >
+                            ID
+                        </th>
 
                         <th>Filename</th>
 
-                        <th>Inspection</th>
+                        <th>Inspection Performed By</th>
 
                         <th>Uploaded By</th>
 
@@ -524,7 +531,6 @@
 
                 </thead>
 
-
                 <tbody
                     id="atpTable"
                 ></tbody>
@@ -536,9 +542,10 @@
     </div>
 
 </div>
-```
+
 
 </div>
+
 
 <!-- ==================================================
      INSPECTION DETAILS MODAL
@@ -551,11 +558,9 @@
     aria-hidden="true"
 >
 
-```
 <div class="modal-dialog modal-xl modal-dialog-scrollable">
 
     <div class="modal-content">
-
 
         <div class="modal-header">
 
@@ -599,13 +604,14 @@
     </div>
 
 </div>
-```
 
 </div>
+
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
 ></script>
+
 
 <script>
 
@@ -621,6 +627,97 @@ if (!accessToken) {
 
     window.location.href =
         "/login/";
+
+}
+
+
+/* ==================================================
+   USER ROLE
+================================================== */
+
+let isAdmin = false;
+
+
+async function loadCurrentUser() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/auth/me/",
+                {
+                    headers: {
+                        "Authorization":
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+
+        if (!response.ok) {
+
+            isAdmin = false;
+
+            applyRoleVisibility();
+
+            return;
+
+        }
+
+
+        const user =
+            await response.json();
+
+
+        if (
+            Array.isArray(user.groups)
+        ) {
+
+            isAdmin =
+                user.groups.some(
+                    group =>
+                        (
+                            typeof group === "string"
+                                ? group
+                                : group.name
+                        ) === "Admin"
+                );
+
+        }
+
+
+        applyRoleVisibility();
+
+
+    } catch (error) {
+
+        isAdmin = false;
+
+        applyRoleVisibility();
+
+    }
+
+}
+
+
+/* ==================================================
+   ROLE VISIBILITY
+================================================== */
+
+function applyRoleVisibility() {
+
+    document
+        .querySelectorAll(".admin-only")
+        .forEach(
+            element => {
+
+                element.style.display =
+                    isAdmin
+                        ? ""
+                        : "none";
+
+            }
+        );
 
 }
 
@@ -750,10 +847,8 @@ function setDefaultDate() {
     const today =
         new Date();
 
-
     const year =
         today.getFullYear();
-
 
     const month =
         String(
@@ -763,7 +858,6 @@ function setDefaultDate() {
             "0"
         );
 
-
     const day =
         String(
             today.getDate()
@@ -771,7 +865,6 @@ function setDefaultDate() {
             2,
             "0"
         );
-
 
     recordDate.value =
         `${year}-${month}-${day}`;
@@ -918,59 +1011,46 @@ function resetResults() {
         "d-none"
     );
 
-
     noRecords.classList.add(
         "d-none"
     );
-
 
     sanitizerSection.classList.add(
         "d-none"
     );
 
-
     chloragelSection.classList.add(
         "d-none"
     );
-
 
     inspectionSection.classList.add(
         "d-none"
     );
 
-
     atpSection.classList.add(
         "d-none"
     );
 
-
     sanitizerTable.innerHTML =
         "";
-
 
     chloragelTable.innerHTML =
         "";
 
-
     inspectionTable.innerHTML =
         "";
-
 
     atpTable.innerHTML =
         "";
 
-
     sanitizerCount.textContent =
         "0";
-
 
     chloragelCount.textContent =
         "0";
 
-
     inspectionCount.textContent =
         "0";
-
 
     atpCount.textContent =
         "0";
@@ -1018,7 +1098,6 @@ async function loadDailyRecords() {
 
     const plant =
         plantSelect.value;
-
 
     const date =
         recordDate.value;
@@ -1109,7 +1188,6 @@ async function loadDailyRecords() {
             "d-none"
         );
 
-
         loadRecordsButton.disabled =
             false;
 
@@ -1132,18 +1210,16 @@ function renderDailyRecords(
             data.sanitizer_titrations
         );
 
-
     const chloragel =
         getArray(
             data.chloragel_titrations
         );
 
-
     const inspections =
         getArray(
+            data.inspections ||
             data.sanitation_inspections
         );
-
 
     const atpReports =
         getArray(
@@ -1254,16 +1330,23 @@ function renderSanitizerRecords(
                 );
 
 
+            const idCell =
+                isAdmin
+                    ? `
+                        <td>
+                            ${record.id ?? "-"}
+                        </td>
+                      `
+                    : "";
+
+
             row.innerHTML = `
 
-                <td>
-                    ${record.id ?? "-"}
-                </td>
+                ${idCell}
 
                 <td>
-                    ${formatDateTime(
+                    ${formatDisplayDate(
                         record.created_at ||
-                        record.tested_at ||
                         record.date
                     )}
                 </td>
@@ -1273,15 +1356,11 @@ function renderSanitizerRecords(
                 </td>
 
                 <td>
-                    ${formatNumber(
-                        record.ppm
-                    )}
+                    ${record.ppm ?? "-"}
                 </td>
 
                 <td>
-                    ${formatNumber(
-                        record.percent_vv
-                    )}
+                    ${record.percent_vv ?? "-"}
                 </td>
 
                 <td>
@@ -1291,10 +1370,10 @@ function renderSanitizerRecords(
                 </td>
 
                 <td>
-                    ${getUserDisplay(
+                    ${escapeHtml(
+                        record.created_by_username ||
                         record.created_by ||
-                        record.username ||
-                        record.user
+                        "-"
                     )}
                 </td>
 
@@ -1346,16 +1425,23 @@ function renderChloragelRecords(
                 );
 
 
+            const idCell =
+                isAdmin
+                    ? `
+                        <td>
+                            ${record.id ?? "-"}
+                        </td>
+                      `
+                    : "";
+
+
             row.innerHTML = `
 
-                <td>
-                    ${record.id ?? "-"}
-                </td>
+                ${idCell}
 
                 <td>
-                    ${formatDateTime(
+                    ${formatDisplayDate(
                         record.created_at ||
-                        record.tested_at ||
                         record.date
                     )}
                 </td>
@@ -1365,9 +1451,7 @@ function renderChloragelRecords(
                 </td>
 
                 <td>
-                    ${formatNumber(
-                        record.result_percent
-                    )}
+                    ${record.result_percent ?? "-"}
                 </td>
 
                 <td>
@@ -1377,10 +1461,10 @@ function renderChloragelRecords(
                 </td>
 
                 <td>
-                    ${getUserDisplay(
+                    ${escapeHtml(
+                        record.created_by_username ||
                         record.created_by ||
-                        record.username ||
-                        record.user
+                        "-"
                     )}
                 </td>
 
@@ -1432,8 +1516,19 @@ function renderInspectionRecords(
                 );
 
 
-            const plant =
+            const idCell =
+                isAdmin
+                    ? `
+                        <td>
+                            ${inspection.id ?? "-"}
+                        </td>
+                      `
+                    : "";
+
+
+            const plantName =
                 inspection.plant_name ||
+                inspection.plant_code ||
                 inspection.plant ||
                 "-";
 
@@ -1451,26 +1546,50 @@ function renderInspectionRecords(
                 "-";
 
 
+            const actionButton =
+                inspection.id
+                    ? `
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-primary"
+                            onclick="viewInspection(${inspection.id})"
+                        >
+                            View
+                        </button>
+                      `
+                    : `
+                        <span class="text-muted">
+                            Details unavailable
+                        </span>
+                      `;
+
+
             row.innerHTML = `
 
+                ${idCell}
+
                 <td>
-                    ${inspection.id ?? "-"}
+                    ${escapeHtml(
+                        plantName
+                    )}
                 </td>
 
                 <td>
-                    ${plant}
+                    ${escapeHtml(
+                        template
+                    )}
                 </td>
 
                 <td>
-                    ${template}
+                    ${formatDisplayDate(
+                        inspection.inspection_date
+                    )}
                 </td>
 
                 <td>
-                    ${inspection.inspection_date || "-"}
-                </td>
-
-                <td>
-                    ${inspector}
+                    ${escapeHtml(
+                        inspector
+                    )}
                 </td>
 
                 <td>
@@ -1480,15 +1599,7 @@ function renderInspectionRecords(
                 </td>
 
                 <td>
-
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary"
-                        onclick="viewInspection(${inspection.id})"
-                    >
-                        View
-                    </button>
-
+                    ${actionButton}
                 </td>
 
             `;
@@ -1509,11 +1620,11 @@ function renderInspectionRecords(
 ================================================== */
 
 function renderATPRecords(
-    records
+    reports
 ) {
 
     if (
-        records.length === 0
+        reports.length === 0
     ) {
 
         return;
@@ -1527,10 +1638,10 @@ function renderATPRecords(
 
 
     atpCount.textContent =
-        records.length;
+        reports.length;
 
 
-    records.forEach(
+    reports.forEach(
         report => {
 
             const row =
@@ -1539,22 +1650,33 @@ function renderATPRecords(
                 );
 
 
-            const fileUrl =
-                report.file ||
-                report.file_url ||
-                "";
+            const idCell =
+                isAdmin
+                    ? `
+                        <td>
+                            ${report.id ?? "-"}
+                        </td>
+                      `
+                    : "";
 
 
             let fileButton =
-                `<span class="text-muted">No file</span>`;
+                "-";
 
 
-            if (fileUrl) {
+            const fileUrl =
+                report.file_url ||
+                report.file;
+
+
+            if (
+                fileUrl
+            ) {
 
                 fileButton = `
 
                     <a
-                        href="${fileUrl}"
+                        href="${escapeHtml(fileUrl)}"
                         target="_blank"
                         class="btn btn-sm btn-outline-primary"
                     >
@@ -1566,23 +1688,33 @@ function renderATPRecords(
             }
 
 
+            const inspectionPerformedBy =
+                report.inspection_inspector ||
+                "-";
+
+
             row.innerHTML = `
 
+                ${idCell}
+
                 <td>
-                    ${report.id ?? "-"}
+                    ${escapeHtml(
+                        report.original_filename ||
+                        "-"
+                    )}
                 </td>
 
                 <td>
-                    ${report.original_filename || "-"}
+                    ${escapeHtml(
+                        inspectionPerformedBy
+                    )}
                 </td>
 
                 <td>
-                    ${report.inspection || "-"}
-                </td>
-
-                <td>
-                    ${getUserDisplay(
-                        report.uploaded_by
+                    ${escapeHtml(
+                        report.uploaded_by_username ||
+                        report.uploaded_by ||
+                        "-"
                     )}
                 </td>
 
@@ -1622,6 +1754,18 @@ function renderATPRecords(
 async function viewInspection(
     id
 ) {
+
+    if (!id) {
+
+        showMessage(
+            "Inspection details are not available for this account.",
+            "warning"
+        );
+
+        return;
+
+    }
+
 
     try {
 
@@ -1698,7 +1842,9 @@ function renderInspectionDetails(
     document.getElementById(
         "inspectionDetailsTitle"
     ).textContent =
-        `Inspection #${inspection.id}`;
+        isAdmin
+            ? `Inspection #${inspection.id}`
+            : "Inspection Details";
 
 
     const answers =
@@ -1707,150 +1853,51 @@ function renderInspectionDetails(
         );
 
 
-    let html = `
-
-        <div class="row g-3 mb-4">
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3">
-
-                    <small class="text-muted">
-                        Plant
-                    </small>
-
-                    <div class="fw-bold">
-                        ${inspection.plant ?? "-"}
-                    </div>
-
-                </div>
-
-            </div>
+    const plantName =
+        inspection.plant_name ||
+        inspection.plant ||
+        "-";
 
 
-            <div class="col-md-4">
-
-                <div class="border rounded p-3">
-
-                    <small class="text-muted">
-                        Template
-                    </small>
-
-                    <div class="fw-bold">
-                        ${inspection.template ?? "-"}
-                    </div>
-
-                </div>
-
-            </div>
+    const inspectorName =
+        inspection.inspector_username ||
+        inspection.inspector_name ||
+        inspection.inspector ||
+        "-";
 
 
-            <div class="col-md-4">
+    /*
+        IMPORTANT:
+        Prefer template_name first.
 
-                <div class="border rounded p-3">
+        The API returns:
+            template      -> database ID
+            template_name -> human-readable name
 
-                    <small class="text-muted">
-                        Status
-                    </small>
+        Therefore we must NOT display template
+        unless template_name is unavailable.
+    */
 
-                    <div class="mt-1">
-                        ${formatStatus(
-                            inspection.status
-                        )}
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3">
-
-                    <small class="text-muted">
-                        Inspection Date
-                    </small>
-
-                    <div class="fw-bold">
-                        ${inspection.inspection_date || "-"}
-                    </div>
-
-                </div>
-
-            </div>
+    const templateName =
+        inspection.template_name ||
+        inspection.template_name_display ||
+        (
+            typeof inspection.template === "object"
+                ? inspection.template.name
+                : null
+        ) ||
+        inspection.template ||
+        "-";
 
 
-            <div class="col-md-4">
-
-                <div class="border rounded p-3">
-
-                    <small class="text-muted">
-                        Inspector
-                    </small>
-
-                    <div class="fw-bold">
-                        ${inspection.inspector || "-"}
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3">
-
-                    <small class="text-muted">
-                        Signed At
-                    </small>
-
-                    <div class="fw-bold">
-                        ${formatDateTime(
-                            inspection.signed_at
-                        )}
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="mb-4">
-
-            <h6>
-                General Notes
-            </h6>
-
-            <div class="border rounded p-3 bg-light">
-
-                ${
-                    escapeHtml(
-                        inspection.general_notes ||
-                        "No general notes."
-                    )
-                }
-
-            </div>
-
-        </div>
-
-
-        <h5 class="mb-3">
-            Inspection Answers
-        </h5>
-
-    `;
+    let answersHtml = "";
 
 
     if (
         answers.length === 0
     ) {
 
-        html += `
+        answersHtml = `
 
             <div class="alert alert-info">
                 No answers were recorded.
@@ -1860,23 +1907,29 @@ function renderInspectionDetails(
 
     } else {
 
-        html += `
+        answersHtml = `
 
             <div class="table-responsive">
 
-                <table class="table table-bordered">
+                <table
+                    class="table table-bordered table-hover align-middle"
+                >
 
                     <thead>
 
                         <tr>
 
-                            <th>#</th>
+                            <th>
+                                Question
+                            </th>
 
-                            <th>Question</th>
+                            <th>
+                                Answer
+                            </th>
 
-                            <th>Answer</th>
-
-                            <th>Observation</th>
+                            <th>
+                                Observation
+                            </th>
 
                         </tr>
 
@@ -1884,52 +1937,59 @@ function renderInspectionDetails(
 
                     <tbody>
 
-        `;
+                        ${answers.map(
+                            (answer, index) => {
+
+                                const questionText =
+                                    answer.question_text ||
+                                    answer.question?.question_text ||
+                                    answer.question_name ||
+                                    (
+                                        typeof answer.question === "string"
+                                            ? answer.question
+                                            : null
+                                    ) ||
+                                    `Question ${index + 1}`;
 
 
-        answers.forEach(
-            (answer, index) => {
+                                const answerValue =
+                                    answer.answer ||
+                                    "-";
 
-                html += `
 
-                    <tr>
-
-                        <td>
-                            ${index + 1}
-                        </td>
-
-                        <td>
-                            ${
-                                answer.question_text ||
-                                answer.question ||
-                                "-"
-                            }
-                        </td>
-
-                        <td>
-                            ${formatAnswer(
-                                answer.answer
-                            )}
-                        </td>
-
-                        <td>
-                            ${
-                                escapeHtml(
+                                const observation =
                                     answer.observation ||
-                                    "-"
-                                )
+                                    "-";
+
+
+                                return `
+
+                                    <tr>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                questionText
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${getAnswerBadge(
+                                                answerValue
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                observation
+                                            )}
+                                        </td>
+
+                                    </tr>
+
+                                `;
+
                             }
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-
-        html += `
+                        ).join("")}
 
                     </tbody>
 
@@ -1942,123 +2002,246 @@ function renderInspectionDetails(
     }
 
 
-    content.innerHTML =
-        html;
+    content.innerHTML = `
 
-}
+        <div class="row g-3 mb-4">
 
+            <div class="col-md-6">
 
-/* ==================================================
-   STATUS
-================================================== */
+                <div class="card h-100">
 
-function formatStatus(
-    status
-) {
+                    <div class="card-body">
 
-    if (!status) {
+                        <h6 class="text-muted">
+                            Plant
+                        </h6>
 
-        return `
-            <span class="text-muted">
-                -
-            </span>
-        `;
+                        <div class="fw-bold">
+                            ${escapeHtml(
+                                plantName
+                            )}
+                        </div>
 
-    }
+                    </div>
 
+                </div>
 
-    if (
-        status === "DRAFT"
-    ) {
-
-        return `
-            <span class="badge bg-secondary">
-                DRAFT
-            </span>
-        `;
-
-    }
+            </div>
 
 
-    if (
-        status === "SUBMITTED"
-    ) {
+            <div class="col-md-6">
 
-        return `
-            <span class="badge bg-success">
-                SUBMITTED
-            </span>
-        `;
+                <div class="card h-100">
 
-    }
+                    <div class="card-body">
 
+                        <h6 class="text-muted">
+                            Template
+                        </h6>
 
-    if (
-        status === "CORRECTED"
-    ) {
+                        <div class="fw-bold">
+                            ${escapeHtml(
+                                templateName
+                            )}
+                        </div>
 
-        return `
-            <span class="badge bg-warning text-dark">
-                CORRECTED
-            </span>
-        `;
+                    </div>
 
-    }
+                </div>
+
+            </div>
 
 
-    if (
-        status === "REVIEW_REQUIRED"
-    ) {
+            <div class="col-md-6">
 
-        return `
-            <span class="badge bg-danger">
-                REVIEW REQUIRED
-            </span>
-        `;
+                <div class="card h-100">
 
-    }
+                    <div class="card-body">
 
+                        <h6 class="text-muted">
+                            Status
+                        </h6>
 
-    if (
-        status === "ACTIVE"
-    ) {
+                        <div>
+                            ${formatStatus(
+                                inspection.status
+                            )}
+                        </div>
 
-        return `
-            <span class="badge bg-success">
-                ACTIVE
-            </span>
-        `;
+                    </div>
 
-    }
+                </div>
+
+            </div>
 
 
-    if (
-        status === "ARCHIVED"
-    ) {
+            <div class="col-md-6">
 
-        return `
-            <span class="badge bg-secondary">
-                ARCHIVED
-            </span>
-        `;
+                <div class="card h-100">
 
-    }
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Inspection Date
+                        </h6>
+
+                        <div class="fw-bold">
+                            ${formatDisplayDate(
+                                inspection.inspection_date
+                            )}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
-    return `
-        <span class="badge bg-secondary">
-            ${escapeHtml(status)}
-        </span>
+            <div class="col-md-6">
+
+                <div class="card h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Inspector
+                        </h6>
+
+                        <div class="fw-bold">
+                            ${escapeHtml(
+                                inspectorName
+                            )}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="card h-100">
+
+                    <div class="card-body">
+
+                        <h6 class="text-muted">
+                            Signed At
+                        </h6>
+
+                        <div class="fw-bold">
+                            ${formatDateTime(
+                                inspection.signed_at
+                            )}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="card mb-4">
+
+            <div class="card-header">
+
+                <h5 class="mb-0">
+                    General Notes
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                ${
+                    inspection.general_notes
+                        ? escapeHtml(
+                            inspection.general_notes
+                        )
+                        : '<span class="text-muted">No general notes.</span>'
+                }
+
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <h5 class="mb-0">
+                    Inspection Answers
+                </h5>
+
+            </div>
+
+            <div class="card-body">
+
+                ${answersHtml}
+
+            </div>
+
+        </div>
+
     `;
 
 }
 
 
 /* ==================================================
-   ANSWER
+   ESCAPE HTML
 ================================================== */
 
-function formatAnswer(
+function escapeHtml(
+    value
+) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* ==================================================
+   ANSWER BADGE
+================================================== */
+
+function getAnswerBadge(
     answer
 ) {
 
@@ -2088,108 +2271,129 @@ function formatAnswer(
     }
 
 
-    if (
-        answer === "NA"
-    ) {
-
-        return `
-            <span class="badge bg-secondary">
-                N/A
-            </span>
-        `;
-
-    }
-
-
-    return escapeHtml(
-        answer || "-"
-    );
+    return `
+        <span class="badge bg-secondary">
+            ${escapeHtml(answer)}
+        </span>
+    `;
 
 }
 
 
 /* ==================================================
-   USER DISPLAY
+   STATUS
 ================================================== */
 
-function getUserDisplay(
-    value
+function formatStatus(
+    status
 ) {
 
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
+    if (!status) {
 
         return "-";
 
     }
 
 
-    if (
-        typeof value === "object"
+    let badgeClass =
+        "bg-secondary";
+
+
+    switch (
+        String(status).toUpperCase()
     ) {
 
-        return escapeHtml(
-            value.username ||
-            value.name ||
-            value.email ||
-            value.id ||
-            "-"
-        );
+        case "DRAFT":
+
+            badgeClass =
+                "bg-secondary";
+
+            break;
+
+
+        case "SUBMITTED":
+
+            badgeClass =
+                "bg-success";
+
+            break;
+
+
+        case "CORRECTED":
+
+            badgeClass =
+                "bg-primary";
+
+            break;
+
+
+        case "REVIEW_REQUIRED":
+
+            badgeClass =
+                "bg-warning text-dark";
+
+            break;
 
     }
 
 
-    return escapeHtml(
-        String(value)
-    );
+    return `
+
+        <span
+            class="badge ${badgeClass}"
+        >
+            ${escapeHtml(
+                String(status).replace(
+                    /_/g,
+                    " "
+                )
+            )}
+        </span>
+
+    `;
 
 }
 
 
 /* ==================================================
-   NUMBER
+   DATE FORMAT
 ================================================== */
 
-function formatNumber(
+function formatDisplayDate(
     value
 ) {
 
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
+    if (!value) {
 
         return "-";
 
     }
 
 
-    const number =
-        Number(value);
+    const date =
+        new Date(value);
 
 
     if (
-        Number.isNaN(number)
+        Number.isNaN(
+            date.getTime()
+        )
     ) {
 
         return escapeHtml(
-            String(value)
+            value
         );
 
     }
 
 
-    return number.toFixed(2);
+    return date.toLocaleDateString();
 
 }
 
 
 /* ==================================================
-   DATE TIME
+   DATE/TIME FORMAT
 ================================================== */
 
 function formatDateTime(
@@ -2214,7 +2418,7 @@ function formatDateTime(
     ) {
 
         return escapeHtml(
-            String(value)
+            value
         );
 
     }
@@ -2226,83 +2430,7 @@ function formatDateTime(
 
 
 /* ==================================================
-   DISPLAY DATE
-================================================== */
-
-function formatDisplayDate(
-    value
-) {
-
-    if (!value) {
-
-        return "-";
-
-    }
-
-
-    const parts =
-        value.split("-");
-
-
-    if (
-        parts.length !== 3
-    ) {
-
-        return value;
-
-    }
-
-
-    return `${parts[1]}/${parts[2]}/${parts[0]}`;
-
-}
-
-
-/* ==================================================
-   HTML ESCAPE
-================================================== */
-
-function escapeHtml(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
-}
-
-
-/* ==================================================
-   BUTTON EVENT
+   EVENTS
 ================================================== */
 
 loadRecordsButton.addEventListener(
@@ -2312,12 +2440,21 @@ loadRecordsButton.addEventListener(
 
 
 /* ==================================================
-   INITIAL LOAD
+   INITIALIZE
 ================================================== */
 
-setDefaultDate();
+document.addEventListener(
+    "DOMContentLoaded",
+    async function () {
 
-loadPlants();
+        setDefaultDate();
+
+        await loadCurrentUser();
+
+        await loadPlants();
+
+    }
+);
 
 </script>
 

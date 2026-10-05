@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     CorrectiveActionListCreateAPIView,
     CorrectiveActionDetailAPIView,
+    CorrectiveActionOptionsAPIView,
 )
 
 
@@ -11,6 +12,11 @@ urlpatterns = [
         "",
         CorrectiveActionListCreateAPIView.as_view(),
         name="corrective-action-list-create",
+    ),
+    path(
+        "options/",
+        CorrectiveActionOptionsAPIView.as_view(),
+        name="corrective-action-options",
     ),
     path(
         "<int:pk>/",
