@@ -1,370 +1,758 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}PDF Reports | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}PDF Reports{% endblock %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block extra_css %}
+<style>
+.pdf-reports-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    color: var(--text-primary, #101828);
+}
 
-    <title>Daily PDF Report</title>
+.pdf-reports-page,
+.pdf-reports-page * {
+    box-sizing: border-box;
+}
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+.pdf-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
 
-</head>
+.pdf-page-header h1 {
+    margin: 0 0 6px;
+    color: var(--text-primary, #101828);
+    font-size: 26px;
+    font-weight: 700;
+}
 
-<body>
+.pdf-page-header p {
+    margin: 0;
+    color: var(--text-secondary, #667085);
+    font-size: 14px;
+    line-height: 1.6;
+}
 
-<div class="container mt-5">
+.pdf-report-card {
+    width: 100%;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #eaecf0);
+    border-radius: 12px;
+    background: var(--bg-primary, #fff);
+    box-shadow: 0 1px 3px rgba(16, 24, 40, .05);
+}
 
-    <div class="row justify-content-center">
+.pdf-card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+}
 
-        <div class="col-md-8">
+.pdf-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #465fff;
+}
 
-            <div class="card shadow">
+.pdf-header-icon svg {
+    width: 25px;
+    height: 25px;
+}
 
-                <div class="card-header">
+.pdf-card-header h2 {
+    margin: 0 0 5px;
+    color: var(--text-primary, #101828);
+    font-size: 17px;
+    font-weight: 700;
+}
 
-                    <h3 class="mb-0">
-                        Daily PDF Report
-                    </h3>
+.pdf-card-header p {
+    margin: 0;
+    color: var(--text-secondary, #667085);
+    font-size: 13px;
+    line-height: 1.5;
+}
 
-                </div>
+.pdf-card-body {
+    padding: 24px;
+}
 
+.pdf-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
 
-                <div class="card-body">
+.pdf-field {
+    min-width: 0;
+}
 
-                    <!-- Plant -->
+.pdf-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary, #344054);
+    font-size: 13px;
+    font-weight: 600;
+}
 
-                    <div class="mb-4">
+.pdf-field select,
+.pdf-field input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color, #d0d5dd);
+    border-radius: 8px;
+    background: var(--bg-primary, #fff);
+    color: var(--text-primary, #344054);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
 
-                        <label
-                            for="plant"
-                            class="form-label"
-                        >
-                            Plant
-                        </label>
+.pdf-field select:focus,
+.pdf-field input:focus {
+    border-color: #465fff;
+    box-shadow: 0 0 0 3px rgba(70, 95, 255, .12);
+}
 
-                        <select
-                            id="plant"
-                            class="form-select"
-                        >
+.pdf-field select:disabled,
+.pdf-field input:disabled {
+    cursor: not-allowed;
+    opacity: .7;
+}
 
-                            <option value="1">
-                                PLANT_A - Plant A
-                            </option>
+.pdf-field-help {
+    display: block;
+    margin-top: 7px;
+    color: var(--text-secondary, #667085);
+    font-size: 12px;
+    line-height: 1.5;
+}
 
-                            <option value="2">
-                                PLANT_B - Plant B
-                            </option>
+.pdf-info-panel {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 15px 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    background: #f5f8ff;
+    color: #344054;
+}
 
+.pdf-info-panel svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #465fff;
+}
+
+.pdf-info-panel strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pdf-info-panel p {
+    margin: 0;
+    color: #667085;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pdf-message {
+    margin-top: 20px;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.pdf-message.error {
+    border-color: #fecdca;
+    background: #fef3f2;
+    color: #b42318;
+}
+
+.pdf-message.success {
+    border-color: #abefc6;
+    background: #ecfdf3;
+    color: #027a48;
+}
+
+.pdf-message[hidden] {
+    display: none !important;
+}
+
+.pdf-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 18px 24px;
+    border-top: 1px solid var(--border-color, #eaecf0);
+    background: var(--bg-secondary, #fcfcfd);
+}
+
+.pdf-action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 42px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease;
+}
+
+.pdf-action-button svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.pdf-action-button:disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+.pdf-primary-button {
+    background: #465fff;
+    color: #fff;
+}
+
+.pdf-primary-button:hover:not(:disabled) {
+    background: #3641f5;
+}
+
+.pdf-secondary-button {
+    border-color: var(--border-color, #d0d5dd);
+    background: var(--bg-primary, #fff);
+    color: var(--text-primary, #344054);
+}
+
+.pdf-secondary-button:hover:not(:disabled) {
+    background: var(--bg-secondary, #f9fafb);
+}
+
+.pdf-loading-indicator {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, .45);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pdfSpinner .7s linear infinite;
+}
+
+@keyframes pdfSpinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 700px) {
+    .pdf-page-header h1 {
+        font-size: 22px;
+    }
+
+    .pdf-card-header {
+        padding: 18px;
+    }
+
+    .pdf-card-body {
+        padding: 18px;
+    }
+
+    .pdf-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .pdf-card-footer {
+        padding: 16px 18px;
+    }
+
+    .pdf-card-footer .pdf-action-button {
+        flex: 1;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pdf-reports-page">
+
+    <div class="pdf-page-header">
+        <div>
+            <h1>PDF Reports</h1>
+            <p>Generate and download daily sanitation records for a selected plant and date.</p>
+        </div>
+    </div>
+
+    <section class="pdf-report-card">
+
+        <header class="pdf-card-header">
+            <div class="pdf-header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <path d="M14 2v6h6"/>
+                    <path d="M8 13h8"/>
+                    <path d="M8 17h8"/>
+                    <path d="M8 9h1"/>
+                </svg>
+            </div>
+
+            <div>
+                <h2>Generate Daily PDF</h2>
+                <p>Select the plant and date for the report you want to download.</p>
+            </div>
+        </header>
+
+        <div class="pdf-card-body">
+
+            <form id="pdfReportForm">
+
+                <div class="pdf-form-grid">
+
+                    <div class="pdf-field">
+                        <label for="plant">Plant</label>
+
+                        <select id="plant" name="plant" required>
+                            <option value="">Loading plants...</option>
                         </select>
 
+                        <span class="pdf-field-help">
+                            Choose the plant whose sanitation records you need.
+                        </span>
                     </div>
 
-
-                    <!-- Date -->
-
-                    <div class="mb-4">
-
-                        <label
-                            for="record-date"
-                            class="form-label"
-                        >
-                            Date
-                        </label>
+                    <div class="pdf-field">
+                        <label for="record-date">Report Date</label>
 
                         <input
                             type="date"
                             id="record-date"
-                            class="form-control"
+                            name="date"
+                            required
                         >
 
+                        <span class="pdf-field-help">
+                            Select the date for the daily report.
+                        </span>
                     </div>
-
-
-                    <!-- Error -->
-
-                    <div
-                        id="error-message"
-                        class="alert alert-danger d-none"
-                    ></div>
-
-
-                    <!-- Success -->
-
-                    <div
-                        id="success-message"
-                        class="alert alert-success d-none"
-                    >
-                        PDF generated successfully.
-                    </div>
-
-
-                    <!-- Button -->
-
-                    <button
-                        type="button"
-                        id="generate-pdf"
-                        class="btn btn-primary w-100"
-                    >
-                        Generate PDF
-                    </button>
 
                 </div>
 
-            </div>
+                <div class="pdf-info-panel">
+                    <svg viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="1.8"
+                         stroke-linecap="round" stroke-linejoin="round"
+                         aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4"/>
+                        <path d="M12 8h.01"/>
+                    </svg>
+
+                    <div>
+                        <strong>Daily sanitation report</strong>
+                        <p>
+                            The PDF is generated using the selected plant and date.
+                            The report contents depend on the records available for that selection.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    id="error-message"
+                    class="pdf-message error"
+                    role="alert"
+                    aria-live="assertive"
+                    hidden
+                ></div>
+
+                <div
+                    id="success-message"
+                    class="pdf-message success"
+                    role="status"
+                    aria-live="polite"
+                    hidden
+                >
+                    PDF generated successfully. Your download should begin automatically.
+                </div>
+
+            </form>
 
         </div>
 
-    </div>
+        <footer class="pdf-card-footer">
 
+            <button
+                type="button"
+                id="reset-form"
+                class="pdf-action-button pdf-secondary-button"
+            >
+                Reset
+            </button>
+
+            <button
+                type="submit"
+                form="pdfReportForm"
+                id="generate-pdf"
+                class="pdf-action-button pdf-primary-button"
+            >
+                <svg id="download-icon"
+                     viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <path d="m7 10 5 5 5-5"/>
+                    <path d="M12 15V3"/>
+                </svg>
+
+                <span id="generate-button-text">Generate PDF</span>
+            </button>
+
+        </footer>
+
+    </section>
 </div>
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const plantSelect =
-            document.getElementById("plant");
-
-        const dateInput =
-            document.getElementById("record-date");
-
-        const generateButton =
-            document.getElementById("generate-pdf");
-
-        const errorMessage =
-            document.getElementById("error-message");
-
-        const successMessage =
-            document.getElementById("success-message");
-
-
-        // Set today's date
-
-        const today =
-            new Date();
-
-        const year =
-            today.getFullYear();
-
-        const month =
-            String(
-                today.getMonth() + 1
-            ).padStart(
-                2,
-                "0"
-            );
-
-        const day =
-            String(
-                today.getDate()
-            ).padStart(
-                2,
-                "0"
-            );
-
-        dateInput.value =
-            `${year}-${month}-${day}`;
-
-
-        // Generate PDF
-
-        generateButton.addEventListener(
-            "click",
-            generatePDF
-        );
-
-
-        async function generatePDF() {
-
-            const plant =
-                plantSelect.value;
-
-            const date =
-                dateInput.value;
-
-
-            // Clear messages
-
-            errorMessage.classList.add(
-                "d-none"
-            );
-
-            successMessage.classList.add(
-                "d-none"
-            );
-
-
-            // Validate date
-
-            if (!date) {
-
-                errorMessage.textContent =
-                    "Please select a date.";
-
-                errorMessage.classList.remove(
-                    "d-none"
-                );
-
-                return;
-            }
-
-
-            // Get JWT token
-
-            const token =
-                localStorage.getItem(
-                    "access_token"
-                );
-
-
-            if (!token) {
-
-                errorMessage.textContent =
-                    "You are not logged in. Please login first.";
-
-                errorMessage.classList.remove(
-                    "d-none"
-                );
-
-                return;
-            }
-
-
-            // Disable button
-
-            generateButton.disabled =
-                true;
-
-            generateButton.textContent =
-                "Generating PDF...";
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/records/daily/pdf/?plant=${plant}&date=${date}`,
-                        {
-                            method: "GET",
-
-                            headers: {
-                                "Authorization":
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    let errorText =
-                        "Failed to generate PDF.";
-
-                    try {
-
-                        const errorData =
-                            await response.json();
-
-                        errorText =
-                            errorData.detail ||
-                            errorText;
-
-                    } catch (error) {
-
-                        // Response was not JSON
-
-                    }
-
-                    throw new Error(
-                        errorText
-                    );
-                }
-
-
-                // Convert response to Blob
-
-                const blob =
-                    await response.blob();
-
-
-                // Create temporary URL
-
-                const url =
-                    window.URL.createObjectURL(
-                        blob
-                    );
-
-
-                // Create download link
-
-                const link =
-                    document.createElement(
-                        "a"
-                    );
-
-                link.href =
-                    url;
-
-                link.download =
-                    `daily_records_${plant}_${date}.pdf`;
-
-
-                document.body.appendChild(
-                    link
-                );
-
-                link.click();
-
-
-                // Clean up
-
-                link.remove();
-
-                window.URL.revokeObjectURL(
-                    url
-                );
-
-
-                successMessage.classList.remove(
-                    "d-none"
-                );
-
-
-            } catch (error) {
-
-                errorMessage.textContent =
-                    error.message;
-
-                errorMessage.classList.remove(
-                    "d-none"
-                );
-
-            } finally {
-
-                generateButton.disabled =
-                    false;
-
-                generateButton.textContent =
-                    "Generate PDF";
-
-            }
-
+(function () {
+    "use strict";
+
+    const API_PLANTS = "/api/plants/";
+    const API_PDF = "/api/records/daily/pdf/";
+
+    const plantSelect = document.getElementById("plant");
+    const dateInput = document.getElementById("record-date");
+    const reportForm = document.getElementById("pdfReportForm");
+    const generateButton = document.getElementById("generate-pdf");
+    const generateButtonText = document.getElementById("generate-button-text");
+    const downloadIcon = document.getElementById("download-icon");
+    const resetButton = document.getElementById("reset-form");
+    const errorMessage = document.getElementById("error-message");
+    const successMessage = document.getElementById("success-message");
+
+    let plantsLoaded = false;
+    let isGenerating = false;
+
+    function getToken() {
+        return localStorage.getItem("access_token") ||
+               localStorage.getItem("access") ||
+               "";
+    }
+
+    function getHeaders() {
+        const headers = {};
+        const token = getToken();
+
+        if (token) {
+            headers.Authorization = "Bearer " + token;
         }
 
+        return headers;
     }
-);
 
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.hidden = false;
+        successMessage.hidden = true;
+    }
+
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.hidden = false;
+        errorMessage.hidden = true;
+    }
+
+    function clearMessages() {
+        errorMessage.textContent = "";
+        errorMessage.hidden = true;
+        successMessage.textContent = "";
+        successMessage.hidden = true;
+    }
+
+    function getList(data) {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.results)) return data.results;
+        if (data && Array.isArray(data.plants)) return data.plants;
+        return [];
+    }
+
+    function setToday() {
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        dateInput.value = year + "-" + month + "-" + day;
+    }
+
+    async function loadPlants() {
+        plantSelect.disabled = true;
+        plantSelect.innerHTML = '<option value="">Loading plants...</option>';
+
+        try {
+            const response = await fetch(API_PLANTS, {
+                method: "GET",
+                headers: getHeaders(),
+                credentials: "same-origin"
+            });
+
+            if (response.status === 401) {
+                throw new Error("Your session has expired. Please log in again.");
+            }
+
+            if (!response.ok) {
+                throw new Error("Unable to load plants. Please try again.");
+            }
+
+            const data = await response.json();
+            const plants = getList(data);
+
+            plantSelect.innerHTML = "";
+
+            const defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.textContent = "Select a plant";
+            plantSelect.appendChild(defaultOption);
+
+            plants.forEach(plant => {
+                if (plant.is_active === false || plant.is_active === 0) {
+                    return;
+                }
+
+                const option = document.createElement("option");
+
+                option.value = plant.id;
+
+                const code = plant.code || "";
+                const name = plant.name || "";
+
+                option.textContent = code && name
+                    ? code + " - " + name
+                    : name || code || ("Plant " + plant.id);
+
+                plantSelect.appendChild(option);
+            });
+
+            plantsLoaded = true;
+
+            if (!plantSelect.options.length ||
+                (plantSelect.options.length === 1 && !plantSelect.options[0].value)) {
+                showError("No plants are available for report generation.");
+            }
+
+        } catch (error) {
+            console.error("Unable to load plants:", error);
+
+            plantSelect.innerHTML = '<option value="">Unable to load plants</option>';
+            showError(error.message || "Unable to load plants.");
+        } finally {
+            plantSelect.disabled = false;
+        }
+    }
+
+    function setGenerating(generating) {
+        isGenerating = generating;
+        generateButton.disabled = generating || !plantsLoaded;
+        resetButton.disabled = generating;
+        plantSelect.disabled = generating;
+        dateInput.disabled = generating;
+
+        if (generating) {
+            generateButtonText.textContent = "Generating PDF...";
+            downloadIcon.style.display = "none";
+
+            if (!generateButton.querySelector(".pdf-loading-indicator")) {
+                const spinner = document.createElement("span");
+                spinner.className = "pdf-loading-indicator";
+                spinner.setAttribute("aria-hidden", "true");
+                generateButton.prepend(spinner);
+            }
+        } else {
+            generateButtonText.textContent = "Generate PDF";
+            downloadIcon.style.display = "";
+
+            const spinner = generateButton.querySelector(".pdf-loading-indicator");
+
+            if (spinner) {
+                spinner.remove();
+            }
+        }
+    }
+
+    async function generatePDF() {
+        if (isGenerating) return;
+
+        clearMessages();
+
+        const plant = plantSelect.value;
+        const date = dateInput.value;
+        const token = getToken();
+
+        if (!plantsLoaded) {
+            showError("Plants have not loaded yet. Please try again.");
+            return;
+        }
+
+        if (!plant) {
+            showError("Please select a plant.");
+            plantSelect.focus();
+            return;
+        }
+
+        if (!date) {
+            showError("Please select a report date.");
+            dateInput.focus();
+            return;
+        }
+
+        if (!token) {
+            showError("You are not logged in. Please log in first.");
+            return;
+        }
+
+        setGenerating(true);
+
+        try {
+            const params = new URLSearchParams({
+                plant: plant,
+                date: date
+            });
+
+            const response = await fetch(API_PDF + "?" + params.toString(), {
+                method: "GET",
+                headers: getHeaders(),
+                credentials: "same-origin"
+            });
+
+            if (response.status === 401) {
+                throw new Error("Your session has expired. Please log in again.");
+            }
+
+            if (!response.ok) {
+                let errorText = "Failed to generate PDF.";
+
+                const contentType = response.headers.get("content-type") || "";
+
+                try {
+                    if (contentType.includes("application/json")) {
+                        const errorData = await response.json();
+
+                        errorText = errorData.detail ||
+                            errorData.message ||
+                            errorData.error ||
+                            errorText;
+                    } else {
+                        const text = await response.text();
+
+                        if (text) {
+                            errorText = text.slice(0, 500);
+                        }
+                    }
+                } catch (_) {}
+
+                throw new Error(errorText);
+            }
+
+            const blob = await response.blob();
+
+            if (!blob.size) {
+                throw new Error("The generated PDF is empty. Please try again.");
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+
+            link.href = url;
+            link.download = "daily_records_" + plant + "_" + date + ".pdf";
+            link.style.display = "none";
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            window.setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 1000);
+
+            showSuccess("PDF generated successfully. Your download should begin automatically.");
+
+        } catch (error) {
+            console.error("Unable to generate PDF:", error);
+            showError(error.message || "An unexpected error occurred while generating the PDF.");
+        } finally {
+            setGenerating(false);
+        }
+    }
+
+    reportForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        generatePDF();
+    });
+
+    resetButton.addEventListener("click", function () {
+        if (isGenerating) return;
+
+        clearMessages();
+        reportForm.reset();
+        setToday();
+    });
+
+    plantSelect.addEventListener("change", clearMessages);
+    dateInput.addEventListener("change", clearMessages);
+
+    setToday();
+    loadPlants();
+})();
 </script>
-
-</body>
-
-</html>
+{% endblock %}
