@@ -1,3 +1,4 @@
+
 from datetime import date, datetime, time, timedelta
 
 from django.utils import timezone
@@ -515,14 +516,6 @@ class DailyRecordsAPIView(
             )
 
         # ==================================================
-        # CHECK ADMIN
-        # ==================================================
-
-        is_admin = request.user.groups.filter(
-            name="Admin"
-        ).exists()
-
-        # ==================================================
         # LOCAL DAY BOUNDARIES
         # ==================================================
 
@@ -563,11 +556,8 @@ class DailyRecordsAPIView(
 
             sanitizer_data.append(
                 {
-                    "id": (
-                        item.id
-                        if is_admin
-                        else None
-                    ),
+                    # Always return the actual record ID.
+                    "id": item.id,
                     "r71_drops": item.r71_drops,
                     "sample_volume_ml": str(
                         item.sample_volume_ml
@@ -615,11 +605,8 @@ class DailyRecordsAPIView(
 
             chloragel_data.append(
                 {
-                    "id": (
-                        item.id
-                        if is_admin
-                        else None
-                    ),
+                    # Always return the actual record ID.
+                    "id": item.id,
                     "r9_drops": item.r9_drops,
                     "sample_volume_ml": str(
                         item.sample_volume_ml
@@ -689,11 +676,8 @@ class DailyRecordsAPIView(
 
             inspection_data.append(
                 {
-                    "id": (
-                        item.id
-                        if is_admin
-                        else None
-                    ),
+                    # Always return the actual record ID.
+                    "id": item.id,
 
                     "plant": item.plant.id,
 
@@ -705,17 +689,14 @@ class DailyRecordsAPIView(
                         item.plant.name
                     ),
 
-                    # Human-readable template name
                     "template": (
                         item.template.name
                     ),
 
-                    # Explicit human-readable template name
                     "template_name": (
                         item.template.name
                     ),
 
-                    # Template database ID
                     "template_id": (
                         item.template.id
                     ),
@@ -726,17 +707,14 @@ class DailyRecordsAPIView(
                         item.inspection_date
                     ),
 
-                    # Human-readable inspector username
                     "inspector": (
                         item.inspector.username
                     ),
 
-                    # Explicit human-readable inspector name
                     "inspector_name": (
                         item.inspector.username
                     ),
 
-                    # Inspector database ID
                     "inspector_id": (
                         item.inspector.id
                     ),
@@ -793,11 +771,8 @@ class DailyRecordsAPIView(
 
             atp_data.append(
                 {
-                    "id": (
-                        item.id
-                        if is_admin
-                        else None
-                    ),
+                    # Always return the actual report ID.
+                    "id": item.id,
 
                     "plant": item.plant.id,
 
@@ -819,10 +794,7 @@ class DailyRecordsAPIView(
 
                     "inspection": (
                         item.inspection.id
-                        if (
-                            item.inspection
-                            and is_admin
-                        )
+                        if item.inspection
                         else None
                     ),
 
