@@ -1,2463 +1,1280 @@
-<!DOCTYPE html>
 
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
+{% block title %}Daily Records | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}Daily Records{% endblock %}
 
-<meta charset="UTF-8">
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<style>
+/* Daily Records — page-specific styling only */
+.daily-records-page {
+    width: 100%;
+    max-width: 100%;
+    color: var(--text-primary, #1d2939);
+}
 
-<title>Daily Combined Records</title>
+.daily-records-page .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 28px;
+}
 
-<link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
->
+.daily-records-page .page-title {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.7px;
+    color: var(--text-primary, #101828);
+}
 
-</head>
+.daily-records-page .page-description {
+    margin: 0;
+    color: var(--text-secondary, #667085);
+    font-size: 14px;
+    line-height: 1.6;
+}
 
-<body>
+.daily-records-page .dr-card {
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border-color, #eaecf0);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.035);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
 
-<div class="container py-5">
+.daily-records-page .dr-card-body {
+    padding: 24px;
+}
 
-<!-- ==================================================
-     HEADER
-================================================== -->
+.daily-records-page .dr-card-title {
+    margin: 0 0 20px;
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--text-primary, #101828);
+}
 
-<div
-    class="d-flex justify-content-between align-items-center mb-4"
->
+.daily-records-page .filter-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(180px, 0.8fr) auto;
+    align-items: end;
+    gap: 18px;
+}
 
-    <div>
+.daily-records-page .field-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary, #344054);
+}
 
-        <h2 class="mb-1">
-            Daily Combined Records
-        </h2>
+.daily-records-page .form-control,
+.daily-records-page .form-select {
+    min-height: 44px;
+    border: 1px solid var(--border-color, #d0d5dd);
+    border-radius: 8px;
+    background-color: var(--input-bg, #fff);
+    color: var(--text-primary, #344054);
+    font-size: 14px;
+    box-shadow: none;
+}
 
-        <p class="text-muted mb-0">
-            View all sanitation records for a selected
-            plant and date.
-        </p>
+.daily-records-page .form-control:focus,
+.daily-records-page .form-select:focus {
+    border-color: var(--primary-color, #465fff);
+    box-shadow: 0 0 0 3px rgba(70, 95, 255, 0.12);
+}
 
-    </div>
+.daily-records-page .dr-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .2s ease, border-color .2s ease;
+}
 
-    <a
-        href="/dashboard/"
-        class="btn btn-secondary"
-    >
-        Dashboard
-    </a>
+.daily-records-page .dr-button-primary {
+    color: #fff;
+    background: var(--primary-color, #465fff);
+}
 
-</div>
+.daily-records-page .dr-button-primary:hover {
+    color: #fff;
+    background: var(--primary-hover, #3641f5);
+}
 
+.daily-records-page .dr-button-secondary {
+    color: var(--text-primary, #344054);
+    background: var(--card-bg, #fff);
+    border-color: var(--border-color, #d0d5dd);
+}
 
-<!-- ==================================================
-     MESSAGE
-================================================== -->
+.daily-records-page .dr-button-secondary:hover {
+    background: var(--hover-bg, #f9fafb);
+}
 
-<div
-    id="message"
-    class="alert d-none"
-    role="alert"
-></div>
+.daily-records-page .summary-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
 
+.daily-records-page .summary-title {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+}
 
-<!-- ==================================================
-     FILTER CARD
-================================================== -->
+.daily-records-page .summary-subtitle {
+    margin: 0;
+    color: var(--text-secondary, #667085);
+    font-size: 13px;
+}
 
-<div class="card shadow-sm mb-4">
+.daily-records-page .summary-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: rgba(70, 95, 255, .09);
+    color: var(--primary-color, #465fff);
+    font-size: 13px;
+    font-weight: 700;
+}
 
-    <div class="card-body">
+.daily-records-page .section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+}
 
-        <h5 class="mb-3">
-            Record Filters
-        </h5>
+.daily-records-page .section-heading-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-        <div class="row g-3 align-items-end">
+.daily-records-page .section-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 700;
+}
 
-            <!-- PLANT -->
+.daily-records-page .icon-sanitizer {
+    background: #eef4ff;
+    color: #3538cd;
+}
 
-            <div class="col-md-5">
+.daily-records-page .icon-chloragel {
+    background: #e6f8ff;
+    color: #026aa2;
+}
 
-                <label
-                    for="plant"
-                    class="form-label"
-                >
-                    Plant
-                </label>
+.daily-records-page .icon-inspection {
+    background: #e8f8ef;
+    color: #027a48;
+}
 
-                <select
-                    id="plant"
-                    class="form-select"
-                >
+.daily-records-page .icon-atp {
+    background: #fff4e5;
+    color: #b54708;
+}
 
-                    <option value="">
-                        Select Plant
-                    </option>
+.daily-records-page .section-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary, #101828);
+}
 
-                </select>
+.daily-records-page .section-subtitle {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--text-secondary, #667085);
+}
 
-            </div>
+.daily-records-page .section-count {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 32px;
+    height: 30px;
+    padding: 0 9px;
+    border-radius: 8px;
+    background: var(--hover-bg, #f2f4f7);
+    color: var(--text-primary, #344054);
+    font-size: 12px;
+    font-weight: 700;
+}
 
+.daily-records-page .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
 
-            <!-- DATE -->
+.daily-records-page .table {
+    margin: 0;
+    min-width: 720px;
+    color: var(--text-primary, #344054);
+    font-size: 13px;
+    vertical-align: middle;
+}
 
-            <div class="col-md-4">
+.daily-records-page .table > thead > tr > th {
+    padding: 13px 16px;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+    background: var(--table-header-bg, #f9fafb);
+    color: var(--text-secondary, #667085);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .35px;
+    text-transform: uppercase;
+}
 
-                <label
-                    for="recordDate"
-                    class="form-label"
-                >
-                    Date
-                </label>
+.daily-records-page .table > tbody > tr > td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color, #f0f1f3);
+    background: transparent;
+}
 
-                <input
-                    type="date"
-                    id="recordDate"
-                    class="form-control"
-                >
+.daily-records-page .table > tbody > tr:last-child > td {
+    border-bottom: 0;
+}
 
-            </div>
+.daily-records-page .table > tbody > tr:hover > td {
+    background: var(--hover-bg, #fafbff);
+}
 
+.daily-records-page .table .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 650;
+}
 
-            <!-- LOAD -->
+.daily-records-page .record-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 11px;
+    border: 1px solid var(--border-color, #d0d5dd);
+    border-radius: 7px;
+    color: var(--primary-color, #465fff);
+    background: var(--card-bg, #fff);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
 
-            <div class="col-md-3">
+.daily-records-page .record-link:hover {
+    background: rgba(70, 95, 255, .06);
+    border-color: var(--primary-color, #465fff);
+}
 
-                <button
-                    type="button"
-                    id="loadRecordsButton"
-                    class="btn btn-primary w-100"
-                >
-                    Load Daily Records
-                </button>
+.daily-records-page .state-panel {
+    padding: 26px 20px;
+    border: 1px dashed var(--border-color, #d0d5dd);
+    border-radius: 10px;
+    background: var(--card-bg, #fff);
+    color: var(--text-secondary, #667085);
+    text-align: center;
+    font-size: 14px;
+}
 
-            </div>
+.daily-records-page .state-icon {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
 
+.daily-records-page #message {
+    margin-bottom: 20px;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+.daily-records-page .modal-content {
+    border: 1px solid var(--border-color, #eaecf0);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.daily-records-page .modal-header,
+.daily-records-page .modal-footer {
+    padding: 18px 22px;
+    border-color: var(--border-color, #eaecf0);
+}
+
+.daily-records-page .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.daily-records-page .modal-body {
+    padding: 24px;
+}
+
+.daily-records-page .modal-body .card {
+    border: 1px solid var(--border-color, #eaecf0);
+    border-radius: 10px;
+    box-shadow: none;
+}
+
+.daily-records-page .modal-body .card-header {
+    background: var(--hover-bg, #f9fafb);
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+    padding: 14px 16px;
+}
+
+.daily-records-page .modal-body .card-body {
+    padding: 16px;
+}
+
+.daily-records-page .modal-body .text-muted {
+    color: var(--text-secondary, #667085) !important;
+}
+
+@media (max-width: 900px) {
+    .daily-records-page .filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .daily-records-page .filter-action {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 600px) {
+    .daily-records-page .page-title {
+        font-size: 23px;
+    }
+
+    .daily-records-page .dr-card-body {
+        padding: 18px;
+    }
+
+    .daily-records-page .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .daily-records-page .filter-action {
+        grid-column: auto;
+    }
+
+    .daily-records-page .section-heading {
+        padding: 15px;
+    }
+
+    .daily-records-page .modal-body {
+        padding: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="daily-records-page">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Daily Combined Records</h1>
+            <p class="page-description">
+                View and review sanitation records for a selected plant and date.
+            </p>
         </div>
 
+        <a href="/dashboard/" class="dr-button dr-button-secondary">
+            <span aria-hidden="true">←</span>
+            Dashboard
+        </a>
     </div>
 
-</div>
+    <div id="message" class="alert d-none" role="alert"></div>
 
+    <!-- Filters -->
+    <section class="dr-card">
+        <div class="dr-card-body">
+            <h2 class="dr-card-title">Record Filters</h2>
 
-<!-- ==================================================
-     SUMMARY
-================================================== -->
+            <div class="filter-grid">
+                <div>
+                    <label for="plant" class="field-label">Plant</label>
+                    <select id="plant" class="form-select">
+                        <option value="">Select Plant</option>
+                    </select>
+                </div>
 
-<div
-    id="summaryCard"
-    class="card shadow-sm mb-4 d-none"
->
+                <div>
+                    <label for="recordDate" class="field-label">Record Date</label>
+                    <input type="date" id="recordDate" class="form-control">
+                </div>
 
-    <div class="card-body">
-
-        <div
-            class="d-flex justify-content-between align-items-center"
-        >
-
-            <div>
-
-                <h5
-                    id="summaryTitle"
-                    class="mb-1"
-                >
-                    Daily Records
-                </h5>
-
-                <p
-                    id="summarySubtitle"
-                    class="text-muted mb-0"
-                ></p>
-
+                <div class="filter-action">
+                    <button type="button" id="loadRecordsButton"
+                            class="dr-button dr-button-primary w-100">
+                        <span aria-hidden="true">↻</span>
+                        Load Daily Records
+                    </button>
+                </div>
             </div>
-
-            <span
-                id="totalRecordsBadge"
-                class="badge bg-primary fs-6"
-            >
-                0 Records
-            </span>
-
         </div>
+    </section>
 
-    </div>
+    <!-- Summary -->
+    <section id="summaryCard" class="dr-card d-none">
+        <div class="dr-card-body">
+            <div class="summary-layout">
+                <div>
+                    <h2 id="summaryTitle" class="summary-title">Daily Records</h2>
+                    <p id="summarySubtitle" class="summary-subtitle"></p>
+                </div>
 
-</div>
+                <span id="totalRecordsBadge" class="summary-count">0 Records</span>
+            </div>
+        </div>
+    </section>
 
-
-<!-- ==================================================
-     LOADING
-================================================== -->
-
-<div
-    id="loading"
-    class="text-center py-5 d-none"
->
-
-    <div
-        class="spinner-border text-primary"
-        role="status"
-    >
-
-        <span class="visually-hidden">
-            Loading...
-        </span>
-
-    </div>
-
-    <p class="mt-3 text-muted">
+    <!-- Loading -->
+    <div id="loading" class="state-panel d-none mb-4" aria-live="polite">
+        <span class="state-icon" aria-hidden="true">⏳</span>
         Loading daily records...
-    </p>
-
-</div>
-
-
-<!-- ==================================================
-     NO RECORDS
-================================================== -->
-
-<div
-    id="noRecords"
-    class="alert alert-info d-none"
->
-
-    No records were found for the selected
-    plant and date.
-
-</div>
-
-
-<!-- ==================================================
-     SANITIZER TITRATIONS
-================================================== -->
-
-<div
-    id="sanitizerSection"
-    class="card shadow-sm mb-4 d-none"
->
-
-    <div class="card-header bg-primary text-white">
-
-        <div
-            class="d-flex justify-content-between align-items-center"
-        >
-
-            <h5 class="mb-0">
-                Sanitizer Titrations
-            </h5>
-
-            <span
-                id="sanitizerCount"
-                class="badge bg-light text-dark"
-            >
-                0
-            </span>
-
-        </div>
-
     </div>
 
+    <!-- Empty state -->
+    <div id="noRecords" class="state-panel d-none mb-4">
+        <span class="state-icon" aria-hidden="true">📋</span>
+        No records were found for the selected plant and date.
+    </div>
 
-    <div class="card-body">
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-bordered table-hover align-middle mb-0"
-            >
-
+    <!-- Sanitizer -->
+    <section id="sanitizerSection" class="dr-card d-none">
+        <div class="section-heading">
+            <div class="section-heading-left">
+                <span class="section-icon icon-sanitizer" aria-hidden="true">滴</span>
+                <div>
+                    <h2 class="section-title">Sanitizer Titrations</h2>
+                    <p class="section-subtitle">R71 readings and sanitizer concentration</p>
+                </div>
+            </div>
+            <span id="sanitizerCount" class="section-count">0</span>
+        </div>
+        <div class="table-wrap">
+            <table class="table">
                 <thead>
-
                     <tr>
-
-                        <th
-                            class="admin-only"
-                        >
-                            ID
-                        </th>
-
+                        <th class="admin-only">ID</th>
                         <th>Date</th>
-
                         <th>R71 Drops</th>
-
                         <th>PPM</th>
-
                         <th>% v/v</th>
-
                         <th>Status</th>
-
                         <th>Created By</th>
-
                     </tr>
-
                 </thead>
-
-                <tbody
-                    id="sanitizerTable"
-                ></tbody>
-
+                <tbody id="sanitizerTable"></tbody>
             </table>
-
         </div>
+    </section>
 
-    </div>
-
-</div>
-
-
-<!-- ==================================================
-     CHLORAGEL TITRATIONS
-================================================== -->
-
-<div
-    id="chloragelSection"
-    class="card shadow-sm mb-4 d-none"
->
-
-    <div class="card-header bg-info text-white">
-
-        <div
-            class="d-flex justify-content-between align-items-center"
-        >
-
-            <h5 class="mb-0">
-                Chloragel Titrations
-            </h5>
-
-            <span
-                id="chloragelCount"
-                class="badge bg-light text-dark"
-            >
-                0
-            </span>
-
+    <!-- Chloragel -->
+    <section id="chloragelSection" class="dr-card d-none">
+        <div class="section-heading">
+            <div class="section-heading-left">
+                <span class="section-icon icon-chloragel" aria-hidden="true">◉</span>
+                <div>
+                    <h2 class="section-title">Chloragel Titrations</h2>
+                    <p class="section-subtitle">R9 readings and calculated result</p>
+                </div>
+            </div>
+            <span id="chloragelCount" class="section-count">0</span>
         </div>
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-bordered table-hover align-middle mb-0"
-            >
-
+        <div class="table-wrap">
+            <table class="table">
                 <thead>
-
                     <tr>
-
-                        <th
-                            class="admin-only"
-                        >
-                            ID
-                        </th>
-
+                        <th class="admin-only">ID</th>
                         <th>Date</th>
-
                         <th>R9 Drops</th>
-
                         <th>Result %</th>
-
                         <th>Status</th>
-
                         <th>Created By</th>
-
                     </tr>
-
                 </thead>
-
-                <tbody
-                    id="chloragelTable"
-                ></tbody>
-
+                <tbody id="chloragelTable"></tbody>
             </table>
-
         </div>
+    </section>
 
-    </div>
-
-</div>
-
-
-<!-- ==================================================
-     SANITATION INSPECTIONS
-================================================== -->
-
-<div
-    id="inspectionSection"
-    class="card shadow-sm mb-4 d-none"
->
-
-    <div class="card-header bg-success text-white">
-
-        <div
-            class="d-flex justify-content-between align-items-center"
-        >
-
-            <h5 class="mb-0">
-                Sanitation Inspections
-            </h5>
-
-            <span
-                id="inspectionCount"
-                class="badge bg-light text-dark"
-            >
-                0
-            </span>
-
+    <!-- Inspections -->
+    <section id="inspectionSection" class="dr-card d-none">
+        <div class="section-heading">
+            <div class="section-heading-left">
+                <span class="section-icon icon-inspection" aria-hidden="true">✓</span>
+                <div>
+                    <h2 class="section-title">Sanitation Inspections</h2>
+                    <p class="section-subtitle">Inspection details, templates and status</p>
+                </div>
+            </div>
+            <span id="inspectionCount" class="section-count">0</span>
         </div>
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-bordered table-hover align-middle mb-0"
-            >
-
+        <div class="table-wrap">
+            <table class="table">
                 <thead>
-
                     <tr>
-
-                        <th
-                            class="admin-only"
-                        >
-                            ID
-                        </th>
-
+                        <th class="admin-only">ID</th>
                         <th>Plant</th>
-
                         <th>Template</th>
-
                         <th>Date</th>
-
                         <th>Inspector</th>
-
                         <th>Status</th>
-
                         <th>Action</th>
-
                     </tr>
-
                 </thead>
-
-                <tbody
-                    id="inspectionTable"
-                ></tbody>
-
+                <tbody id="inspectionTable"></tbody>
             </table>
-
         </div>
+    </section>
 
-    </div>
-
-</div>
-
-
-<!-- ==================================================
-     ATP REPORTS
-================================================== -->
-
-<div
-    id="atpSection"
-    class="card shadow-sm mb-4 d-none"
->
-
-    <div class="card-header bg-warning">
-
-        <div
-            class="d-flex justify-content-between align-items-center
-"
-        >
-
-            <h5 class="mb-0">
-                ATP Reports
-            </h5>
-
-            <span
-                id="atpCount"
-                class="badge bg-dark"
-            >
-                0
-            </span>
-
+    <!-- ATP -->
+    <section id="atpSection" class="dr-card d-none">
+        <div class="section-heading">
+            <div class="section-heading-left">
+                <span class="section-icon icon-atp" aria-hidden="true">▤</span>
+                <div>
+                    <h2 class="section-title">ATP Reports</h2>
+                    <p class="section-subtitle">Uploaded ATP report files and details</p>
+                </div>
+            </div>
+            <span id="atpCount" class="section-count">0</span>
         </div>
-
-    </div>
-
-
-    <div class="card-body">
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-bordered table-hover align-middle mb-0"
-            >
-
+        <div class="table-wrap">
+            <table class="table">
                 <thead>
-
                     <tr>
-
-                        <th
-                            class="admin-only"
-                        >
-                            ID
-                        </th>
-
+                        <th class="admin-only">ID</th>
                         <th>Filename</th>
-
                         <th>Inspection Performed By</th>
-
                         <th>Uploaded By</th>
-
                         <th>Uploaded At</th>
-
                         <th>Status</th>
-
                         <th>File</th>
-
                     </tr>
-
                 </thead>
-
-                <tbody
-                    id="atpTable"
-                ></tbody>
-
+                <tbody id="atpTable"></tbody>
             </table>
-
         </div>
+    </section>
 
+    <!-- Inspection details modal -->
+    <div class="modal fade" id="inspectionDetailsModal" tabindex="-1"
+         aria-labelledby="inspectionDetailsTitle" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="inspectionDetailsTitle">Inspection Details</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="inspectionDetailsContent"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="dr-button dr-button-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>
+{% endblock %}
 
-
-</div>
-
-
-<!-- ==================================================
-     INSPECTION DETAILS MODAL
-================================================== -->
-
-<div
-    class="modal fade"
-    id="inspectionDetailsModal"
-    tabindex="-1"
-    aria-hidden="true"
->
-
-<div class="modal-dialog modal-xl modal-dialog-scrollable">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-
-            <h5
-                class="modal-title"
-                id="inspectionDetailsTitle"
-            >
-                Inspection Details
-            </h5>
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-            ></button>
-
-        </div>
-
-
-        <div class="modal-body">
-
-            <div
-                id="inspectionDetailsContent"
-            ></div>
-
-        </div>
-
-
-        <div class="modal-footer">
-
-            <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-            >
-                Close
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
-
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-
 /* ==================================================
    AUTHENTICATION
 ================================================== */
-
-const accessToken =
-    localStorage.getItem("access_token");
-
+const accessToken = localStorage.getItem("access_token");
 
 if (!accessToken) {
-
-    window.location.href =
-        "/login/";
-
+    window.location.href = "/login/";
 }
-
 
 /* ==================================================
    USER ROLE
 ================================================== */
-
 let isAdmin = false;
 
-
 async function loadCurrentUser() {
-
     try {
-
-        const response =
-            await fetch(
-                "/api/auth/me/",
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
+        const response = await fetch("/api/auth/me/", {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
 
         if (!response.ok) {
-
             isAdmin = false;
-
             applyRoleVisibility();
-
             return;
-
         }
 
+        const user = await response.json();
 
-        const user =
-            await response.json();
-
-
-        if (
-            Array.isArray(user.groups)
-        ) {
-
-            isAdmin =
-                user.groups.some(
-                    group =>
-                        (
-                            typeof group === "string"
-                                ? group
-                                : group.name
-                        ) === "Admin"
-                );
-
+        if (Array.isArray(user.groups)) {
+            isAdmin = user.groups.some(group =>
+                (typeof group === "string" ? group : group.name) === "Admin"
+            );
         }
-
 
         applyRoleVisibility();
-
-
     } catch (error) {
-
         isAdmin = false;
-
         applyRoleVisibility();
-
     }
-
 }
-
 
 /* ==================================================
    ROLE VISIBILITY
 ================================================== */
-
 function applyRoleVisibility() {
-
-    document
-        .querySelectorAll(".admin-only")
-        .forEach(
-            element => {
-
-                element.style.display =
-                    isAdmin
-                        ? ""
-                        : "none";
-
-            }
-        );
-
+    document.querySelectorAll(".admin-only").forEach(element => {
+        element.style.display = isAdmin ? "" : "none";
+    });
 }
 
-
 /* ==================================================
-   API
+   API AND ELEMENTS
 ================================================== */
+const PLANTS_API = "/api/plants/";
+const DAILY_RECORDS_API = "/api/records/daily/";
+const INSPECTIONS_API = "/api/inspections/";
 
-const PLANTS_API =
-    "/api/plants/";
+const plantSelect = document.getElementById("plant");
+const recordDate = document.getElementById("recordDate");
+const loadRecordsButton = document.getElementById("loadRecordsButton");
+const message = document.getElementById("message");
+const loading = document.getElementById("loading");
+const noRecords = document.getElementById("noRecords");
+const summaryCard = document.getElementById("summaryCard");
+const summaryTitle = document.getElementById("summaryTitle");
+const summarySubtitle = document.getElementById("summarySubtitle");
+const totalRecordsBadge = document.getElementById("totalRecordsBadge");
 
-const DAILY_RECORDS_API =
-    "/api/records/daily/";
+const sanitizerSection = document.getElementById("sanitizerSection");
+const chloragelSection = document.getElementById("chloragelSection");
+const inspectionSection = document.getElementById("inspectionSection");
+const atpSection = document.getElementById("atpSection");
 
-const INSPECTIONS_API =
-    "/api/inspections/";
+const sanitizerTable = document.getElementById("sanitizerTable");
+const chloragelTable = document.getElementById("chloragelTable");
+const inspectionTable = document.getElementById("inspectionTable");
+const atpTable = document.getElementById("atpTable");
 
-
-/* ==================================================
-   ELEMENTS
-================================================== */
-
-const plantSelect =
-    document.getElementById("plant");
-
-const recordDate =
-    document.getElementById("recordDate");
-
-const loadRecordsButton =
-    document.getElementById(
-        "loadRecordsButton"
-    );
-
-const message =
-    document.getElementById("message");
-
-const loading =
-    document.getElementById("loading");
-
-const noRecords =
-    document.getElementById("noRecords");
-
-const summaryCard =
-    document.getElementById("summaryCard");
-
-const summaryTitle =
-    document.getElementById("summaryTitle");
-
-const summarySubtitle =
-    document.getElementById("summarySubtitle");
-
-const totalRecordsBadge =
-    document.getElementById(
-        "totalRecordsBadge"
-    );
-
-
-const sanitizerSection =
-    document.getElementById(
-        "sanitizerSection"
-    );
-
-const chloragelSection =
-    document.getElementById(
-        "chloragelSection"
-    );
-
-const inspectionSection =
-    document.getElementById(
-        "inspectionSection"
-    );
-
-const atpSection =
-    document.getElementById(
-        "atpSection"
-    );
-
-
-const sanitizerTable =
-    document.getElementById(
-        "sanitizerTable"
-    );
-
-const chloragelTable =
-    document.getElementById(
-        "chloragelTable"
-    );
-
-const inspectionTable =
-    document.getElementById(
-        "inspectionTable"
-    );
-
-const atpTable =
-    document.getElementById(
-        "atpTable"
-    );
-
-
-const sanitizerCount =
-    document.getElementById(
-        "sanitizerCount"
-    );
-
-const chloragelCount =
-    document.getElementById(
-        "chloragelCount"
-    );
-
-const inspectionCount =
-    document.getElementById(
-        "inspectionCount"
-    );
-
-const atpCount =
-    document.getElementById(
-        "atpCount"
-    );
-
+const sanitizerCount = document.getElementById("sanitizerCount");
+const chloragelCount = document.getElementById("chloragelCount");
+const inspectionCount = document.getElementById("inspectionCount");
+const atpCount = document.getElementById("atpCount");
 
 /* ==================================================
    DEFAULT DATE
 ================================================== */
-
 function setDefaultDate() {
-
-    const today =
-        new Date();
-
-    const year =
-        today.getFullYear();
-
-    const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-    const day =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-    recordDate.value =
-        `${year}-${month}-${day}`;
-
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    recordDate.value = `${year}-${month}-${day}`;
 }
 
-
 /* ==================================================
-   HEADERS
+   HEADERS AND MESSAGES
 ================================================== */
-
 function getHeaders() {
-
     return {
-
-        "Authorization":
-            `Bearer ${accessToken}`,
-
-        "Content-Type":
-            "application/json"
-
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json"
     };
-
 }
 
-
-/* ==================================================
-   MESSAGE
-================================================== */
-
-function showMessage(
-    text,
-    type = "success"
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        `alert alert-${type}`;
-
+function showMessage(text, type = "success") {
+    message.textContent = text;
+    message.className = `alert alert-${type}`;
 }
-
 
 /* ==================================================
    LOAD PLANTS
 ================================================== */
-
 async function loadPlants() {
-
     try {
-
-        const response =
-            await fetch(
-                PLANTS_API,
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
+        const response = await fetch(PLANTS_API, {
+            headers: {
+                "Authorization": `Bearer ${accessToken}`
+            }
+        });
 
         if (!response.ok) {
-
-            throw new Error(
-                "Unable to load plants."
-            );
-
+            throw new Error("Unable to load plants.");
         }
 
+        const data = await response.json();
+        const plants = Array.isArray(data) ? data : data.results || [];
 
-        const data =
-            await response.json();
+        plantSelect.innerHTML = '<option value="">Select Plant</option>';
 
-
-        const plants =
-            Array.isArray(data)
-                ? data
-                : data.results || [];
-
-
-        plantSelect.innerHTML = `
-
-            <option value="">
-                Select Plant
-            </option>
-
-        `;
-
-
-        plants.forEach(
-            plant => {
-
-                if (
-                    plant.active === false
-                ) {
-                    return;
-                }
-
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    plant.id;
-
-
-                option.textContent =
-                    `${plant.code} - ${plant.name}`;
-
-
-                plantSelect.appendChild(
-                    option
-                );
-
+        plants.forEach(plant => {
+            if (plant.active === false) {
+                return;
             }
-        );
 
-
+            const option = document.createElement("option");
+            option.value = plant.id;
+            option.textContent = `${plant.code} - ${plant.name}`;
+            plantSelect.appendChild(option);
+        });
     } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+        showMessage(error.message, "danger");
     }
-
 }
-
 
 /* ==================================================
    RESET RESULTS
 ================================================== */
-
 function resetResults() {
+    summaryCard.classList.add("d-none");
+    noRecords.classList.add("d-none");
+    sanitizerSection.classList.add("d-none");
+    chloragelSection.classList.add("d-none");
+    inspectionSection.classList.add("d-none");
+    atpSection.classList.add("d-none");
 
-    summaryCard.classList.add(
-        "d-none"
-    );
+    sanitizerTable.innerHTML = "";
+    chloragelTable.innerHTML = "";
+    inspectionTable.innerHTML = "";
+    atpTable.innerHTML = "";
 
-    noRecords.classList.add(
-        "d-none"
-    );
-
-    sanitizerSection.classList.add(
-        "d-none"
-    );
-
-    chloragelSection.classList.add(
-        "d-none"
-    );
-
-    inspectionSection.classList.add(
-        "d-none"
-    );
-
-    atpSection.classList.add(
-        "d-none"
-    );
-
-    sanitizerTable.innerHTML =
-        "";
-
-    chloragelTable.innerHTML =
-        "";
-
-    inspectionTable.innerHTML =
-        "";
-
-    atpTable.innerHTML =
-        "";
-
-    sanitizerCount.textContent =
-        "0";
-
-    chloragelCount.textContent =
-        "0";
-
-    inspectionCount.textContent =
-        "0";
-
-    atpCount.textContent =
-        "0";
-
+    sanitizerCount.textContent = "0";
+    chloragelCount.textContent = "0";
+    inspectionCount.textContent = "0";
+    atpCount.textContent = "0";
 }
-
 
 /* ==================================================
-   GET ARRAY
+   HELPERS
 ================================================== */
-
-function getArray(
-    value
-) {
-
-    if (
-        Array.isArray(value)
-    ) {
-
+function getArray(value) {
+    if (Array.isArray(value)) {
         return value;
-
     }
 
-
-    if (
-        value &&
-        Array.isArray(value.results)
-    ) {
-
+    if (value && Array.isArray(value.results)) {
         return value.results;
-
     }
-
 
     return [];
-
 }
 
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 /* ==================================================
    LOAD DAILY RECORDS
 ================================================== */
-
 async function loadDailyRecords() {
-
-    const plant =
-        plantSelect.value;
-
-    const date =
-        recordDate.value;
-
+    const plant = plantSelect.value;
+    const date = recordDate.value;
 
     if (!plant) {
-
-        showMessage(
-            "Please select a plant.",
-            "danger"
-        );
-
+        showMessage("Please select a plant.", "danger");
         return;
-
     }
-
 
     if (!date) {
-
-        showMessage(
-            "Please select a date.",
-            "danger"
-        );
-
+        showMessage("Please select a date.", "danger");
         return;
-
     }
 
-
+    message.classList.add("d-none");
     resetResults();
-
-
-    loading.classList.remove(
-        "d-none"
-    );
-
-
-    loadRecordsButton.disabled =
-        true;
-
+    loading.classList.remove("d-none");
+    loadRecordsButton.disabled = true;
 
     try {
+        const url = `${DAILY_RECORDS_API}?plant=${encodeURIComponent(plant)}&date=${encodeURIComponent(date)}`;
 
-        const url =
-            `${DAILY_RECORDS_API}?plant=${encodeURIComponent(plant)}&date=${encodeURIComponent(date)}`;
+        const response = await fetch(url, {
+            headers: getHeaders()
+        });
 
-
-        const response =
-            await fetch(
-                url,
-                {
-                    headers:
-                        getHeaders()
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await response.json();
 
         if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load daily records."
-            );
-
+            throw new Error(data.detail || "Unable to load daily records.");
         }
 
-
-        renderDailyRecords(
-            data,
-            date
-        );
-
-
+        renderDailyRecords(data, date);
     } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+        showMessage(error.message, "danger");
     } finally {
-
-        loading.classList.add(
-            "d-none"
-        );
-
-        loadRecordsButton.disabled =
-            false;
-
+        loading.classList.add("d-none");
+        loadRecordsButton.disabled = false;
     }
-
 }
-
 
 /* ==================================================
    RENDER DAILY RECORDS
 ================================================== */
+function renderDailyRecords(data, selectedDate) {
+    const sanitizer = getArray(data.sanitizer_titrations);
+    const chloragel = getArray(data.chloragel_titrations);
+    const inspections = getArray(data.inspections || data.sanitation_inspections);
+    const atpReports = getArray(data.atp_reports);
 
-function renderDailyRecords(
-    data,
-    selectedDate
-) {
+    const total = sanitizer.length + chloragel.length +
+                  inspections.length + atpReports.length;
 
-    const sanitizer =
-        getArray(
-            data.sanitizer_titrations
-        );
+    const plantName = data.plant_name || data.plant || `Plant ${plantSelect.value}`;
 
-    const chloragel =
-        getArray(
-            data.chloragel_titrations
-        );
-
-    const inspections =
-        getArray(
-            data.inspections ||
-            data.sanitation_inspections
-        );
-
-    const atpReports =
-        getArray(
-            data.atp_reports
-        );
-
-
-    const total =
-        sanitizer.length +
-        chloragel.length +
-        inspections.length +
-        atpReports.length;
-
-
-    const plantName =
-        data.plant_name ||
-        data.plant ||
-        `Plant ${plantSelect.value}`;
-
-
-    summaryCard.classList.remove(
-        "d-none"
-    );
-
-
-    summaryTitle.textContent =
-        "Daily Records";
-
-
-    summarySubtitle.textContent =
-        `${plantName} • ${formatDisplayDate(selectedDate)}`;
-
-
-    totalRecordsBadge.textContent =
-        `${total} Record${total === 1 ? "" : "s"}`;
-
+    summaryCard.classList.remove("d-none");
+    summaryTitle.textContent = "Daily Records";
+    summarySubtitle.textContent = `${plantName} • ${formatDisplayDate(selectedDate)}`;
+    totalRecordsBadge.textContent = `${total} Record${total === 1 ? "" : "s"}`;
 
     if (total === 0) {
-
-        noRecords.classList.remove(
-            "d-none"
-        );
-
-
-        noRecords.textContent =
-            `No records were found for ${plantName} on ${formatDisplayDate(selectedDate)}.`;
-
-
+        noRecords.classList.remove("d-none");
+        noRecords.textContent = `No records were found for ${plantName} on ${formatDisplayDate(selectedDate)}.`;
         return;
-
     }
 
-
-    renderSanitizerRecords(
-        sanitizer
-    );
-
-
-    renderChloragelRecords(
-        chloragel
-    );
-
-
-    renderInspectionRecords(
-        inspections
-    );
-
-
-    renderATPRecords(
-        atpReports
-    );
-
+    renderSanitizerRecords(sanitizer);
+    renderChloragelRecords(chloragel);
+    renderInspectionRecords(inspections);
+    renderATPRecords(atpReports);
 }
-
 
 /* ==================================================
    SANITIZER RECORDS
 ================================================== */
-
-function renderSanitizerRecords(
-    records
-) {
-
-    if (
-        records.length === 0
-    ) {
-
+function renderSanitizerRecords(records) {
+    if (records.length === 0) {
         return;
-
     }
 
+    sanitizerSection.classList.remove("d-none");
+    sanitizerCount.textContent = records.length;
 
-    sanitizerSection.classList.remove(
-        "d-none"
-    );
+    records.forEach(record => {
+        const row = document.createElement("tr");
+        const idCell = isAdmin ? `<td>${escapeHtml(record.id ?? "-")}</td>` : "";
 
+        row.innerHTML = `
+            ${idCell}
+            <td>${formatDisplayDate(record.created_at || record.date)}</td>
+            <td>${escapeHtml(record.r71_drops ?? "-")}</td>
+            <td>${escapeHtml(record.ppm ?? "-")}</td>
+            <td>${escapeHtml(record.percent_vv ?? "-")}</td>
+            <td>${formatStatus(record.status)}</td>
+            <td>${escapeHtml(record.created_by_username || record.created_by || "-")}</td>
+        `;
 
-    sanitizerCount.textContent =
-        records.length;
-
-
-    records.forEach(
-        record => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const idCell =
-                isAdmin
-                    ? `
-                        <td>
-                            ${record.id ?? "-"}
-                        </td>
-                      `
-                    : "";
-
-
-            row.innerHTML = `
-
-                ${idCell}
-
-                <td>
-                    ${formatDisplayDate(
-                        record.created_at ||
-                        record.date
-                    )}
-                </td>
-
-                <td>
-                    ${record.r71_drops ?? "-"}
-                </td>
-
-                <td>
-                    ${record.ppm ?? "-"}
-                </td>
-
-                <td>
-                    ${record.percent_vv ?? "-"}
-                </td>
-
-                <td>
-                    ${formatStatus(
-                        record.status
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        record.created_by_username ||
-                        record.created_by ||
-                        "-"
-                    )}
-                </td>
-
-            `;
-
-
-            sanitizerTable.appendChild(
-                row
-            );
-
-        }
-    );
-
+        sanitizerTable.appendChild(row);
+    });
 }
-
 
 /* ==================================================
    CHLORAGEL RECORDS
 ================================================== */
-
-function renderChloragelRecords(
-    records
-) {
-
-    if (
-        records.length === 0
-    ) {
-
+function renderChloragelRecords(records) {
+    if (records.length === 0) {
         return;
-
     }
 
+    chloragelSection.classList.remove("d-none");
+    chloragelCount.textContent = records.length;
 
-    chloragelSection.classList.remove(
-        "d-none"
-    );
+    records.forEach(record => {
+        const row = document.createElement("tr");
+        const idCell = isAdmin ? `<td>${escapeHtml(record.id ?? "-")}</td>` : "";
 
+        row.innerHTML = `
+            ${idCell}
+            <td>${formatDisplayDate(record.created_at || record.date)}</td>
+            <td>${escapeHtml(record.r9_drops ?? "-")}</td>
+            <td>${escapeHtml(record.result_percent ?? "-")}</td>
+            <td>${formatStatus(record.status)}</td>
+            <td>${escapeHtml(record.created_by_username || record.created_by || "-")}</td>
+        `;
 
-    chloragelCount.textContent =
-        records.length;
-
-
-    records.forEach(
-        record => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const idCell =
-                isAdmin
-                    ? `
-                        <td>
-                            ${record.id ?? "-"}
-                        </td>
-                      `
-                    : "";
-
-
-            row.innerHTML = `
-
-                ${idCell}
-
-                <td>
-                    ${formatDisplayDate(
-                        record.created_at ||
-                        record.date
-                    )}
-                </td>
-
-                <td>
-                    ${record.r9_drops ?? "-"}
-                </td>
-
-                <td>
-                    ${record.result_percent ?? "-"}
-                </td>
-
-                <td>
-                    ${formatStatus(
-                        record.status
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        record.created_by_username ||
-                        record.created_by ||
-                        "-"
-                    )}
-                </td>
-
-            `;
-
-
-            chloragelTable.appendChild(
-                row
-            );
-
-        }
-    );
-
+        chloragelTable.appendChild(row);
+    });
 }
-
 
 /* ==================================================
    INSPECTION RECORDS
 ================================================== */
-
-function renderInspectionRecords(
-    records
-) {
-
-    if (
-        records.length === 0
-    ) {
-
+function renderInspectionRecords(records) {
+    if (records.length === 0) {
         return;
-
     }
 
+    inspectionSection.classList.remove("d-none");
+    inspectionCount.textContent = records.length;
 
-    inspectionSection.classList.remove(
-        "d-none"
-    );
+    records.forEach(inspection => {
+        const row = document.createElement("tr");
+        const idCell = isAdmin ? `<td>${escapeHtml(inspection.id ?? "-")}</td>` : "";
 
+        const plantName = inspection.plant_name || inspection.plant_code || inspection.plant || "-";
+        const template = inspection.template_name || inspection.template || "-";
+        const inspector = inspection.inspector_username || inspection.inspector_name || inspection.inspector || "-";
 
-    inspectionCount.textContent =
-        records.length;
+        const actionButton = inspection.id
+            ? `<button type="button" class="record-link" onclick="viewInspection(${Number(inspection.id)})">View Details</button>`
+            : `<span class="text-muted">Details unavailable</span>`;
 
+        row.innerHTML = `
+            ${idCell}
+            <td>${escapeHtml(plantName)}</td>
+            <td>${escapeHtml(template)}</td>
+            <td>${formatDisplayDate(inspection.inspection_date)}</td>
+            <td>${escapeHtml(inspector)}</td>
+            <td>${formatStatus(inspection.status)}</td>
+            <td>${actionButton}</td>
+        `;
 
-    records.forEach(
-        inspection => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const idCell =
-                isAdmin
-                    ? `
-                        <td>
-                            ${inspection.id ?? "-"}
-                        </td>
-                      `
-                    : "";
-
-
-            const plantName =
-                inspection.plant_name ||
-                inspection.plant_code ||
-                inspection.plant ||
-                "-";
-
-
-            const template =
-                inspection.template_name ||
-                inspection.template ||
-                "-";
-
-
-            const inspector =
-                inspection.inspector_username ||
-                inspection.inspector_name ||
-                inspection.inspector ||
-                "-";
-
-
-            const actionButton =
-                inspection.id
-                    ? `
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-primary"
-                            onclick="viewInspection(${inspection.id})"
-                        >
-                            View
-                        </button>
-                      `
-                    : `
-                        <span class="text-muted">
-                            Details unavailable
-                        </span>
-                      `;
-
-
-            row.innerHTML = `
-
-                ${idCell}
-
-                <td>
-                    ${escapeHtml(
-                        plantName
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        template
-                    )}
-                </td>
-
-                <td>
-                    ${formatDisplayDate(
-                        inspection.inspection_date
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        inspector
-                    )}
-                </td>
-
-                <td>
-                    ${formatStatus(
-                        inspection.status
-                    )}
-                </td>
-
-                <td>
-                    ${actionButton}
-                </td>
-
-            `;
-
-
-            inspectionTable.appendChild(
-                row
-            );
-
-        }
-    );
-
+        inspectionTable.appendChild(row);
+    });
 }
-
 
 /* ==================================================
    ATP RECORDS
 ================================================== */
-
-function renderATPRecords(
-    reports
-) {
-
-    if (
-        reports.length === 0
-    ) {
-
+function renderATPRecords(reports) {
+    if (reports.length === 0) {
         return;
-
     }
 
+    atpSection.classList.remove("d-none");
+    atpCount.textContent = reports.length;
 
-    atpSection.classList.remove(
-        "d-none"
-    );
+    reports.forEach(report => {
+        const row = document.createElement("tr");
+        const idCell = isAdmin ? `<td>${escapeHtml(report.id ?? "-")}</td>` : "";
 
+        let fileButton = "-";
+        const fileUrl = report.file_url || report.file;
 
-    atpCount.textContent =
-        reports.length;
-
-
-    reports.forEach(
-        report => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const idCell =
-                isAdmin
-                    ? `
-                        <td>
-                            ${report.id ?? "-"}
-                        </td>
-                      `
-                    : "";
-
-
-            let fileButton =
-                "-";
-
-
-            const fileUrl =
-                report.file_url ||
-                report.file;
-
-
-            if (
-                fileUrl
-            ) {
-
-                fileButton = `
-
-                    <a
-                        href="${escapeHtml(fileUrl)}"
-                        target="_blank"
-                        class="btn btn-sm btn-outline-primary"
-                    >
-                        Open File
-                    </a>
-
-                `;
-
-            }
-
-
-            const inspectionPerformedBy =
-                report.inspection_inspector ||
-                "-";
-
-
-            row.innerHTML = `
-
-                ${idCell}
-
-                <td>
-                    ${escapeHtml(
-                        report.original_filename ||
-                        "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        inspectionPerformedBy
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        report.uploaded_by_username ||
-                        report.uploaded_by ||
-                        "-"
-                    )}
-                </td>
-
-                <td>
-                    ${formatDateTime(
-                        report.uploaded_at
-                    )}
-                </td>
-
-                <td>
-                    ${formatStatus(
-                        report.status
-                    )}
-                </td>
-
-                <td>
-                    ${fileButton}
-                </td>
-
+        if (fileUrl) {
+            fileButton = `
+                <a href="${escapeHtml(fileUrl)}" target="_blank"
+                   rel="noopener noreferrer" class="record-link">
+                    Open File ↗
+                </a>
             `;
-
-
-            atpTable.appendChild(
-                row
-            );
-
         }
-    );
 
+        const inspectionPerformedBy = report.inspection_inspector || "-";
+
+        row.innerHTML = `
+            ${idCell}
+            <td>${escapeHtml(report.original_filename || "-")}</td>
+            <td>${escapeHtml(inspectionPerformedBy)}</td>
+            <td>${escapeHtml(report.uploaded_by_username || report.uploaded_by || "-")}</td>
+            <td>${formatDateTime(report.uploaded_at)}</td>
+            <td>${formatStatus(report.status)}</td>
+            <td>${fileButton}</td>
+        `;
+
+        atpTable.appendChild(row);
+    });
 }
-
 
 /* ==================================================
    VIEW INSPECTION
 ================================================== */
-
-async function viewInspection(
-    id
-) {
-
+async function viewInspection(id) {
     if (!id) {
-
-        showMessage(
-            "Inspection details are not available for this account.",
-            "warning"
-        );
-
+        showMessage("Inspection details are not available for this account.", "warning");
         return;
-
     }
-
 
     try {
+        const response = await fetch(`${INSPECTIONS_API}${id}/`, {
+            headers: getHeaders()
+        });
 
-        const response =
-            await fetch(
-                `${INSPECTIONS_API}${id}/`,
-                {
-                    headers:
-                        getHeaders()
-                }
-            );
-
-
-        const inspection =
-            await response.json();
-
+        const inspection = await response.json();
 
         if (!response.ok) {
-
-            throw new Error(
-                inspection.detail ||
-                "Unable to load inspection details."
-            );
-
+            throw new Error(inspection.detail || "Unable to load inspection details.");
         }
 
+        renderInspectionDetails(inspection);
 
-        renderInspectionDetails(
-            inspection
-        );
-
-
-        const modalElement =
-            document.getElementById(
-                "inspectionDetailsModal"
-            );
-
-
-        const modal =
-            bootstrap.Modal.getOrCreateInstance(
-                modalElement
-            );
-
-
+        const modalElement = document.getElementById("inspectionDetailsModal");
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         modal.show();
-
-
     } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+        showMessage(error.message, "danger");
     }
-
 }
-
 
 /* ==================================================
    RENDER INSPECTION DETAILS
 ================================================== */
+function renderInspectionDetails(inspection) {
+    const content = document.getElementById("inspectionDetailsContent");
 
-function renderInspectionDetails(
-    inspection
-) {
+    document.getElementById("inspectionDetailsTitle").textContent =
+        isAdmin ? `Inspection #${inspection.id}` : "Inspection Details";
 
-    const content =
-        document.getElementById(
-            "inspectionDetailsContent"
-        );
+    const answers = getArray(inspection.answers);
+    const plantName = inspection.plant_name || inspection.plant || "-";
+    const inspectorName = inspection.inspector_username ||
+                          inspection.inspector_name ||
+                          inspection.inspector || "-";
 
-
-    document.getElementById(
-        "inspectionDetailsTitle"
-    ).textContent =
-        isAdmin
-            ? `Inspection #${inspection.id}`
-            : "Inspection Details";
-
-
-    const answers =
-        getArray(
-            inspection.answers
-        );
-
-
-    const plantName =
-        inspection.plant_name ||
-        inspection.plant ||
-        "-";
-
-
-    const inspectorName =
-        inspection.inspector_username ||
-        inspection.inspector_name ||
-        inspection.inspector ||
-        "-";
-
-
-    /*
-        IMPORTANT:
-        Prefer template_name first.
-
-        The API returns:
-            template      -> database ID
-            template_name -> human-readable name
-
-        Therefore we must NOT display template
-        unless template_name is unavailable.
-    */
-
-    const templateName =
-        inspection.template_name ||
+    const templateName = inspection.template_name ||
         inspection.template_name_display ||
-        (
-            typeof inspection.template === "object"
-                ? inspection.template.name
-                : null
-        ) ||
-        inspection.template ||
-        "-";
-
+        (typeof inspection.template === "object" ? inspection.template.name : null) ||
+        inspection.template || "-";
 
     let answersHtml = "";
 
-
-    if (
-        answers.length === 0
-    ) {
-
+    if (answers.length === 0) {
         answersHtml = `
-
-            <div class="alert alert-info">
+            <div class="alert alert-info mb-0">
                 No answers were recorded.
             </div>
-
         `;
-
     } else {
-
         answersHtml = `
-
             <div class="table-responsive">
-
-                <table
-                    class="table table-bordered table-hover align-middle"
-                >
-
+                <table class="table">
                     <thead>
-
                         <tr>
-
-                            <th>
-                                Question
-                            </th>
-
-                            <th>
-                                Answer
-                            </th>
-
-                            <th>
-                                Observation
-                            </th>
-
+                            <th>Question</th>
+                            <th>Answer</th>
+                            <th>Observation</th>
                         </tr>
-
                     </thead>
-
                     <tbody>
+                        ${answers.map((answer, index) => {
+                            const questionText = answer.question_text ||
+                                answer.question?.question_text ||
+                                answer.question_name ||
+                                (typeof answer.question === "string" ? answer.question : null) ||
+                                `Question ${index + 1}`;
 
-                        ${answers.map(
-                            (answer, index) => {
+                            const answerValue = answer.answer || "-";
+                            const observation = answer.observation || "-";
 
-                                const questionText =
-                                    answer.question_text ||
-                                    answer.question?.question_text ||
-                                    answer.question_name ||
-                                    (
-                                        typeof answer.question === "string"
-                                            ? answer.question
-                                            : null
-                                    ) ||
-                                    `Question ${index + 1}`;
-
-
-                                const answerValue =
-                                    answer.answer ||
-                                    "-";
-
-
-                                const observation =
-                                    answer.observation ||
-                                    "-";
-
-
-                                return `
-
-                                    <tr>
-
-                                        <td>
-                                            ${escapeHtml(
-                                                questionText
-                                            )}
-                                        </td>
-
-                                        <td>
-                                            ${getAnswerBadge(
-                                                answerValue
-                                            )}
-                                        </td>
-
-                                        <td>
-                                            ${escapeHtml(
-                                                observation
-                                            )}
-                                        </td>
-
-                                    </tr>
-
-                                `;
-
-                            }
-                        ).join("")}
-
+                            return `
+                                <tr>
+                                    <td>${escapeHtml(questionText)}</td>
+                                    <td>${getAnswerBadge(answerValue)}</td>
+                                    <td>${escapeHtml(observation)}</td>
+                                </tr>
+                            `;
+                        }).join("")}
                     </tbody>
-
                 </table>
-
             </div>
-
         `;
-
     }
-
 
     content.innerHTML = `
-
         <div class="row g-3 mb-4">
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Plant
-                        </h6>
-
-                        <div class="fw-bold">
-                            ${escapeHtml(
-                                plantName
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Plant</h6>
+                    <div class="fw-bold">${escapeHtml(plantName)}</div>
+                </div></div>
             </div>
 
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Template
-                        </h6>
-
-                        <div class="fw-bold">
-                            ${escapeHtml(
-                                templateName
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Template</h6>
+                    <div class="fw-bold">${escapeHtml(templateName)}</div>
+                </div></div>
             </div>
 
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Status
-                        </h6>
-
-                        <div>
-                            ${formatStatus(
-                                inspection.status
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Status</h6>
+                    <div>${formatStatus(inspection.status)}</div>
+                </div></div>
             </div>
 
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Inspection Date
-                        </h6>
-
-                        <div class="fw-bold">
-                            ${formatDisplayDate(
-                                inspection.inspection_date
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Inspection Date</h6>
+                    <div class="fw-bold">${formatDisplayDate(inspection.inspection_date)}</div>
+                </div></div>
             </div>
 
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Inspector
-                        </h6>
-
-                        <div class="fw-bold">
-                            ${escapeHtml(
-                                inspectorName
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Inspector</h6>
+                    <div class="fw-bold">${escapeHtml(inspectorName)}</div>
+                </div></div>
             </div>
 
-
             <div class="col-md-6">
-
-                <div class="card h-100">
-
-                    <div class="card-body">
-
-                        <h6 class="text-muted">
-                            Signed At
-                        </h6>
-
-                        <div class="fw-bold">
-                            ${formatDateTime(
-                                inspection.signed_at
-                            )}
-                        </div>
-
-                    </div>
-
-                </div>
-
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="text-muted">Signed At</h6>
+                    <div class="fw-bold">${formatDateTime(inspection.signed_at)}</div>
+                </div></div>
             </div>
-
         </div>
-
 
         <div class="card mb-4">
-
-            <div class="card-header">
-
-                <h5 class="mb-0">
-                    General Notes
-                </h5>
-
-            </div>
-
+            <div class="card-header"><h5 class="mb-0">General Notes</h5></div>
             <div class="card-body">
-
-                ${
-                    inspection.general_notes
-                        ? escapeHtml(
-                            inspection.general_notes
-                        )
-                        : '<span class="text-muted">No general notes.</span>'
-                }
-
+                ${inspection.general_notes
+                    ? escapeHtml(inspection.general_notes)
+                    : '<span class="text-muted">No general notes.</span>'}
             </div>
-
         </div>
-
 
         <div class="card">
-
-            <div class="card-header">
-
-                <h5 class="mb-0">
-                    Inspection Answers
-                </h5>
-
-            </div>
-
-            <div class="card-body">
-
-                ${answersHtml}
-
-            </div>
-
+            <div class="card-header"><h5 class="mb-0">Inspection Answers</h5></div>
+            <div class="card-body">${answersHtml}</div>
         </div>
-
     `;
-
 }
-
-
-/* ==================================================
-   ESCAPE HTML
-================================================== */
-
-function escapeHtml(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
-    }
-
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
 
 /* ==================================================
    ANSWER BADGE
 ================================================== */
-
-function getAnswerBadge(
-    answer
-) {
-
-    if (
-        answer === "YES"
-    ) {
-
-        return `
-            <span class="badge bg-success">
-                YES
-            </span>
-        `;
-
+function getAnswerBadge(answer) {
+    if (answer === "YES") {
+        return '<span class="badge bg-success">YES</span>';
     }
 
-
-    if (
-        answer === "NO"
-    ) {
-
-        return `
-            <span class="badge bg-danger">
-                NO
-            </span>
-        `;
-
+    if (answer === "NO") {
+        return '<span class="badge bg-danger">NO</span>';
     }
 
-
-    return `
-        <span class="badge bg-secondary">
-            ${escapeHtml(answer)}
-        </span>
-    `;
-
+    return `<span class="badge bg-secondary">${escapeHtml(answer)}</span>`;
 }
 
-
 /* ==================================================
-   STATUS
+   STATUS BADGE
 ================================================== */
-
-function formatStatus(
-    status
-) {
-
+function formatStatus(status) {
     if (!status) {
-
         return "-";
-
     }
 
+    let badgeClass = "bg-secondary";
 
-    let badgeClass =
-        "bg-secondary";
-
-
-    switch (
-        String(status).toUpperCase()
-    ) {
-
+    switch (String(status).toUpperCase()) {
         case "DRAFT":
-
-            badgeClass =
-                "bg-secondary";
-
+            badgeClass = "bg-secondary";
             break;
-
-
         case "SUBMITTED":
-
-            badgeClass =
-                "bg-success";
-
+            badgeClass = "bg-success";
             break;
-
-
         case "CORRECTED":
-
-            badgeClass =
-                "bg-primary";
-
+            badgeClass = "bg-primary";
             break;
-
-
         case "REVIEW_REQUIRED":
-
-            badgeClass =
-                "bg-warning text-dark";
-
+            badgeClass = "bg-warning text-dark";
             break;
-
     }
 
-
-    return `
-
-        <span
-            class="badge ${badgeClass}"
-        >
-            ${escapeHtml(
-                String(status).replace(
-                    /_/g,
-                    " "
-                )
-            )}
-        </span>
-
-    `;
-
+    return `<span class="badge ${badgeClass}">${escapeHtml(String(status).replace(/_/g, " "))}</span>`;
 }
 
-
 /* ==================================================
-   DATE FORMAT
+   DATE FORMATTING
 ================================================== */
-
-function formatDisplayDate(
-    value
-) {
-
+function formatDisplayDate(value) {
     if (!value) {
-
         return "-";
-
     }
 
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return escapeHtml(
-            value
-        );
-
+    // Avoid timezone shifts when the API returns a date-only value.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) {
+        const [year, month, day] = String(value).split("-");
+        return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString();
     }
 
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
+    }
 
     return date.toLocaleDateString();
-
 }
 
-
-/* ==================================================
-   DATE/TIME FORMAT
-================================================== */
-
-function formatDateTime(
-    value
-) {
-
+function formatDateTime(value) {
     if (!value) {
-
         return "-";
-
     }
 
+    const date = new Date(value);
 
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return escapeHtml(
-            value
-        );
-
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(value);
     }
-
 
     return date.toLocaleString();
-
 }
 
-
 /* ==================================================
-   EVENTS
+   EVENTS AND INITIALIZATION
 ================================================== */
+loadRecordsButton.addEventListener("click", loadDailyRecords);
 
-loadRecordsButton.addEventListener(
-    "click",
-    loadDailyRecords
-);
-
-
-/* ==================================================
-   INITIALIZE
-================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-        setDefaultDate();
-
-        await loadCurrentUser();
-
-        await loadPlants();
-
-    }
-);
-
+document.addEventListener("DOMContentLoaded", async function () {
+    setDefaultDate();
+    await loadCurrentUser();
+    await loadPlants();
+});
 </script>
-
-</body>
-
-</html>
+{% endblock %}
