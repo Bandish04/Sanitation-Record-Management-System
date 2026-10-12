@@ -1,11 +1,7 @@
-
 from django.contrib.auth.models import User
 from django.db import models
 
-from inspections.models import (
-    SanitationInspection,
-    InspectionQuestion,
-)
+from inspections.models import SanitationInspection, InspectionQuestion
 
 
 class CorrectiveAction(models.Model):
@@ -22,7 +18,6 @@ class CorrectiveAction(models.Model):
         related_name="corrective_actions",
     )
 
-    # Existing inspection question, or NULL for a custom question.
     question = models.ForeignKey(
         InspectionQuestion,
         on_delete=models.PROTECT,
@@ -31,9 +26,7 @@ class CorrectiveAction(models.Model):
         blank=True,
     )
 
-    # For N/A, this contains the inspector's custom question or doubt.
     observation = models.TextField()
-
     action_required = models.TextField()
 
     assigned_to = models.ForeignKey(
@@ -44,14 +37,8 @@ class CorrectiveAction(models.Model):
         blank=True,
     )
 
-    due_date = models.DateField(
-        null=True,
-        blank=True,
-    )
-
-    action_taken = models.TextField(
-        blank=True,
-    )
+    due_date = models.DateField(null=True, blank=True)
+    action_taken = models.TextField(blank=True)
 
     status = models.CharField(
         max_length=20,
@@ -65,18 +52,9 @@ class CorrectiveAction(models.Model):
         related_name="created_corrective_actions",
     )
 
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True,
-    )
-
-    completed_at = models.DateTimeField(
-        null=True,
-        blank=True,
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def is_custom_question(self):
@@ -88,7 +66,6 @@ class CorrectiveAction(models.Model):
             if self.question_id
             else "Custom Question"
         )
-
         return (
             f"Corrective Action #{self.id} - "
             f"{question_label} - {self.status}"

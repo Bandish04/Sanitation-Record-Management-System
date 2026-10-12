@@ -1,493 +1,948 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Audit Logs</title>
+{% extends "base.html" %}
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-</head>
+{% block title %}Audit Logs | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}Audit Logs{% endblock %}
 
-<body>
+{% block extra_css %}
+<style>
+    .audit-page {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        color: var(--text-primary, #101828);
+        font-family: inherit;
+    }
 
-<div class="container-fluid mt-4">
+    .audit-page *,
+    .audit-page *::before,
+    .audit-page *::after {
+        box-sizing: border-box;
+    }
+
+    .audit-page .audit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+
+    .audit-page .audit-heading {
+        min-width: 0;
+    }
+
+    .audit-page .audit-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #168052;
+        background: #eaf8f0;
+        border: 1px solid #d4f0df;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+
+    .audit-page .audit-heading h1 {
+        margin: 0;
+        font-size: clamp(24px, 3vw, 31px);
+        font-weight: 750;
+        letter-spacing: -.8px;
+        color: var(--text-primary, #101828);
+    }
+
+    .audit-page .audit-heading p {
+        margin: 8px 0 0;
+        color: var(--text-secondary, #667085);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .audit-page .audit-btn {
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 9px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: .2s ease;
+        white-space: nowrap;
+    }
+
+    .audit-page .audit-btn-primary {
+        color: #fff;
+        background: #168052;
+        border: 1px solid #168052;
+        box-shadow: 0 2px 4px rgba(22, 128, 82, .12);
+    }
+
+    .audit-page .audit-btn-primary:hover {
+        background: #106c43;
+        border-color: #106c43;
+        transform: translateY(-1px);
+    }
+
+    .audit-page .audit-btn-secondary {
+        color: #344054;
+        background: #fff;
+        border: 1px solid #d0d5dd;
+    }
+
+    .audit-page .audit-btn-secondary:hover {
+        background: #f9fafb;
+        border-color: #98a2b3;
+    }
+
+    .audit-page .audit-btn:disabled {
+        opacity: .65;
+        cursor: wait;
+        transform: none;
+    }
+
+    .audit-page .audit-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .audit-page .audit-stat-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #eaecf0);
+        border-radius: 13px;
+        min-width: 0;
+        box-shadow: 0 2px 7px rgba(16, 24, 40, .025);
+    }
+
+    .audit-page .audit-stat-icon {
+        width: 45px;
+        height: 45px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: #eaf8f0;
+        color: #168052;
+    }
+
+    .audit-page .audit-stat-icon svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    .audit-page .audit-stat-label {
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .audit-page .audit-stat-value {
+        color: var(--text-primary, #101828);
+        font-size: 23px;
+        font-weight: 750;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .audit-page .audit-card {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #eaecf0);
+        border-radius: 13px;
+        box-shadow: 0 2px 7px rgba(16, 24, 40, .025);
+        margin-bottom: 22px;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .audit-page .audit-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 20px 22px;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .audit-page .audit-card-title {
+        font-size: 15px;
+        font-weight: 750;
+        color: var(--text-primary, #101828);
+        margin: 0;
+    }
+
+    .audit-page .audit-card-subtitle {
+        font-size: 12px;
+        color: var(--text-secondary, #667085);
+        margin: 5px 0 0;
+    }
+
+    .audit-page .audit-card-body {
+        padding: 22px;
+        min-width: 0;
+    }
+
+    .audit-page .audit-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+    .audit-page .audit-field {
+        min-width: 0;
+    }
+
+    .audit-page .audit-field label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary, #344054);
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .audit-page .audit-control {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        min-height: 43px;
+        padding: 10px 12px;
+        color: var(--text-primary, #344054);
+        background-color: var(--input-bg, #fff);
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 13px;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .audit-page .audit-control:focus {
+        border-color: #42a878;
+        box-shadow: 0 0 0 3px rgba(22, 128, 82, .10);
+    }
+
+    .audit-page .audit-search-wrap {
+        position: relative;
+    }
+
+    .audit-page .audit-search-wrap svg {
+        position: absolute;
+        width: 17px;
+        height: 17px;
+        left: 12px;
+        top: 13px;
+        color: #98a2b3;
+        pointer-events: none;
+    }
+
+    .audit-page .audit-search-wrap .audit-control {
+        padding-left: 37px;
+    }
+
+    .audit-page .audit-filter-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 21px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .audit-page .audit-filter-hint {
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+    }
+
+    .audit-page .audit-results-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 29px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        background: #eaf8f0;
+        color: #168052;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .audit-page .audit-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .audit-page .audit-table {
+        width: 100%;
+        min-width: 850px;
+        margin: 0;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .audit-page .audit-table thead th {
+        padding: 14px 18px;
+        color: var(--text-secondary, #667085);
+        background: var(--table-header-bg, #f9fafb);
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .audit-page .audit-table tbody td {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border-color, #f0f1f3);
+        color: var(--text-primary, #344054);
+        font-size: 12px;
+        line-height: 1.6;
+        vertical-align: middle;
+        overflow-wrap: anywhere;
+    }
+
+    .audit-page .audit-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .audit-page .audit-table tbody tr {
+        transition: background .15s ease;
+    }
+
+    .audit-page .audit-table tbody tr:hover {
+        background: var(--table-hover-bg, #f9fcfa);
+    }
+
+    .audit-page .audit-timestamp {
+        color: var(--text-secondary, #667085);
+        white-space: nowrap;
+        font-size: 11px;
+    }
+
+    .audit-page .audit-user {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-weight: 650;
+    }
+
+    .audit-page .audit-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 31px;
+        height: 31px;
+        border-radius: 9px;
+        background: #eaf8f0;
+        color: #168052;
+        font-size: 11px;
+        font-weight: 750;
+        text-transform: uppercase;
+    }
+
+    .audit-page .audit-action-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 6px;
+        background: #f2f4f7;
+        border: 1px solid #eaecf0;
+        color: #475467;
+        font-size: 10px;
+        font-weight: 750;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .audit-page .audit-record {
+        font-weight: 650;
+        color: var(--text-primary, #344054);
+    }
+
+    .audit-page .audit-record-id {
+        display: block;
+        color: var(--text-secondary, #98a2b3);
+        font-size: 10px;
+        font-weight: 500;
+        margin-top: 3px;
+    }
+
+    .audit-page .audit-reason {
+        max-width: 320px;
+        white-space: normal;
+        color: var(--text-secondary, #667085);
+    }
+
+    .audit-page .audit-empty {
+        padding: 45px 20px !important;
+        text-align: center;
+        color: var(--text-secondary, #667085) !important;
+    }
+
+    .audit-page .audit-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 12px;
+        background: var(--table-header-bg, #f2f4f7);
+        color: #667085;
+        border-radius: 14px;
+    }
+
+    .audit-page .audit-empty-icon svg {
+        width: 23px;
+        height: 23px;
+    }
+
+    .audit-page .audit-empty strong {
+        display: block;
+        font-size: 13px;
+        color: var(--text-primary, #344054);
+        margin-bottom: 5px;
+    }
+
+    .audit-page .audit-empty span {
+        font-size: 12px;
+    }
+
+    .audit-page .audit-alert {
+        padding: 13px 15px;
+        margin-bottom: 20px;
+        border: 1px solid #fecdca;
+        background: #fef3f2;
+        color: #b42318;
+        border-radius: 9px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .audit-page .audit-alert-success {
+        border-color: #abefc6;
+        background: #ecfdf3;
+        color: #067647;
+    }
+
+    .audit-page .audit-footer {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 14px 20px;
+        border-top: 1px solid var(--border-color, #eaecf0);
+        color: var(--text-secondary, #667085);
+        font-size: 11px;
+    }
+
+    @media (max-width: 1100px) {
+        .audit-page .audit-filter-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 700px) {
+        .audit-page .audit-stats {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .audit-page .audit-stat-card {
+            padding: 15px;
+        }
+
+        .audit-page .audit-filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .audit-page .audit-card-body {
+            padding: 16px;
+        }
+
+        .audit-page .audit-card-header {
+            padding: 17px 16px;
+        }
+
+        .audit-page .audit-header {
+            align-items: flex-start;
+        }
+
+        .audit-page .audit-header > .audit-btn {
+            width: 100%;
+        }
+
+        .audit-page .audit-filter-actions {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .audit-page .audit-filter-actions .audit-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="audit-page">
 
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="audit-header">
+        <div class="audit-heading">
+            <div class="audit-eyebrow">
+                <svg width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 8v4l3 2"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+                System Monitoring
+            </div>
 
-        <div>
-            <h2>Audit Logs</h2>
+            <h1>Audit Logs</h1>
 
-            <p class="text-muted mb-0">
-                View system activity and record changes.
+            <p>
+                Monitor system activity, track record changes, and review user actions.
             </p>
         </div>
 
         <button
-            class="btn btn-primary"
+            type="button"
+            class="audit-btn audit-btn-primary"
+            id="refreshAuditButton"
             onclick="loadAuditLogs()"
         >
-            Refresh
+            <svg id="refreshAuditIcon" width="17" height="17"
+                 viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 7v5h-5"></path>
+                <path d="M4 17v-5h5"></path>
+                <path d="M5.6 9a7 7 0 0 1 11.5-2L20 12"></path>
+                <path d="M4 12l2.9 5a7 7 0 0 0 11.5-2"></path>
+            </svg>
+            Refresh Logs
         </button>
-
     </div>
 
+    <!-- Messages -->
+    <div id="message" aria-live="polite"></div>
 
-    <!-- Message -->
-    <div id="message"></div>
+    <!-- Summary Cards -->
+    <div class="audit-stats">
+        <div class="audit-stat-card">
+            <div class="audit-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M8 6h13"></path>
+                    <path d="M8 12h13"></path>
+                    <path d="M8 18h13"></path>
+                    <path d="M3 6h.01"></path>
+                    <path d="M3 12h.01"></path>
+                    <path d="M3 18h.01"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="audit-stat-label">Total Audit Logs</div>
+                <div class="audit-stat-value" id="totalLogs">—</div>
+            </div>
+        </div>
 
+        <div class="audit-stat-card">
+            <div class="audit-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div>
+                <div class="audit-stat-label">Users Recorded</div>
+                <div class="audit-stat-value" id="totalUsers">—</div>
+            </div>
+        </div>
+
+        <div class="audit-stat-card">
+            <div class="audit-stat-icon">
+                <svg viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="1.8"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 8v4l3 2"></path>
+                    <circle cx="12" cy="12" r="10"></circle>
+                </svg>
+            </div>
+            <div>
+                <div class="audit-stat-label">Action Types</div>
+                <div class="audit-stat-value" id="totalActions">—</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Filters -->
-    <div class="card shadow-sm mb-4">
+    <section class="audit-card">
+        <div class="audit-card-header">
+            <div>
+                <h2 class="audit-card-title">Filter Audit Logs</h2>
+                <p class="audit-card-subtitle">
+                    Narrow down activity by user, action, record type, or keyword.
+                </p>
+            </div>
+        </div>
 
-        <div class="card-body">
+        <div class="audit-card-body">
+            <div class="audit-filter-grid">
 
-            <h5 class="mb-3">
-                Filter Audit Logs
-            </h5>
-
-            <div class="row g-3">
-
-                <!-- User Filter -->
-                <div class="col-md-3">
-
-                    <label
-                        for="userFilter"
-                        class="form-label"
-                    >
-                        User
-                    </label>
-
-                    <select
-                        id="userFilter"
-                        class="form-select"
-                    >
-                        <option value="">
-                            All Users
-                        </option>
+                <div class="audit-field">
+                    <label for="userFilter">User</label>
+                    <select id="userFilter" class="audit-control">
+                        <option value="">All Users</option>
                     </select>
-
                 </div>
 
-
-                <!-- Action Filter -->
-                <div class="col-md-3">
-
-                    <label
-                        for="actionFilter"
-                        class="form-label"
-                    >
-                        Action
-                    </label>
-
-                    <select
-                        id="actionFilter"
-                        class="form-select"
-                    >
-                        <option value="">
-                            All Actions
-                        </option>
+                <div class="audit-field">
+                    <label for="actionFilter">Action</label>
+                    <select id="actionFilter" class="audit-control">
+                        <option value="">All Actions</option>
                     </select>
-
                 </div>
 
-
-                <!-- Object Type Filter -->
-                <div class="col-md-3">
-
-                    <label
-                        for="objectFilter"
-                        class="form-label"
-                    >
-                        Object Type
-                    </label>
-
-                    <select
-                        id="objectFilter"
-                        class="form-select"
-                    >
-                        <option value="">
-                            All Records
-                        </option>
+                <div class="audit-field">
+                    <label for="objectFilter">Record Type</label>
+                    <select id="objectFilter" class="audit-control">
+                        <option value="">All Records</option>
                     </select>
-
                 </div>
 
-
-                <!-- Search -->
-                <div class="col-md-3">
-
-                    <label
-                        for="searchFilter"
-                        class="form-label"
-                    >
-                        Search
-                    </label>
-
-                    <input
-                        type="text"
-                        id="searchFilter"
-                        class="form-control"
-                        placeholder="Search logs..."
-                    >
-
+                <div class="audit-field">
+                    <label for="searchFilter">Search Logs</label>
+                    <div class="audit-search-wrap">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input
+                            type="search"
+                            id="searchFilter"
+                            class="audit-control"
+                            placeholder="Search logs..."
+                            autocomplete="off"
+                        >
+                    </div>
                 </div>
 
             </div>
 
-
-            <!-- Clear Filters -->
-            <div class="mt-3">
+            <div class="audit-filter-actions">
+                <span class="audit-filter-hint">
+                    Filters apply instantly to the loaded audit logs.
+                </span>
 
                 <button
                     type="button"
-                    class="btn btn-secondary"
+                    class="audit-btn audit-btn-secondary"
                     onclick="clearFilters()"
                 >
+                    <svg width="15" height="15" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path d="M3 6h18"></path>
+                        <path d="M8 6V4h8v2"></path>
+                        <path d="m19 6-1 14H6L5 6"></path>
+                    </svg>
                     Clear Filters
                 </button>
-
             </div>
-
         </div>
-
-    </div>
-
+    </section>
 
     <!-- Audit Logs Table -->
-    <div class="card shadow-sm">
-
-        <div class="card-body">
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-hover align-middle">
-
-                    <thead class="table-dark">
-
-                        <tr>
-
-                            <th>
-                                Date / Time
-                            </th>
-
-                            <th>
-                                User
-                            </th>
-
-                            <th>
-                                Action
-                            </th>
-
-                            <th>
-                                Record
-                            </th>
-
-                            <th>
-                                Reason
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="auditTableBody">
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-                                class="text-center"
-                            >
-                                Loading audit logs...
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
+    <section class="audit-card">
+        <div class="audit-card-header">
+            <div>
+                <h2 class="audit-card-title">Activity History</h2>
+                <p class="audit-card-subtitle">
+                    Review recorded events and their associated records.
+                </p>
             </div>
 
+            <span class="audit-results-count" id="visibleLogCount">0 results</span>
         </div>
 
-    </div>
+        <div class="audit-table-wrap">
+            <table class="audit-table">
+                <thead>
+                    <tr>
+                        <th>Date / Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Record</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+
+                <tbody id="auditTableBody">
+                    <tr>
+                        <td colspan="5" class="audit-empty">
+                            Loading audit logs...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="audit-footer">
+            <span>Sanitation Record Management System</span>
+            <span id="auditLastUpdated">Waiting for audit data...</span>
+        </div>
+    </section>
 
 </div>
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
-
 let auditLogs = [];
 
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    })[character]);
+}
 
-/*
-    Load Audit Logs
-*/
-async function loadAuditLogs() {
+function getInitials(username) {
+    const name = String(username || "").trim();
 
-    const tableBody =
-        document.getElementById("auditTableBody");
+    if (!name || name === "-") {
+        return "?";
+    }
 
-    const message =
-        document.getElementById("message");
+    return name
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(part => part.charAt(0))
+        .join("")
+        .toUpperCase();
+}
 
+function formatTimestamp(timestamp) {
+    if (!timestamp) {
+        return "-";
+    }
 
-    tableBody.innerHTML = `
+    const date = new Date(timestamp);
+
+    if (Number.isNaN(date.getTime())) {
+        return escapeHTML(timestamp);
+    }
+
+    return escapeHTML(date.toLocaleString());
+}
+
+function showMessage(messageText, type = "error") {
+    const message = document.getElementById("message");
+    const className = type === "success"
+        ? "audit-alert audit-alert-success"
+        : "audit-alert";
+
+    message.innerHTML = `
+        <div class="${className}" role="alert">
+            ${escapeHTML(messageText)}
+        </div>
+    `;
+}
+
+function updateSummary(logs) {
+    const users = new Set(
+        logs.map(log => log.username).filter(Boolean)
+    );
+
+    const actions = new Set(
+        logs.map(log => log.action).filter(Boolean)
+    );
+
+    document.getElementById("totalLogs").textContent =
+        logs.length.toLocaleString();
+
+    document.getElementById("totalUsers").textContent =
+        users.size.toLocaleString();
+
+    document.getElementById("totalActions").textContent =
+        actions.size.toLocaleString();
+}
+
+function updateVisibleCount(count) {
+    document.getElementById("visibleLogCount").textContent =
+        `${count.toLocaleString()} ${count === 1 ? "result" : "results"}`;
+}
+
+function setLoadingRow(messageText) {
+    document.getElementById("auditTableBody").innerHTML = `
         <tr>
-            <td colspan="5" class="text-center">
-                Loading audit logs...
+            <td colspan="5" class="audit-empty">
+                ${escapeHTML(messageText)}
             </td>
         </tr>
     `;
 
-    message.innerHTML = "";
+    updateVisibleCount(0);
+}
 
+/*
+ * Load audit logs.
+ * Keeps the existing API endpoint and JWT authentication.
+ */
+async function loadAuditLogs() {
+    const tableBody = document.getElementById("auditTableBody");
+    const refreshButton = document.getElementById("refreshAuditButton");
+    const refreshIcon = document.getElementById("refreshAuditIcon");
+
+    tableBody.innerHTML = "";
+    document.getElementById("message").innerHTML = "";
+    refreshButton.disabled = true;
+    refreshIcon.style.animation = "auditSpin .8s linear infinite";
+
+    setLoadingRow("Loading audit logs...");
 
     try {
-
         const token =
-            localStorage.getItem("access_token");
-
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("access");
 
         if (!token) {
-
-            tableBody.innerHTML = `
-                <tr>
-                    <td
-                        colspan="5"
-                        class="text-center text-danger"
-                    >
-                        Please log in first.
-                    </td>
-                </tr>
-            `;
-
+            auditLogs = [];
+            updateSummary(auditLogs);
+            setLoadingRow("Please log in first.");
+            showMessage("Your access token was not found. Please log in again.");
             return;
         }
 
-
-        const response = await fetch(
-            "/api/audit/",
-            {
-                method: "GET",
-
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
+        const response = await fetch("/api/audit/", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
             }
-        );
-
+        });
 
         if (!response.ok) {
-
             throw new Error(
                 `Request failed with status ${response.status}`
             );
-
         }
-
 
         const data = await response.json();
 
-
-        /*
-            Store the audit logs.
-
-            DRF normally returns an array here.
-            This also handles paginated responses
-            if pagination is enabled later.
-        */
         if (Array.isArray(data)) {
-
             auditLogs = data;
-
-        } else if (data.results) {
-
+        } else if (Array.isArray(data.results)) {
             auditLogs = data.results;
-
         } else {
-
             auditLogs = [];
-
         }
 
-
         populateFilters();
+        updateSummary(auditLogs);
+        applyFilters();
 
-        displayAuditLogs(auditLogs);
-
+        document.getElementById("auditLastUpdated").textContent =
+            `Last updated: ${new Date().toLocaleString()}`;
 
     } catch (error) {
+        console.error("Audit log error:", error);
 
-        console.error(
-            "Audit log error:",
-            error
+        auditLogs = [];
+        updateSummary(auditLogs);
+        setLoadingRow("Unable to load audit logs.");
+
+        showMessage(
+            error.message || "An unexpected error occurred while loading audit logs."
         );
 
-
-        tableBody.innerHTML = `
-            <tr>
-                <td
-                    colspan="5"
-                    class="text-center text-danger"
-                >
-                    Unable to load audit logs.
-                </td>
-            </tr>
-        `;
-
-
-        message.innerHTML = `
-            <div class="alert alert-danger">
-                ${error.message}
-            </div>
-        `;
-
+    } finally {
+        refreshButton.disabled = false;
+        refreshIcon.style.animation = "";
     }
-
 }
 
-
 /*
-    Populate Filter Dropdowns
-*/
+ * Populate the filter dropdowns without losing selected values.
+ */
 function populateFilters() {
+    const userFilter = document.getElementById("userFilter");
+    const actionFilter = document.getElementById("actionFilter");
+    const objectFilter = document.getElementById("objectFilter");
 
-    const userFilter =
-        document.getElementById("userFilter");
+    const selectedUser = userFilter.value;
+    const selectedAction = actionFilter.value;
+    const selectedObject = objectFilter.value;
 
-    const actionFilter =
-        document.getElementById("actionFilter");
+    userFilter.innerHTML = '<option value="">All Users</option>';
+    actionFilter.innerHTML = '<option value="">All Actions</option>';
+    objectFilter.innerHTML = '<option value="">All Records</option>';
 
-    const objectFilter =
-        document.getElementById("objectFilter");
-
-
-    /*
-        Save currently selected values
-        before rebuilding the options.
-    */
-    const selectedUser =
-        userFilter.value;
-
-    const selectedAction =
-        actionFilter.value;
-
-    const selectedObject =
-        objectFilter.value;
-
-
-    /*
-        Clear existing options
-    */
-    userFilter.innerHTML = `
-        <option value="">
-            All Users
-        </option>
-    `;
-
-    actionFilter.innerHTML = `
-        <option value="">
-            All Actions
-        </option>
-    `;
-
-    objectFilter.innerHTML = `
-        <option value="">
-            All Records
-        </option>
-    `;
-
-
-    /*
-        Create unique values
-    */
     const users = [
-        ...new Set(
-            auditLogs
-                .map(log => log.username)
-                .filter(Boolean)
-        )
+        ...new Set(auditLogs.map(log => log.username).filter(Boolean))
     ].sort();
-
 
     const actions = [
-        ...new Set(
-            auditLogs
-                .map(log => log.action)
-                .filter(Boolean)
-        )
+        ...new Set(auditLogs.map(log => log.action).filter(Boolean))
     ].sort();
-
 
     const objects = [
-        ...new Set(
-            auditLogs
-                .map(log => log.object_type)
-                .filter(Boolean)
-        )
+        ...new Set(auditLogs.map(log => log.object_type).filter(Boolean))
     ].sort();
 
-
-    /*
-        Add Users
-    */
     users.forEach(user => {
-
-        const option =
-            document.createElement("option");
-
+        const option = document.createElement("option");
         option.value = user;
         option.textContent = user;
-
         userFilter.appendChild(option);
-
     });
 
-
-    /*
-        Add Actions
-    */
     actions.forEach(action => {
-
-        const option =
-            document.createElement("option");
-
+        const option = document.createElement("option");
         option.value = action;
         option.textContent = action;
-
         actionFilter.appendChild(option);
-
     });
 
-
-    /*
-        Add Object Types
-    */
     objects.forEach(objectType => {
-
-        const option =
-            document.createElement("option");
-
+        const option = document.createElement("option");
         option.value = objectType;
         option.textContent = objectType;
-
         objectFilter.appendChild(option);
-
     });
 
-
-    /*
-        Restore selected values
-    */
     if (users.includes(selectedUser)) {
         userFilter.value = selectedUser;
     }
@@ -499,306 +954,177 @@ function populateFilters() {
     if (objects.includes(selectedObject)) {
         objectFilter.value = selectedObject;
     }
-
 }
 
-
 /*
-    Display Audit Logs
-*/
+ * Render the supplied logs.
+ */
 function displayAuditLogs(logs) {
-
-    const tableBody =
-        document.getElementById("auditTableBody");
-
+    const tableBody = document.getElementById("auditTableBody");
 
     tableBody.innerHTML = "";
+    updateVisibleCount(logs.length);
 
-
-    /*
-        No records
-    */
     if (!logs || logs.length === 0) {
-
         tableBody.innerHTML = `
             <tr>
-                <td
-                    colspan="5"
-                    class="text-center text-muted"
-                >
-                    No audit logs found.
+                <td colspan="5" class="audit-empty">
+                    <div class="audit-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <strong>No audit logs found</strong>
+                    <span>Try changing your filters or refreshing the logs.</span>
                 </td>
             </tr>
         `;
-
         return;
     }
 
-
-    /*
-        Display each log
-    */
     logs.forEach(log => {
+        const row = document.createElement("tr");
 
-        const row =
-            document.createElement("tr");
-
-
-        /*
-            Date / Time
-        */
-        const timestamp =
-            log.timestamp
-                ? new Date(
-                    log.timestamp
-                ).toLocaleString()
-                : "-";
-
-
-        /*
-            Record
-        */
-        const record =
-            log.object_type
-                ? `${log.object_type} #${log.object_id ?? "-"}`
-                : "-";
-
-
-        /*
-            Reason
-        */
-        const reason =
-            log.reason || "-";
-
+        const username = log.username || "-";
+        const action = log.action || "-";
+        const objectType = log.object_type || "";
+        const objectId = log.object_id ?? "-";
+        const record = objectType
+            ? `${objectType} #${objectId}`
+            : "-";
 
         row.innerHTML = `
-
             <td>
-                ${timestamp}
-            </td>
-
-            <td>
-                ${log.username || "-"}
-            </td>
-
-            <td>
-                <span class="badge bg-secondary">
-                    ${log.action || "-"}
+                <span class="audit-timestamp">
+                    ${formatTimestamp(log.timestamp)}
                 </span>
             </td>
 
             <td>
-                ${record}
+                <div class="audit-user">
+                    <span class="audit-avatar">
+                        ${escapeHTML(getInitials(username))}
+                    </span>
+                    <span>${escapeHTML(username)}</span>
+                </div>
             </td>
 
             <td>
-                ${reason}
+                <span class="audit-action-badge">
+                    ${escapeHTML(action)}
+                </span>
             </td>
 
+            <td>
+                <span class="audit-record">
+                    ${escapeHTML(record)}
+                </span>
+                ${
+                    objectType
+                        ? `<span class="audit-record-id">Record ID: ${escapeHTML(objectId)}</span>`
+                        : ""
+                }
+            </td>
+
+            <td>
+                <div class="audit-reason">
+                    ${escapeHTML(log.reason || "-")}
+                </div>
+            </td>
         `;
 
-
         tableBody.appendChild(row);
-
     });
-
 }
 
-
 /*
-    Apply Filters
-*/
+ * Apply the existing user, action, object type, and text filters.
+ */
 function applyFilters() {
+    const userValue = document.getElementById("userFilter").value;
+    const actionValue = document.getElementById("actionFilter").value;
+    const objectValue = document.getElementById("objectFilter").value;
 
-    const userValue =
-        document.getElementById(
-            "userFilter"
-        ).value;
+    const searchValue = document.getElementById("searchFilter")
+        .value.toLowerCase().trim();
 
+    const filteredLogs = auditLogs.filter(log => {
+        if (userValue && log.username !== userValue) {
+            return false;
+        }
 
-    const actionValue =
-        document.getElementById(
-            "actionFilter"
-        ).value;
+        if (actionValue && log.action !== actionValue) {
+            return false;
+        }
 
+        if (objectValue && log.object_type !== objectValue) {
+            return false;
+        }
 
-    const objectValue =
-        document.getElementById(
-            "objectFilter"
-        ).value;
-
-
-    const searchValue =
-        document.getElementById(
-            "searchFilter"
-        ).value
-        .toLowerCase()
-        .trim();
-
-
-    /*
-        Filter the original audit logs
-    */
-    const filteredLogs =
-        auditLogs.filter(log => {
-
-
-            /*
-                User
-            */
-            if (
-                userValue &&
-                log.username !== userValue
-            ) {
-
-                return false;
-
-            }
-
-
-            /*
-                Action
-            */
-            if (
-                actionValue &&
-                log.action !== actionValue
-            ) {
-
-                return false;
-
-            }
-
-
-            /*
-                Object Type
-            */
-            if (
-                objectValue &&
-                log.object_type !== objectValue
-            ) {
-
-                return false;
-
-            }
-
-
-            /*
-                Search
-            */
-            if (searchValue) {
-
-                const searchableText = [
-
-                    log.username,
-                    log.action,
-                    log.object_type,
-                    log.object_id,
-                    log.reason,
-                    log.timestamp
-
-                ]
-                .filter(Boolean)
+        if (searchValue) {
+            const searchableText = [
+                log.username,
+                log.action,
+                log.object_type,
+                log.object_id,
+                log.reason,
+                log.timestamp
+            ]
+                .filter(value => value !== null && value !== undefined)
                 .join(" ")
                 .toLowerCase();
 
-
-                if (
-                    !searchableText.includes(
-                        searchValue
-                    )
-                ) {
-
-                    return false;
-
-                }
-
+            if (!searchableText.includes(searchValue)) {
+                return false;
             }
+        }
 
-
-            return true;
-
-        });
-
+        return true;
+    });
 
     displayAuditLogs(filteredLogs);
-
 }
 
-
 /*
-    Clear Filters
-*/
+ * Clear every filter.
+ */
 function clearFilters() {
+    document.getElementById("userFilter").value = "";
+    document.getElementById("actionFilter").value = "";
+    document.getElementById("objectFilter").value = "";
+    document.getElementById("searchFilter").value = "";
 
-    document.getElementById(
-        "userFilter"
-    ).value = "";
-
-
-    document.getElementById(
-        "actionFilter"
-    ).value = "";
-
-
-    document.getElementById(
-        "objectFilter"
-    ).value = "";
-
-
-    document.getElementById(
-        "searchFilter"
-    ).value = "";
-
-
-    displayAuditLogs(auditLogs);
-
+    applyFilters();
 }
 
+/*
+ * Filter events.
+ */
+document.getElementById("userFilter")
+    .addEventListener("change", applyFilters);
+
+document.getElementById("actionFilter")
+    .addEventListener("change", applyFilters);
+
+document.getElementById("objectFilter")
+    .addEventListener("change", applyFilters);
+
+document.getElementById("searchFilter")
+    .addEventListener("input", applyFilters);
 
 /*
-    Filter Events
-*/
-document
-    .getElementById("userFilter")
-    .addEventListener(
-        "change",
-        applyFilters
-    );
-
-
-document
-    .getElementById("actionFilter")
-    .addEventListener(
-        "change",
-        applyFilters
-    );
-
-
-document
-    .getElementById("objectFilter")
-    .addEventListener(
-        "change",
-        applyFilters
-    );
-
-
-document
-    .getElementById("searchFilter")
-    .addEventListener(
-        "input",
-        applyFilters
-    );
-
-
-/*
-    Load logs when page opens
-*/
-document.addEventListener(
-    "DOMContentLoaded",
-    loadAuditLogs
-);
-
+ * Load the logs when the page is ready.
+ */
+document.addEventListener("DOMContentLoaded", loadAuditLogs);
 </script>
 
-</body>
-</html>
+<style>
+@keyframes auditSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>
+{% endblock %}

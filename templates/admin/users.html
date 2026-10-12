@@ -532,9 +532,7 @@
 {% block content %}
 <div class="users-page">
 
-    <!-- Page header -->
     <div class="page-header">
-
         <div>
             <h1 class="page-title">User Management</h1>
 
@@ -544,17 +542,13 @@
 
             <div class="current-user">
                 <i class="bi bi-person-circle"></i>
-
                 <span>Logged in as</span>
-
                 <strong>{{ user.username }}</strong>
-
                 <span class="admin-badge">Admin</span>
             </div>
         </div>
 
         <div class="header-actions">
-
             <a href="/dashboard/" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>
                 Dashboard
@@ -569,20 +563,14 @@
                 <i class="bi bi-person-plus"></i>
                 Create User
             </button>
-
         </div>
     </div>
 
-
-    <!-- Feedback messages -->
     <div id="message" aria-live="polite"></div>
-
 
     <!-- Create user form -->
     <section id="createUserPanel" class="panel d-none">
-
         <div class="panel-header">
-
             <div class="panel-heading">
                 <div class="panel-icon">
                     <i class="bi bi-person-plus"></i>
@@ -590,7 +578,6 @@
 
                 <div>
                     <h2 class="panel-title">Create New User</h2>
-
                     <p class="panel-subtitle">
                         Enter account details and assign a system role.
                     </p>
@@ -606,13 +593,10 @@
                 <i class="bi bi-x-lg"></i>
                 Close
             </button>
-
         </div>
 
         <div class="panel-body">
-
             <form id="createUserForm" autocomplete="off">
-
                 <div class="row g-3">
 
                     <div class="col-md-6">
@@ -688,11 +672,9 @@
                             <option value="false">Disabled</option>
                         </select>
                     </div>
-
                 </div>
 
                 <div class="form-actions">
-
                     <button
                         type="button"
                         class="btn btn-outline-secondary"
@@ -709,20 +691,14 @@
                         <i class="bi bi-person-check"></i>
                         Create User
                     </button>
-
                 </div>
-
             </form>
-
         </div>
     </section>
 
-
     <!-- User listing -->
     <section class="panel">
-
         <div class="panel-header">
-
             <div class="panel-heading">
                 <div class="panel-icon">
                     <i class="bi bi-people"></i>
@@ -730,7 +706,6 @@
 
                 <div>
                     <h2 class="panel-title">System Users</h2>
-
                     <p class="panel-subtitle">
                         Review accounts, change roles, and manage access.
                     </p>
@@ -746,13 +721,10 @@
                 <i class="bi bi-arrow-clockwise"></i>
                 Refresh
             </button>
-
         </div>
 
         <div class="panel-body">
-
             <div class="table-toolbar">
-
                 <div class="table-count" id="usersCount">
                     Loading users...
                 </div>
@@ -768,13 +740,10 @@
                         aria-label="Search users"
                     >
                 </div>
-
             </div>
 
             <div class="table-responsive">
-
                 <table class="table align-middle">
-
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -794,11 +763,8 @@
                             </td>
                         </tr>
                     </tbody>
-
                 </table>
-
             </div>
-
         </div>
     </section>
 
@@ -814,7 +780,6 @@
     let isCreatingUser = false;
 
 
-    // Authentication token
     function getAccessToken() {
         return (
             localStorage.getItem("access_token") ||
@@ -823,7 +788,6 @@
     }
 
 
-    // Escape API-provided strings before inserting them into HTML.
     function escapeHTML(value) {
         return String(value ?? "").replace(/[&<>"']/g, function (character) {
             const entities = {
@@ -839,11 +803,10 @@
     }
 
 
-    // Display feedback messages safely.
     function showMessage(message, type = "success") {
         const messageBox = document.getElementById("message");
-
         const alert = document.createElement("div");
+
         alert.className = `alert alert-${type}`;
         alert.setAttribute("role", "alert");
         alert.textContent = message;
@@ -852,7 +815,6 @@
     }
 
 
-    // Format API error responses for readable messages.
     function formatAPIError(result) {
         if (typeof result === "string") {
             return result;
@@ -882,7 +844,6 @@
     }
 
 
-    // Read an API response safely.
     async function readResponse(response) {
         const text = await response.text();
 
@@ -898,17 +859,17 @@
     }
 
 
-    // Show the create form and hide it when requested.
     function showCreateForm() {
         const panel = document.getElementById("createUserPanel");
+        const toggleButton =
+            document.getElementById("toggleCreateFormButton");
 
         panel.classList.remove("d-none");
 
-        document.getElementById("toggleCreateFormButton").innerHTML =
+        toggleButton.innerHTML =
             '<i class="bi bi-x-lg"></i> Close Form';
 
-        document.getElementById("toggleCreateFormButton").onclick =
-            hideCreateForm;
+        toggleButton.onclick = hideCreateForm;
 
         panel.scrollIntoView({
             behavior: "smooth",
@@ -943,7 +904,6 @@
     }
 
 
-    // Return a consistent badge for the user's role.
     function getRoleBadge(role) {
         let roleClass = "role-inspector";
 
@@ -961,7 +921,6 @@
     }
 
 
-    // Render users into the table.
     function renderUsers(users) {
         const tableBody = document.getElementById("usersTableBody");
         const count = document.getElementById("usersCount");
@@ -988,6 +947,7 @@
             const email = escapeHTML(user.email || "");
             const role = user.role || "Inspector";
             const isActive = Boolean(user.is_active);
+
             const initial = escapeHTML(
                 (user.username || "?").trim().charAt(0).toUpperCase()
             );
@@ -1039,6 +999,7 @@
                                     Admin
                                 </option>
                             </select>
+
                             <div style="margin-top: 6px;">
                                 ${getRoleBadge(role)}
                             </div>
@@ -1049,7 +1010,6 @@
 
                     <td class="actions-cell">
                         <div class="action-buttons">
-
                             <button
                                 type="button"
                                 class="btn btn-primary btn-sm"
@@ -1067,7 +1027,6 @@
                                 <i class="bi ${isActive ? "bi-person-dash" : "bi-person-check"}"></i>
                                 ${isActive ? "Disable" : "Enable"}
                             </button>
-
                         </div>
                     </td>
                 </tr>
@@ -1076,7 +1035,6 @@
     }
 
 
-    // Filter the displayed users.
     function filterUsers() {
         const searchValue = document
             .getElementById("userSearch")
@@ -1100,11 +1058,11 @@
     }
 
 
-    // Load users from the existing API.
     async function loadUsers() {
         const token = getAccessToken();
         const tableBody = document.getElementById("usersTableBody");
-        const refreshButton = document.getElementById("refreshUsersButton");
+        const refreshButton =
+            document.getElementById("refreshUsersButton");
 
         if (!token) {
             showMessage(
@@ -1225,12 +1183,10 @@
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
-
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${token}`
                     },
-
                     body: JSON.stringify(data)
                 });
 
@@ -1241,10 +1197,7 @@
                 }
 
                 document.getElementById("createUserForm").reset();
-
                 hideCreateForm();
-
-                showMessage("User created successfully.", "success");
 
                 document.getElementById("userSearch").value = "";
 
@@ -1278,7 +1231,10 @@
         }
 
         if (!roleSelect) {
-            showMessage("Unable to find the selected user's role.", "danger");
+            showMessage(
+                "Unable to find the selected user's role.",
+                "danger"
+            );
             return;
         }
 
@@ -1287,12 +1243,10 @@
         try {
             const response = await fetch(`${API_URL}${userId}/`, {
                 method: "PATCH",
-
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-
                 body: JSON.stringify({ role: role })
             });
 
@@ -1337,12 +1291,10 @@
         try {
             const response = await fetch(`${API_URL}${userId}/`, {
                 method: "PATCH",
-
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-
                 body: JSON.stringify({
                     is_active: !currentlyActive
                 })

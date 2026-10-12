@@ -4,6 +4,7 @@ from .views import (
     CorrectiveActionListCreateAPIView,
     CorrectiveActionDetailAPIView,
     CorrectiveActionOptionsAPIView,
+    CorrectiveActionProgressAPIView,
 )
 
 
@@ -17,6 +18,11 @@ urlpatterns = [
         "options/",
         CorrectiveActionOptionsAPIView.as_view(),
         name="corrective-action-options",
+    ),
+    path(
+        "<int:pk>/progress/",
+        CorrectiveActionProgressAPIView.as_view(),
+        name="corrective-action-progress",
     ),
     path(
         "<int:pk>/",

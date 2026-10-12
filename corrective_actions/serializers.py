@@ -7,31 +7,25 @@ from .models import CorrectiveAction
 
 
 class CorrectiveActionSerializer(serializers.ModelSerializer):
-
     inspection_display = serializers.SerializerMethodField()
 
     plant_name = serializers.CharField(
         source="inspection.plant.name",
         read_only=True,
     )
-
     plant_code = serializers.CharField(
         source="inspection.plant.code",
         read_only=True,
     )
-
     inspection_date = serializers.DateField(
         source="inspection.inspection_date",
         read_only=True,
     )
-
     template_name = serializers.CharField(
         source="inspection.template.name",
         read_only=True,
     )
-
     question_text = serializers.SerializerMethodField()
-
     is_custom_question = serializers.SerializerMethodField()
 
     assigned_to_username = serializers.CharField(
@@ -39,7 +33,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
         read_only=True,
         allow_null=True,
     )
-
     created_by_username = serializers.CharField(
         source="created_by.username",
         read_only=True,
@@ -47,7 +40,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CorrectiveAction
-
         fields = [
             "id",
             "inspection",
@@ -72,7 +64,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
         ]
-
         read_only_fields = [
             "id",
             "inspection_display",
@@ -89,7 +80,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             "updated_at",
             "completed_at",
         ]
-
         extra_kwargs = {
             "question": {
                 "required": False,
@@ -106,13 +96,10 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             return ""
 
         parts = []
-
         if obj.inspection.plant:
             parts.append(obj.inspection.plant.name)
-
         if obj.inspection.template:
             parts.append(obj.inspection.template.name)
-
         if obj.inspection.inspection_date:
             parts.append(str(obj.inspection.inspection_date))
 
@@ -121,23 +108,17 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
     def get_question_text(self, obj):
         if obj.question_id:
             return obj.question.question_text
-
         return "N/A — Custom Question"
 
     def get_is_custom_question(self, obj):
         return obj.question_id is None
 
-    def get_status_label(self, obj):
-        return obj.get_status_display()
-
     def validate_status(self, value):
         instance = self.instance
-
         if instance is None:
             return value
 
         current_status = instance.status
-
         allowed_transitions = {
             CorrectiveAction.Status.OPEN: [
                 CorrectiveAction.Status.IN_PROGRESS,
@@ -167,8 +148,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             instance.inspection if instance else None,
         )
 
-        # Distinguish an explicitly submitted null from an omitted field
-        # during a partial update.
         if "question" in data:
             question = data["question"]
         else:
@@ -178,7 +157,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             "observation",
             instance.observation if instance else "",
         )
-
         action_required = data.get(
             "action_required",
             instance.action_required if instance else "",
@@ -194,7 +172,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                 "action_required": "Action Required is mandatory."
             })
 
-        # N/A/custom question path.
         if question is None:
             if not observation or not observation.strip():
                 raise serializers.ValidationError({
@@ -203,10 +180,8 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                         "in Observation / Other Question."
                     )
                 })
-
             return data
 
-        # Regular inspection question path.
         if question.section.template_id != inspection.template_id:
             raise serializers.ValidationError({
                 "question": (
@@ -236,8 +211,6 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
                 )
             })
 
-        # Preserve the original behavior of using the inspection's
-        # observation when creating a corrective action for a NO answer.
         if instance is None and not observation:
             data["observation"] = answer.observation
 
@@ -248,3 +221,53 @@ class CorrectiveActionSerializer(serializers.ModelSerializer):
             **validated_data,
             created_by=self.context["request"].user,
         )
+
+
+class CorrectiveActionProgressSerializer(serializers.ModelSerializer):
+    """Only the assigned user’s progress fields may be updated."""
+
+    class Meta:
+        model = CorrectiveAction
+        fields = ["action_taken", "status"]
+
+    def validate_status(self, value):
+        instance = self.instance
+
+        allowed_transitions = {
+            CorrectiveAction.Status.OPEN: [
+                CorrectiveAction.Status.IN_PROGRESS,
+            ],
+            CorrectiveAction.Status.IN_PROGRESS: [
+                CorrectiveAction.Status.COMPLETED,
+            ],
+        }
+
+        if value == instance.status:
+            return value
+
+        if value not in allowed_transitions.get(instance.status, []):
+            raise serializers.ValidationError(
+                f"Cannot change status from {instance.status} to {value}."
+            )
+
+        return value
+
+    def validate(self, data):
+        status = data.get("status", self.instance.status)
+        action_taken = data.get(
+            "action_taken",
+            self.instance.action_taken,
+        )
+
+        if (
+            status == CorrectiveAction.Status.COMPLETED
+            and not action_taken.strip()
+        ):
+            raise serializers.ValidationError({
+                "action_taken": (
+                    "Enter the action taken before marking this "
+                    "corrective action as completed."
+                )
+            })
+
+        return data

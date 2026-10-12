@@ -9,155 +9,180 @@
     <title>{% block title %}Sanitation Record Management{% endblock %}</title>
 
     <link rel="stylesheet" href="{% static 'css/tailadmin.css' %}">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <body class="{% block body_class %}app-body{% endblock %}">
 
 {% block layout %}
 <div class="app-shell">
 
-    <!-- Mobile sidebar backdrop -->
     <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
     <!-- Sidebar -->
     <aside class="app-sidebar" id="appSidebar">
 
-        <!-- Original sidebar branding -->
         <a href="/dashboard/" class="brand">
-            <span class="brand-mark">S</span>
-            <span class="brand-copy">
+            <span class="brand-icon">S</span>
+            <span class="brand-text">
                 <strong>Sanitation</strong>
                 <small>Record Management</small>
             </span>
         </a>
 
-        <div class="sidebar-divider"></div>
-
-        <div class="sidebar-section-label">MENU</div>
-
         <nav class="sidebar-nav" aria-label="Main navigation">
 
-            <a class="nav-link" href="/dashboard/" data-nav="/dashboard/">
-                <span class="nav-icon" aria-hidden="true">⌂</span>
-                <span>Dashboard</span>
-            </a>
+            <div class="nav-section">
+                <span class="nav-section-title">MAIN MENU</span>
 
-            <a class="nav-link" href="/plants/" data-nav="/plants/">
-                <span class="nav-icon" aria-hidden="true">▦</span>
-                <span>Plants Management</span>
-            </a>
+                <a href="/dashboard/" class="nav-link" data-nav="/dashboard/">
+                    <span class="nav-icon" aria-hidden="true">⌂</span>
+                    <span>Dashboard</span>
+                </a>
 
-            <div class="sidebar-section-label">SANITATION</div>
+                <a href="/plants/" class="nav-link" data-nav="/plants/">
+                    <span class="nav-icon" aria-hidden="true">▦</span>
+                    <span>Plants Management</span>
+                </a>
+            </div>
 
-            <a class="nav-link" href="/titrations/sanitizer/" data-nav="/titrations/sanitizer/">
-                <span class="nav-icon" aria-hidden="true">◉</span>
-                <span>Sanitizer Titrations</span>
-            </a>
+            <div class="nav-section">
+                <span class="nav-section-title">SANITATION</span>
 
-            <a class="nav-link" href="/titrations/chloragel/" data-nav="/titrations/chloragel/">
-                <span class="nav-icon" aria-hidden="true">◉</span>
-                <span>Chloragel Titrations</span>
-            </a>
+                <a href="/titrations/sanitizer/" class="nav-link" data-nav="/titrations/sanitizer/">
+                    <span class="nav-icon" aria-hidden="true">◉</span>
+                    <span>Sanitizer Titrations</span>
+                </a>
 
-            <a class="nav-link" href="/inspections/" data-nav="/inspections/">
-                <span class="nav-icon" aria-hidden="true">☑</span>
-                <span>Inspections</span>
-            </a>
+                <a href="/titrations/chloragel/" class="nav-link" data-nav="/titrations/chloragel/">
+                    <span class="nav-icon" aria-hidden="true">◉</span>
+                    <span>Chloragel Titrations</span>
+                </a>
 
-            <a class="nav-link" href="/inspections/atp/" data-nav="/inspections/atp/">
-                <span class="nav-icon" aria-hidden="true">▤</span>
-                <span>ATP Reports</span>
-            </a>
+                <a href="/inspections/" class="nav-link" data-nav="/inspections/">
+                    <span class="nav-icon" aria-hidden="true">✓</span>
+                    <span>Inspections</span>
+                </a>
 
-            <div class="sidebar-section-label">RECORDS</div>
+                <a href="/inspections/atp/" class="nav-link" data-nav="/inspections/atp/">
+                    <span class="nav-icon" aria-hidden="true">▤</span>
+                    <span>ATP Reports</span>
+                </a>
+            </div>
 
-            <a class="nav-link" href="/records/daily/" data-nav="/records/daily/">
-                <span class="nav-icon" aria-hidden="true">▤</span>
-                <span>Daily Records</span>
-            </a>
+            <div class="nav-section">
+                <span class="nav-section-title">RECORDS</span>
 
-            <a class="nav-link" href="/records/search/" data-nav="/records/search/">
-                <span class="nav-icon" aria-hidden="true">⌕</span>
-                <span>Search Records</span>
-            </a>
+                <a href="/records/daily/" class="nav-link" data-nav="/records/daily/">
+                    <span class="nav-icon" aria-hidden="true">▤</span>
+                    <span>Daily Records</span>
+                </a>
 
-            <a class="nav-link" href="/records/pdf/" data-nav="/records/pdf/">
-                <span class="nav-icon" aria-hidden="true">▧</span>
-                <span>PDF Reports</span>
-            </a>
+                <a href="/records/search/" class="nav-link" data-nav="/records/search/">
+                    <span class="nav-icon" aria-hidden="true">⌕</span>
+                    <span>Search Records</span>
+                </a>
 
-            <a class="nav-link" href="/corrective-actions/" data-nav="/corrective-actions/">
-                <span class="nav-icon" aria-hidden="true">✓</span>
-                <span>Corrective Actions</span>
-            </a>
+                <a href="/records/pdf/" class="nav-link" data-nav="/records/pdf/">
+                    <span class="nav-icon" aria-hidden="true">▧</span>
+                    <span>PDF Reports</span>
+                </a>
+
+                <a href="/corrective-actions/" class="nav-link" data-nav="/corrective-actions/">
+                    <span class="nav-icon" aria-hidden="true">✓</span>
+                    <span>Corrective Actions</span>
+                </a>
+            </div>
 
             {% if request.user.is_authenticated %}
-                {% for group in request.user.groups.all %}
-                    {% if group.name == "Admin" %}
-                        <div class="sidebar-section-label">ADMINISTRATION</div>
+                {% if request.user.is_superuser %}
+                    <div class="nav-section">
+                        <span class="nav-section-title">ADMINISTRATION</span>
 
-                        <a class="nav-link" href="/admin/users/" data-nav="/admin/users/">
+                        <a href="/admin/users/" class="nav-link" data-nav="/admin/users/">
                             <span class="nav-icon" aria-hidden="true">♙</span>
                             <span>User Management</span>
                         </a>
 
-                        <a class="nav-link" href="/audit/" data-nav="/audit/">
+                        <a href="/audit/" class="nav-link" data-nav="/audit/">
                             <span class="nav-icon" aria-hidden="true">◷</span>
                             <span>Audit Logs</span>
                         </a>
-                    {% endif %}
-                {% endfor %}
+                    </div>
+                {% else %}
+                    {% for group in request.user.groups.all %}
+                        {% if group.name == "Admin" %}
+                            <div class="nav-section">
+                                <span class="nav-section-title">ADMINISTRATION</span>
+
+                                <a href="/admin/users/" class="nav-link" data-nav="/admin/users/">
+                                    <span class="nav-icon" aria-hidden="true">♙</span>
+                                    <span>User Management</span>
+                                </a>
+
+                                <a href="/audit/" class="nav-link" data-nav="/audit/">
+                                    <span class="nav-icon" aria-hidden="true">◷</span>
+                                    <span>Audit Logs</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             {% endif %}
 
         </nav>
 
-        <!-- Sidebar footer -->
         <div class="sidebar-footer">
-            <div class="sidebar-footer-icon">✓</div>
-            <div>
-                <strong>Sanitation System</strong>
-                <small>Record management portal</small>
+            <div class="sidebar-footer-text">
+                <span class="sidebar-footer-dot"></span>
+                <span>System Active</span>
             </div>
         </div>
 
     </aside>
 
-    <!-- Main area -->
+    <!-- Main application area -->
     <div class="app-main">
 
-        <!-- Top navigation -->
+        <!-- Topbar -->
         <header class="topbar">
 
             <div class="topbar-left">
+
                 <button
                     type="button"
-                    class="icon-button sidebar-toggle"
+                    class="sidebar-toggle"
                     id="sidebarToggle"
                     aria-label="Toggle navigation"
+                    aria-controls="appSidebar"
                     aria-expanded="false"
                 >
-                    ☰
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
 
                 <div class="breadcrumb">
-                    <a href="/dashboard/">Home</a>
-                    <span>/</span>
-                    <strong>{% block breadcrumb %}Dashboard{% endblock %}</strong>
+                    {% block breadcrumb %}
+                        Dashboard
+                    {% endblock %}
                 </div>
+
             </div>
 
             <div class="topbar-right">
+
                 {% if request.user.is_authenticated %}
 
+                    <!-- User profile -->
                     <div class="user-profile">
+
                         <div class="user-avatar">
                             {{ request.user.username|first|upper }}
                         </div>
 
-                        <div class="user-profile-copy">
+                        <div class="user-profile-info">
                             <strong>{{ request.user.username }}</strong>
 
                             <small>
@@ -172,6 +197,7 @@
                                 {% endif %}
                             </small>
                         </div>
+
                     </div>
 
                     <a href="/logout/" class="button button-outline button-small">
@@ -179,6 +205,7 @@
                     </a>
 
                 {% endif %}
+
             </div>
 
         </header>
@@ -190,76 +217,84 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <span>Sanitation Record Management System</span>
-            <span>© {% now "Y" %}</span>
+            <span>
+                &copy; {% now "Y" %} Sanitation Record Management System
+            </span>
+
+            <span>
+                All rights reserved.
+            </span>
         </footer>
 
     </div>
+
 </div>
 {% endblock %}
 
+<!-- Shared JavaScript -->
 <script>
 (function () {
     const sidebar = document.getElementById("appSidebar");
     const toggle = document.getElementById("sidebarToggle");
     const backdrop = document.getElementById("sidebarBackdrop");
 
-    function closeSidebar() {
-        if (sidebar) {
-            sidebar.classList.remove("sidebar-open");
-        }
-
-        if (backdrop) {
-            backdrop.classList.remove("backdrop-visible");
-        }
-
-        if (toggle) {
+    if (sidebar && toggle && backdrop) {
+        function closeSidebar() {
+            document.body.classList.remove("sidebar-open");
+            document.body.classList.remove("backdrop-visible");
             toggle.setAttribute("aria-expanded", "false");
         }
-    }
 
-    function openSidebar() {
-        if (sidebar) {
-            sidebar.classList.add("sidebar-open");
-        }
-
-        if (backdrop) {
-            backdrop.classList.add("backdrop-visible");
-        }
-
-        if (toggle) {
+        function openSidebar() {
+            document.body.classList.add("sidebar-open");
+            document.body.classList.add("backdrop-visible");
             toggle.setAttribute("aria-expanded", "true");
         }
-    }
 
-    if (toggle) {
         toggle.addEventListener("click", function () {
-            if (sidebar && sidebar.classList.contains("sidebar-open")) {
+            const isOpen =
+                document.body.classList.contains("sidebar-open");
+
+            if (isOpen) {
                 closeSidebar();
             } else {
                 openSidebar();
             }
         });
-    }
 
-    if (backdrop) {
         backdrop.addEventListener("click", closeSidebar);
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                closeSidebar();
+            }
+        });
     }
 
-    const currentPath = window.location.pathname.replace(/\/?$/, "/");
+    // Highlight the active sidebar link.
+    const currentPath = window.location.pathname.replace(/\/+$/, "/");
 
     document.querySelectorAll("[data-nav]").forEach(function (link) {
         const navPath = link.getAttribute("data-nav");
 
-        if (
-            currentPath === navPath ||
+        if (!navPath) return;
+
+        const normalizedNavPath = navPath.replace(/\/+$/, "/");
+
+        // Match the exact page first, while supporting nested routes.
+        const isActive =
+            currentPath === normalizedNavPath ||
             (
-                navPath !== "/dashboard/" &&
-                navPath !== "/" &&
-                currentPath.startsWith(navPath)
-            )
-        ) {
-            link.classList.add("nav-link-active");
+                normalizedNavPath !== "/dashboard/" &&
+                currentPath.startsWith(normalizedNavPath)
+            );
+
+        if (isActive) {
+            link.classList.add("active");
+            link.setAttribute("aria-current", "page");
+        } else {
+            link.classList.remove("active");
+            link.removeAttribute("aria-current");
         }
     });
 })();

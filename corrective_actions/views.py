@@ -1,9 +1,9 @@
-
 from django.contrib.auth.models import User
+from django.db import transaction
 from django.utils import timezone
 
 from rest_framework import generics
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from rest_framework.response import Response
 
@@ -11,14 +11,13 @@ from accounts.permissions import IsInspector, IsAdmin
 from audit.models import AuditLog
 
 from .models import CorrectiveAction
-from .serializers import CorrectiveActionSerializer
+from .serializers import (
+    CorrectiveActionSerializer,
+    CorrectiveActionProgressSerializer,
+)
 
 
 class IsInspectorOrAdmin(BasePermission):
-    """
-    Allow Inspectors or Admin users to create/update corrective actions.
-    """
-
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
@@ -29,21 +28,39 @@ class IsInspectorOrAdmin(BasePermission):
         )
 
 
-class CorrectiveActionOptionsAPIView(generics.GenericAPIView):
-    """
-    Return users that can be selected for a corrective action.
-    """
+def action_values(action):
+    return {
+        "inspection": action.inspection_id,
+        "question": action.question_id,
+        "is_custom_question": action.is_custom_question,
+        "observation": action.observation,
+        "action_required": action.action_required,
+        "assigned_to": action.assigned_to_id,
+        "due_date": str(action.due_date) if action.due_date else None,
+        "action_taken": action.action_taken,
+        "status": action.status,
+    }
 
+
+def write_action_audit(request, action, old_values, new_values, reason):
+    AuditLog.objects.create(
+        user=request.user,
+        action="UPDATE_CORRECTIVE_ACTION",
+        object_type="CorrectiveAction",
+        object_id=action.id,
+        old_values=old_values,
+        new_values=new_values,
+        reason=reason,
+    )
+
+
+class CorrectiveActionOptionsAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         users = User.objects.filter(
             is_active=True
-        ).order_by(
-            "first_name",
-            "last_name",
-            "username",
-        )
+        ).order_by("first_name", "last_name", "username")
 
         user_list = []
 
@@ -91,30 +108,17 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
 
         return [IsAuthenticated()]
 
+    @transaction.atomic
     def perform_create(self, serializer):
-        corrective_action = serializer.save()
+        action = serializer.save()
 
         AuditLog.objects.create(
             user=self.request.user,
             action="CREATE_CORRECTIVE_ACTION",
             object_type="CorrectiveAction",
-            object_id=corrective_action.id,
+            object_id=action.id,
             old_values=None,
-            new_values={
-                "inspection": corrective_action.inspection_id,
-                "question": corrective_action.question_id,
-                "is_custom_question": corrective_action.is_custom_question,
-                "observation": corrective_action.observation,
-                "action_required": corrective_action.action_required,
-                "assigned_to": corrective_action.assigned_to_id,
-                "due_date": (
-                    str(corrective_action.due_date)
-                    if corrective_action.due_date
-                    else None
-                ),
-                "action_taken": corrective_action.action_taken,
-                "status": corrective_action.status,
-            },
+            new_values=action_values(action),
             reason="Corrective action created.",
         )
 
@@ -138,72 +142,98 @@ class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
 
         return [IsAuthenticated()]
 
+    @transaction.atomic
     def update(self, request, *args, **kwargs):
-        corrective_action = self.get_object()
+        action = self.get_object()
 
-        if corrective_action.status == CorrectiveAction.Status.COMPLETED:
+        if action.status in [
+            CorrectiveAction.Status.COMPLETED,
+            CorrectiveAction.Status.CANCELLED,
+        ]:
             raise PermissionDenied(
-                "Completed corrective actions cannot be modified."
+                "Completed or cancelled corrective actions cannot be modified."
             )
 
-        if corrective_action.status == CorrectiveAction.Status.CANCELLED:
-            raise PermissionDenied(
-                "Cancelled corrective actions cannot be modified."
-            )
-
-        old_values = {
-            "inspection": corrective_action.inspection_id,
-            "question": corrective_action.question_id,
-            "is_custom_question": corrective_action.is_custom_question,
-            "observation": corrective_action.observation,
-            "action_required": corrective_action.action_required,
-            "assigned_to": corrective_action.assigned_to_id,
-            "due_date": (
-                str(corrective_action.due_date)
-                if corrective_action.due_date
-                else None
-            ),
-            "action_taken": corrective_action.action_taken,
-            "status": corrective_action.status,
-        }
+        old_values = action_values(action)
 
         response = super().update(request, *args, **kwargs)
-
-        corrective_action.refresh_from_db()
+        action.refresh_from_db()
 
         if (
-            corrective_action.status == CorrectiveAction.Status.COMPLETED
-            and corrective_action.completed_at is None
+            action.status == CorrectiveAction.Status.COMPLETED
+            and action.completed_at is None
         ):
-            corrective_action.completed_at = timezone.now()
-            corrective_action.save(
-                update_fields=["completed_at", "updated_at"]
+            action.completed_at = timezone.now()
+            action.save(update_fields=["completed_at", "updated_at"])
+
+        write_action_audit(
+            request,
+            action,
+            old_values,
+            action_values(action),
+            "Corrective action updated.",
+        )
+
+        return response
+
+
+class CorrectiveActionProgressAPIView(generics.UpdateAPIView):
+    """Allow an assignee to update only action_taken and status."""
+
+    serializer_class = CorrectiveActionProgressSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ["patch", "put", "options", "head"]
+
+    def get_queryset(self):
+        return CorrectiveAction.objects.select_related(
+            "inspection",
+            "inspection__plant",
+            "assigned_to",
+            "created_by",
+        ).filter(assigned_to=self.request.user)
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        action = self.get_object()
+
+        if action.status in [
+            CorrectiveAction.Status.COMPLETED,
+            CorrectiveAction.Status.CANCELLED,
+        ]:
+            raise PermissionDenied(
+                "Completed or cancelled corrective actions cannot be modified."
             )
 
-        new_values = {
-            "inspection": corrective_action.inspection_id,
-            "question": corrective_action.question_id,
-            "is_custom_question": corrective_action.is_custom_question,
-            "observation": corrective_action.observation,
-            "action_required": corrective_action.action_required,
-            "assigned_to": corrective_action.assigned_to_id,
-            "due_date": (
-                str(corrective_action.due_date)
-                if corrective_action.due_date
-                else None
-            ),
-            "action_taken": corrective_action.action_taken,
-            "status": corrective_action.status,
+        forbidden_fields = set(request.data.keys()) - {
+            "action_taken",
+            "status",
         }
 
-        AuditLog.objects.create(
-            user=request.user,
-            action="UPDATE_CORRECTIVE_ACTION",
-            object_type="CorrectiveAction",
-            object_id=corrective_action.id,
-            old_values=old_values,
-            new_values=new_values,
-            reason="Corrective action updated.",
+        if forbidden_fields:
+            raise ValidationError({
+                "detail": (
+                    "Assigned users may update only Action Taken and Status."
+                )
+            })
+
+        old_values = action_values(action)
+
+        response = super().update(request, *args, **kwargs)
+        action.refresh_from_db()
+
+        if (
+            action.status == CorrectiveAction.Status.COMPLETED
+            and action.completed_at is None
+        ):
+            action.completed_at = timezone.now()
+            action.save(update_fields=["completed_at", "updated_at"])
+
+        write_action_audit(
+            request,
+            action,
+            old_values,
+            action_values(action),
+            "Assigned user updated corrective-action progress.",
         )
 
         return response

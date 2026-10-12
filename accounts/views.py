@@ -1,73 +1,67 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
 
-from rest_framework import status
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect
+
+from plants.models import Plant
+from inspections.models import InspectionTemplate
+
+from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .permissions import IsInspector, IsAdmin
-from .serializers import SignupSerializer, LoginSerializer, UserSerializer, AdminUserSerializer
+from .serializers import (
+    SignupSerializer,
+    LoginSerializer,
+    UserSerializer,
+    AdminUserSerializer,
+)
+
 from audit.models import AuditLog
-from django.contrib.auth.models import User, Group
-from rest_framework import generics, status
-
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
-
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from plants.models import Plant
-from inspections.models import InspectionTemplate
 
 
 @login_required
 def admin_users_page(request):
-
     if not request.user.groups.filter(name="Admin").exists():
         return redirect("dashboard")
 
-    return render(
-        request,
-        "admin/users.html"
-    )
+    return render(request, "admin/users.html")
+
 
 @login_required
 def plants_page(request):
     return render(request, "plants/list.html")
 
+
 @login_required
 def sanitizer_page(request):
-    return render(
-        request,
-        "titrations/sanitizer.html",
-    )
+    return render(request, "titrations/sanitizer.html")
+
 
 @login_required
 def daily_records_page(request):
     return render(request, "records/daily.html")
+
 
 @login_required
 def pdf_reports_page(request):
     return render(request, "records/pdf_reports.html")
 
-@login_required
-def daily_records_page(request):
-    return render(request, "records/daily.html")
 
 @login_required
 def chloragel_page(request):
-    return render(
-        request,
-        "titrations/chloragel.html",
-    )
+    return render(request, "titrations/chloragel.html")
+
+
 @login_required
 def inspection_page(request):
-
     plants = Plant.objects.all().order_by("id")
-
     templates = InspectionTemplate.objects.all().order_by("id")
 
     return render(
@@ -78,18 +72,17 @@ def inspection_page(request):
             "inspection_templates": templates,
         },
     )
+
+
 @login_required
 def atp_page(request):
-    return render(
-        request,
-        "inspections/atp.html",
-    )
+    return render(request, "inspections/atp.html")
+
+
 @login_required
 def records_search_page(request):
-    return render(
-        request,
-        "records/search.html",
-    )
+    return render(request, "records/search.html")
+
 
 @login_required
 def audit_logs_page(request):
@@ -107,10 +100,9 @@ def audit_logs_page(request):
 def corrective_actions_page(request):
     return render(request, "corrective_actions/list.html")
 
+
 def browser_login(request):
-
     if request.method == "POST":
-
         username = request.POST.get("username")
         password = request.POST.get("password")
 
@@ -121,80 +113,59 @@ def browser_login(request):
         )
 
         if user is not None:
-
             if not user.is_active:
                 return render(
                     request,
                     "registration/login.html",
-                    {
-                        "error": "This account is inactive."
-                    },
+                    {"error": "This account is inactive."},
                 )
 
             login(request, user)
-
             return redirect("dashboard")
 
         return render(
             request,
             "registration/login.html",
-            {
-                "error": "Invalid username or password."
-            },
+            {"error": "Invalid username or password."},
         )
 
-    return render(
-        request,
-        "registration/login.html",
-    )
+    return render(request, "registration/login.html")
 
 
 def browser_logout(request):
-
     logout(request)
-
     return redirect("login")
 
+
 def signup(request):
-
     if request.method == "POST":
-
         form = UserCreationForm(request.POST)
 
         if form.is_valid():
             form.save()
-
             return redirect("login")
-
     else:
-
         form = UserCreationForm()
 
     return render(
         request,
         "registration/signup.html",
-        {"form": form}
+        {"form": form},
     )
 
 
 @login_required
 def dashboard(request):
+    return render(request, "dashboard.html")
 
-    return render(
-        request,
-        "dashboard.html"
-    )
 
 class SignupAPIView(APIView):
-
     permission_classes = [AllowAny]
 
     def post(self, request):
-
         serializer = SignupSerializer(data=request.data)
 
         if serializer.is_valid():
-
             user = serializer.save()
 
             return Response(
@@ -204,15 +175,16 @@ class SignupAPIView(APIView):
                         "id": user.id,
                         "username": user.username,
                         "email": user.email,
-                    }
+                    },
                 },
-                status=status.HTTP_201_CREATED
+                status=status.HTTP_201_CREATED,
             )
 
         return Response(
             serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_400_BAD_REQUEST,
         )
+
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -224,15 +196,15 @@ class LoginAPIView(APIView):
             user = serializer.validated_data["user"]
 
             AuditLog.objects.create(
-             user=user,
-             action="LOGIN",
-             object_type="User",
-             object_id=user.id,
-             old_values=None,
-             new_values={
-             "username": user.username,
-              },
-            reason="User logged in successfully.",
+                user=user,
+                action="LOGIN",
+                object_type="User",
+                object_id=user.id,
+                old_values=None,
+                new_values={
+                    "username": user.username,
+                },
+                reason="User logged in successfully.",
             )
 
             refresh = RefreshToken.for_user(user)
@@ -258,12 +230,12 @@ class LoginAPIView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+
 class MeAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-
         serializer = UserSerializer(user)
 
         return Response(
@@ -284,6 +256,7 @@ class InspectorTestAPIView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class AdminUserListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = AdminUserSerializer
     permission_classes = [IsAdmin]
@@ -293,7 +266,6 @@ class AdminUserListCreateAPIView(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
-
         role = data.pop("role", None)
 
         if isinstance(role, list):
@@ -301,17 +273,11 @@ class AdminUserListCreateAPIView(generics.ListCreateAPIView):
 
         if not role:
             return Response(
-                {
-                    "role": "Role is required."
-                },
+                {"role": "Role is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        allowed_roles = [
-            "Inspector",
-            "Team Lead",
-            "Admin",
-        ]
+        allowed_roles = ["Inspector", "Team Lead", "Admin"]
 
         if role not in allowed_roles:
             return Response(
@@ -363,7 +329,11 @@ class AdminUserDetailAPIView(generics.RetrieveUpdateAPIView):
     def update(self, request, *args, **kwargs):
         user = self.get_object()
 
-        old_role = user.groups.first().name if user.groups.first() else None
+        old_role = (
+            user.groups.first().name
+            if user.groups.first()
+            else None
+        )
 
         old_values = {
             "username": user.username,
@@ -373,43 +343,35 @@ class AdminUserDetailAPIView(generics.RetrieveUpdateAPIView):
         }
 
         data = request.data.copy()
-
         role = data.pop("role", None)
 
         if isinstance(role, list):
             role = role[0] if role else None
+
+        # Validate the requested role before saving any changes.
+        allowed_roles = ["Inspector", "Team Lead", "Admin"]
+
+        if role is not None and role not in allowed_roles:
+            return Response(
+                {
+                    "role": (
+                        "Invalid role. Choose Inspector, "
+                        "Team Lead, or Admin."
+                    )
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         serializer = self.get_serializer(
             user,
             data=data,
             partial=True,
         )
-
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        user.refresh_from_db()
-
         if role is not None:
-            allowed_roles = [
-                "Inspector",
-                "Team Lead",
-                "Admin",
-            ]
-
-            if role not in allowed_roles:
-                return Response(
-                    {
-                        "role": (
-                            "Invalid role. Choose Inspector, "
-                            "Team Lead, or Admin."
-                        )
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             group = Group.objects.get(name=role)
-
             user.groups.clear()
             user.groups.add(group)
 
