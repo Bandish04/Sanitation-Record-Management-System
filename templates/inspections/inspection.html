@@ -1,128 +1,566 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}Sanitation Inspection | Sanitation Record Management System{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block breadcrumb %}Sanitation Inspection{% endblock %}
 
-    <title>Sanitation Inspection</title>
+{% block extra_css %}
+<style>
+    .inspection-page {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+    }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 26px;
+    }
 
-</head>
+    .page-title {
+        margin: 0 0 8px;
+        font-size: 27px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
 
+    .page-description {
+        margin: 0;
+        color: var(--text-secondary, #667085);
+        font-size: 14px;
+    }
 
-<body>
+    .inspection-card {
+        background: var(--card-bg, #ffffff);
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 5px rgba(16, 24, 40, 0.03);
+    }
 
-<div class="container py-5">
+    .section-heading {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 6px;
+        color: var(--text-primary, #101828);
+    }
 
+    .section-description {
+        color: var(--text-secondary, #667085);
+        font-size: 13px;
+        margin: 0 0 22px;
+    }
 
-    <!-- HEADER -->
+    .inspection-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .form-field {
+        min-width: 0;
+    }
 
-        <h2>
-            Daily Sanitation Inspection
-        </h2>
+    .form-field-full {
+        grid-column: 1 / -1;
+    }
 
-        <a
-            href="/dashboard/"
-            class="btn btn-secondary"
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary, #344054);
+    }
+
+    .required-mark {
+        color: #dc2626;
+    }
+
+    .inspection-page .form-control,
+    .inspection-page .form-select {
+        width: 100%;
+        min-height: 43px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 8px;
+        padding: 10px 12px;
+        background-color: var(--input-bg, #ffffff);
+        color: var(--text-primary, #101828);
+        font-size: 14px;
+        box-shadow: none;
+    }
+
+    .inspection-page textarea.form-control {
+        min-height: 95px;
+        resize: vertical;
+    }
+
+    .inspection-page .form-control:focus,
+    .inspection-page .form-select:focus {
+        border-color: #8098f9;
+        box-shadow: 0 0 0 3px rgba(68, 76, 231, 0.10);
+    }
+
+    .field-help {
+        display: block;
+        margin-top: 7px;
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+    }
+
+    .inspection-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 40px;
+        padding: 9px 15px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .action-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .button-primary {
+        background: #444ce7;
+        color: #ffffff;
+    }
+
+    .button-primary:hover {
+        background: #3538cd;
+        color: #ffffff;
+    }
+
+    .button-secondary {
+        background: var(--card-bg, #ffffff);
+        border-color: var(--border-color, #d0d5dd);
+        color: var(--text-primary, #344054);
+    }
+
+    .button-secondary:hover {
+        background: var(--hover-bg, #f9fafb);
+    }
+
+    .button-success {
+        background: #079455;
+        color: #ffffff;
+    }
+
+    .button-success:hover {
+        background: #067647;
+        color: #ffffff;
+    }
+
+    .button-danger {
+        background: #d92d20;
+        color: #ffffff;
+    }
+
+    .button-danger:hover {
+        background: #b42318;
+        color: #ffffff;
+    }
+
+    .message-area {
+        margin-bottom: 20px;
+    }
+
+    .message-area:empty {
+        display: none;
+    }
+
+    .message-area .alert {
+        border-radius: 9px;
+        font-size: 14px;
+        margin-bottom: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .question-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .question-card {
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 10px;
+        padding: 19px;
+        background: var(--card-bg, #ffffff);
+    }
+
+    .question-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 29px;
+        height: 29px;
+        border-radius: 8px;
+        margin-right: 10px;
+        background: var(--hover-bg, #f2f4f7);
+        color: var(--text-primary, #344054);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .question-title {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 17px;
+        color: var(--text-primary, #101828);
+        font-size: 14px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
+
+    .answer-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .answer-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 100px;
+        padding: 10px 15px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary, #344054);
+        transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .answer-option:has(input:checked) {
+        border-color: #6172f3;
+        background: rgba(68, 76, 231, 0.06);
+    }
+
+    .answer-option input {
+        margin: 0;
+        accent-color: #444ce7;
+    }
+
+    .observation-area {
+        margin-top: 17px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .observation-area[hidden] {
+        display: none !important;
+    }
+
+    .observation-required {
+        font-size: 12px;
+        color: #d92d20;
+        margin-top: 6px;
+    }
+
+    .records-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .records-filters {
+        display: grid;
+        grid-template-columns: minmax(180px, 1.4fr) minmax(150px, 1fr) minmax(150px, 1fr);
+        gap: 12px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .filter-control {
+        min-width: 0;
+    }
+
+    .filter-control .form-control,
+    .filter-control .form-select {
+        width: 100%;
+        min-height: 40px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 8px;
+        padding: 9px 11px;
+        background: var(--input-bg, #ffffff);
+        color: var(--text-primary, #344054);
+        font-size: 13px;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border-color, #eaecf0);
+        border-radius: 9px;
+    }
+
+    .inspection-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+        color: var(--text-primary, #344054);
+        font-size: 13px;
+    }
+
+    .inspection-table th {
+        padding: 13px 15px;
+        white-space: nowrap;
+        background: var(--table-header-bg, #f9fafb);
+        color: var(--text-secondary, #667085);
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.35px;
+    }
+
+    .inspection-table td {
+        padding: 14px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .inspection-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .inspection-table tbody tr:hover {
+        background: var(--hover-bg, #f9fafb);
+    }
+
+    .inspection-table td:first-child {
+        font-weight: 600;
+    }
+
+    .table-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        min-width: 115px;
+    }
+
+    .table-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 31px;
+        padding: 6px 10px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 6px;
+        background: var(--card-bg, #ffffff);
+        color: var(--text-primary, #344054);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .table-button:hover {
+        background: var(--hover-bg, #f2f4f7);
+    }
+
+    .table-button-submit {
+        background: #079455;
+        color: #ffffff;
+        border-color: #079455;
+    }
+
+    .table-button-submit:hover {
+        background: #067647;
+        color: #ffffff;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.25px;
+        white-space: nowrap;
+    }
+
+    .status-draft {
+        background: #f2f4f7;
+        color: #344054;
+    }
+
+    .status-submitted {
+        background: #dcfae6;
+        color: #067647;
+    }
+
+    .status-corrected {
+        background: #fef0c7;
+        color: #93370d;
+    }
+
+    .status-review {
+        background: #fee4e2;
+        color: #b42318;
+    }
+
+    .status-other {
+        background: #f2f4f7;
+        color: #475467;
+    }
+
+    .empty-state {
+        padding: 35px 20px !important;
+        text-align: center;
+        color: var(--text-secondary, #667085);
+    }
+
+    .records-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+    }
+
+    .locked-label {
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .inspection-card {
+            padding: 17px;
+        }
+
+        .page-title {
+            font-size: 23px;
+        }
+
+        .inspection-form-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .form-field-full {
+            grid-column: auto;
+        }
+
+        .records-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .inspection-actions .action-button {
+            flex: 1 1 auto;
+        }
+
+        .question-card {
+            padding: 14px;
+        }
+
+        .answer-option {
+            flex: 1 1 100px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inspection-page">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Daily Sanitation Inspection</h1>
+            <p class="page-description">
+                Create, review, and manage daily sanitation inspections.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            id="newInspectionButton"
+            class="action-button button-primary"
         >
-            Dashboard
-        </a>
-
+            <span aria-hidden="true">+</span>
+            New Inspection
+        </button>
     </div>
-
-
-    <!-- MESSAGE -->
 
     <div
         id="message"
-        class="alert d-none"
+        class="message-area"
+        role="status"
+        aria-live="polite"
     ></div>
 
+    <!-- INSPECTION FORM -->
+    <div id="inspectionFormCard" class="inspection-card" style="display: none;">
 
-    <!-- INSPECTION INFORMATION -->
+        <div class="section-heading" id="formHeading">
+            Inspection Information
+        </div>
 
-    <div class="card shadow mb-4">
+        <p class="section-description">
+            Complete the inspection details and answer every question.
+        </p>
 
-        <div class="card-body">
+        <div class="inspection-form-grid">
 
-            <h4 class="mb-4">
-                Inspection Information
-            </h4>
-
-
-            <!-- PLANT -->
-
-            <div class="mb-3">
-
-                <label
-                    for="plant"
-                    class="form-label"
-                >
-                    Plant
+            <div class="form-field">
+                <label for="plant" class="form-label">
+                    Plant <span class="required-mark">*</span>
                 </label>
 
-                <select
-                    id="plant"
-                    class="form-select"
-                    required
-                >
-
-                    <option value="">
-                        Select Plant
-                    </option>
-
+                <select id="plant" class="form-select" required>
+                    <option value="">Select Plant</option>
                 </select>
-
             </div>
 
-
-            <!-- TEMPLATE -->
-
-            <div class="mb-3">
-
-                <label
-                    for="template"
-                    class="form-label"
-                >
-                    Inspection Template
+            <div class="form-field">
+                <label for="template" class="form-label">
+                    Inspection Template <span class="required-mark">*</span>
                 </label>
 
-                <select
-                    id="template"
-                    class="form-select"
-                    required
-                >
-
-                    <option value="">
-                        Select Template
-                    </option>
-
+                <select id="template" class="form-select" required>
+                    <option value="">Select Template</option>
                 </select>
-
             </div>
 
-
-            <!-- DATE -->
-
-            <div class="mb-3">
-
-                <label
-                    for="inspection_date"
-                    class="form-label"
-                >
-                    Inspection Date
+            <div class="form-field">
+                <label for="inspection_date" class="form-label">
+                    Inspection Date <span class="required-mark">*</span>
                 </label>
 
                 <input
@@ -132,21 +570,13 @@
                     required
                 >
 
-                <div class="form-text">
-                    Inspection date is automatically set to today's date.
-                </div>
-
+                <span class="field-help">
+                    Today's date is selected automatically for new inspections.
+                </span>
             </div>
 
-
-            <!-- GENERAL NOTES -->
-
-            <div class="mb-3">
-
-                <label
-                    for="general_notes"
-                    class="form-label"
-                >
+            <div class="form-field form-field-full">
+                <label for="general_notes" class="form-label">
                     General Notes
                 </label>
 
@@ -154,743 +584,331 @@
                     id="general_notes"
                     class="form-control"
                     rows="3"
+                    placeholder="Enter any general inspection notes..."
                 ></textarea>
-
             </div>
 
         </div>
 
-    </div>
+        <div
+            style="height: 1px; background: var(--border-color, #eaecf0); margin: 25px 0;"
+        ></div>
 
+        <div class="section-heading">Inspection Questions</div>
 
-    <!-- QUESTIONS -->
+        <p class="section-description">
+            Select YES or NO for each question. Provide an observation when required.
+        </p>
 
-    <div id="questionsContainer">
-
-        <div class="alert alert-info">
-
-            Select a plant and inspection template
-            to load the inspection questions.
-
+        <div id="questionsContainer">
+            <div class="empty-state">
+                Select a plant and inspection template to load the questions.
+            </div>
         </div>
 
-    </div>
-
-
-    <!-- ACTION BUTTONS -->
-
-    <div class="card shadow mt-4">
-
-        <div class="card-body">
+        <div class="inspection-actions">
 
             <button
                 type="button"
                 id="saveDraftButton"
-                class="btn btn-primary"
+                class="action-button button-primary"
             >
                 Save Draft
             </button>
 
-
             <button
                 type="button"
                 id="submitButton"
-                class="btn btn-success ms-2 d-none"
+                class="action-button button-success"
+                style="display: none;"
             >
                 Submit Inspection
             </button>
 
-
             <button
                 type="button"
                 id="cancelButton"
-                class="btn btn-secondary ms-2 d-none"
+                class="action-button button-secondary"
             >
-                Cancel Edit
+                Cancel
             </button>
 
         </div>
 
     </div>
 
+    <!-- INSPECTION RECORDS -->
+    <div class="inspection-card">
 
-    <!-- EXISTING INSPECTIONS -->
-
-    <div class="card shadow mt-4">
-
-        <div class="card-body">
-
-            <h4 class="mb-4">
-                My Inspections
-            </h4>
-
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-hover">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Plant
-                            </th>
-
-                            <th>
-                                Template
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created
-                            </th>
-
-                            <th>
-                                Actions
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="inspectionTable">
-
-                    </tbody>
-
-                </table>
-
+        <div class="records-header">
+            <div>
+                <h2 class="section-heading">My Inspections</h2>
+                <p class="section-description" style="margin-bottom: 0;">
+                    View your inspections and manage draft records.
+                </p>
             </div>
 
+            <button
+                type="button"
+                id="refreshInspectionsButton"
+                class="action-button button-secondary"
+            >
+                Refresh Records
+            </button>
+        </div>
+
+        <div class="records-filters">
+
+            <div class="filter-control">
+                <input
+                    type="search"
+                    id="searchInspections"
+                    class="form-control"
+                    placeholder="Search plant or template..."
+                    aria-label="Search inspections"
+                >
+            </div>
+
+            <div class="filter-control">
+                <select
+                    id="recordsPlantFilter"
+                    class="form-select"
+                    aria-label="Filter by plant"
+                >
+                    <option value="">All Plants</option>
+                </select>
+            </div>
+
+            <div class="filter-control">
+                <select
+                    id="recordsStatusFilter"
+                    class="form-select"
+                    aria-label="Filter by status"
+                >
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="CORRECTED">Corrected</option>
+                    <option value="REVIEW_REQUIRED">Review Required</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="table-container">
+            <table class="inspection-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Plant</th>
+                        <th>Template</th>
+                        <th>Inspection Date</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="inspectionTable">
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            Loading inspections...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="records-footer">
+            <span id="recordsCount">0 inspections</span>
+            <span>Submitted inspections are locked according to your existing workflow.</span>
         </div>
 
     </div>
 
 </div>
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
-
-
 /* ==================================================
-   AUTHENTICATION
+   API ENDPOINTS AND AUTHENTICATION
 ================================================== */
 
-const accessToken =
-    localStorage.getItem(
-        "access_token"
+const PLANTS_API = "/api/plants/";
+const TEMPLATES_API = "/api/inspections/templates/";
+const QUESTIONS_API = "/api/inspections/questions/";
+const INSPECTIONS_API = "/api/inspections/";
+const ANSWERS_API = "/api/inspections/answers/";
+
+function getAccessToken() {
+    return (
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("access") ||
+        ""
     );
-
-
-const PLANTS_API =
-    "/api/plants/";
-
-
-const TEMPLATES_API =
-    "/api/inspections/templates/";
-
-
-const QUESTIONS_API =
-    "/api/inspections/questions/";
-
-
-const INSPECTIONS_API =
-    "/api/inspections/";
-
-
-function setTodayDate() {
-
-    const today =
-        new Date();
-
-
-    const year =
-        today.getFullYear();
-
-
-    const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    const day =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            "0"
-        );
-
-
-    inspectionDate.value =
-        `${year}-${month}-${day}`;
-
 }
 
-
-let editingInspectionId =
-    null;
-
-
-let currentQuestions =
-    [];
-
-
-let existingAnswers =
-    {};
-
-
-/* ==================================================
-   LOGIN CHECK
-================================================== */
+let accessToken = getAccessToken();
+let editingInspectionId = null;
+let currentQuestions = [];
+let existingAnswers = {};
+let allInspections = [];
+let busy = false;
 
 if (!accessToken) {
-
-    window.location.href =
-        "/login/";
-
+    window.location.href = "/login/";
 }
-
 
 /* ==================================================
    ELEMENTS
 ================================================== */
 
-const plantSelect =
-    document.getElementById(
-        "plant"
-    );
+const plantSelect = document.getElementById("plant");
+const templateSelect = document.getElementById("template");
+const inspectionDate = document.getElementById("inspection_date");
+const generalNotes = document.getElementById("general_notes");
+const questionsContainer = document.getElementById("questionsContainer");
+const inspectionFormCard = document.getElementById("inspectionFormCard");
+const formHeading = document.getElementById("formHeading");
 
+const newInspectionButton = document.getElementById("newInspectionButton");
+const saveDraftButton = document.getElementById("saveDraftButton");
+const submitButton = document.getElementById("submitButton");
+const cancelButton = document.getElementById("cancelButton");
 
-const templateSelect =
-    document.getElementById(
-        "template"
-    );
-
-
-const inspectionDate =
-    document.getElementById(
-        "inspection_date"
-    );
-
-
-const generalNotes =
-    document.getElementById(
-        "general_notes"
-    );
-
-
-const questionsContainer =
-    document.getElementById(
-        "questionsContainer"
-    );
-
-
-const saveDraftButton =
-    document.getElementById(
-        "saveDraftButton"
-    );
-
-
-const submitButton =
-    document.getElementById(
-        "submitButton"
-    );
-
-
-const cancelButton =
-    document.getElementById(
-        "cancelButton"
-    );
-
-
-const inspectionTable =
-    document.getElementById(
-        "inspectionTable"
-    );
-
-
-const message =
-    document.getElementById(
-        "message"
-    );
-
+const inspectionTable = document.getElementById("inspectionTable");
+const recordsCount = document.getElementById("recordsCount");
+const recordsPlantFilter = document.getElementById("recordsPlantFilter");
+const recordsStatusFilter = document.getElementById("recordsStatusFilter");
+const searchInspections = document.getElementById("searchInspections");
+const refreshInspectionsButton = document.getElementById("refreshInspectionsButton");
+const message = document.getElementById("message");
 
 /* ==================================================
-   MESSAGE
+   GENERAL HELPERS
 ================================================== */
 
-function showMessage(
-    text,
-    type = "success"
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        `alert alert-${type}`;
-
-}
-
-
-/* ==================================================
-   HEADERS
-================================================== */
-
-function getHeaders() {
-
-    return {
-
-        "Authorization":
-            `Bearer ${accessToken}`,
-
-        "Content-Type":
-            "application/json"
-
-    };
-
-}
-
-
-/* ==================================================
-   LOAD PLANTS
-================================================== */
-
-async function loadPlants() {
-
-    plantSelect.innerHTML = `
-
-        <option value="">
-            Loading plants...
-        </option>
-
-    `;
-
-
-    try {
-
-        const response =
-            await fetch(
-                PLANTS_API,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load plants."
-            );
-
-        }
-
-
-        const plants =
-            Array.isArray(data)
-                ? data
-                : data.results || [];
-
-
-        plantSelect.innerHTML = `
-
-            <option value="">
-                Select Plant
-            </option>
-
-        `;
-
-
-        plants.forEach(
-            plant => {
-
-                if (
-                    plant.active === false
-                ) {
-
-                    return;
-
-                }
-
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    plant.id;
-
-
-                option.textContent =
-                    `${plant.code} - ${plant.name}`;
-
-
-                plantSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-        if (
-            plantSelect.options.length === 1
-        ) {
-
-            showMessage(
-                "No active plants were found.",
-                "warning"
-            );
-
-        }
-
-    } catch (error) {
-
-        plantSelect.innerHTML = `
-
-            <option value="">
-                Unable to load plants
-            </option>
-
-        `;
-
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* ==================================================
-   LOAD TEMPLATES
-================================================== */
-
-async function loadTemplates() {
-
-    templateSelect.innerHTML = `
-
-        <option value="">
-            Loading templates...
-        </option>
-
-    `;
-
-
-    try {
-
-        const response =
-            await fetch(
-                TEMPLATES_API,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load inspection templates."
-            );
-
-        }
-
-
-        const templates =
-            Array.isArray(data)
-                ? data
-                : data.results || [];
-
-
-        templateSelect.innerHTML = `
-
-            <option value="">
-                Select Template
-            </option>
-
-        `;
-
-
-        templates.forEach(
-            template => {
-
-                if (
-                    template.active === false
-                ) {
-
-                    return;
-
-                }
-
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    template.id;
-
-
-                option.textContent =
-                    template.name;
-
-
-                templateSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-
-        if (
-            templateSelect.options.length === 1
-        ) {
-
-            showMessage(
-                "No active inspection templates were found.",
-                "warning"
-            );
-
-        }
-
-    } catch (error) {
-
-        templateSelect.innerHTML = `
-
-            <option value="">
-                Unable to load templates
-            </option>
-
-        `;
-
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* ==================================================
-   LOAD QUESTIONS
-================================================== */
-
-async function loadQuestions() {
-
-    const templateId =
-        templateSelect.value;
-
-
-    if (!templateId) {
-
-        currentQuestions = [];
-
-
-        questionsContainer.innerHTML = `
-
-            <div class="alert alert-info">
-
-                Select an inspection template
-                to load questions.
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    questionsContainer.innerHTML = `
-
-        <div class="alert alert-info">
-
-            Loading inspection questions...
-
-        </div>
-
-    `;
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${QUESTIONS_API}?template=${templateId}`,
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load inspection questions."
-            );
-
-        }
-
-
-        const questions =
-            Array.isArray(data)
-                ? data
-                : data.results || [];
-
-
-        currentQuestions =
-            questions.filter(
-                question =>
-                    question.active !== false
-            );
-
-
-        renderQuestions(
-            currentQuestions
-        );
-
-
-    } catch (error) {
-
-        currentQuestions = [];
-
-
-        questionsContainer.innerHTML = `
-
-            <div class="alert alert-danger">
-
-                ${escapeHtml(
-                    error.message
-                )}
-
-            </div>
-
-        `;
-
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* ==================================================
-   ESCAPE HTML
-================================================== */
-
-function escapeHtml(
-    value
-) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
         return "";
-
     }
-
 
     return String(value)
-        .replaceAll(
-            "&",
-            "&amp;"
-        )
-        .replaceAll(
-            "<",
-            "&lt;"
-        )
-        .replaceAll(
-            ">",
-            "&gt;"
-        )
-        .replaceAll(
-            '"',
-            "&quot;"
-        )
-        .replaceAll(
-            "'",
-            "&#039;"
-        );
-
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
+function showMessage(text, type = "success") {
+    message.innerHTML = "";
 
-/* ==================================================
-   GET QUESTION TEXT
-================================================== */
+    const alert = document.createElement("div");
+    alert.className = `alert alert-${type}`;
+    alert.textContent = text;
 
-function getQuestionText(
-    question
-) {
+    message.appendChild(alert);
+}
 
+function clearMessage() {
+    message.innerHTML = "";
+}
+
+function getHeaders(includeJson = true) {
+    const headers = {
+        "Authorization": `Bearer ${accessToken}`
+    };
+
+    if (includeJson) {
+        headers["Content-Type"] = "application/json";
+    }
+
+    return headers;
+}
+
+async function readResponse(response) {
+    const text = await response.text();
+
+    if (!text) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { detail: text };
+    }
+}
+
+function getErrorMessage(data) {
+    if (!data) {
+        return "An unexpected error occurred.";
+    }
+
+    if (typeof data === "string") {
+        return data;
+    }
+
+    if (data.detail) {
+        return typeof data.detail === "string"
+            ? data.detail
+            : JSON.stringify(data.detail);
+    }
+
+    return JSON.stringify(data);
+}
+
+function getArray(data) {
+    if (Array.isArray(data)) {
+        return data;
+    }
+
+    if (data && Array.isArray(data.results)) {
+        return data.results;
+    }
+
+    return [];
+}
+
+function setTodayDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+
+    inspectionDate.value = `${year}-${month}-${day}`;
+}
+
+function formatDate(dateString) {
+    if (!dateString) {
+        return "-";
+    }
+
+    const date = new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(dateString);
+    }
+
+    return escapeHtml(date.toLocaleString());
+}
+
+function isActive(item) {
+    if (
+        item.active === false ||
+        item.active === 0 ||
+        item.is_active === false ||
+        item.is_active === 0
+    ) {
+        return false;
+    }
+
+    return true;
+}
+
+function getQuestionText(question) {
     return (
         question.question_text ||
         question.text ||
@@ -898,1641 +916,1012 @@ function getQuestionText(
         question.name ||
         `Question ${question.id}`
     );
-
 }
 
+/* ==================================================
+   FORM VISIBILITY
+================================================== */
+
+function openForm() {
+    inspectionFormCard.style.display = "block";
+    newInspectionButton.style.display = "none";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+function closeForm() {
+    inspectionFormCard.style.display = "none";
+    newInspectionButton.style.display = "inline-flex";
+}
+
+function resetForm() {
+    plantSelect.value = "";
+    templateSelect.value = "";
+    generalNotes.value = "";
+
+    setTodayDate();
+
+    currentQuestions = [];
+    existingAnswers = {};
+    editingInspectionId = null;
+
+    formHeading.textContent = "Inspection Information";
+    saveDraftButton.textContent = "Save Draft";
+    submitButton.style.display = "none";
+
+    questionsContainer.innerHTML = `
+        <div class="empty-state">
+            Select a plant and inspection template to load the questions.
+        </div>
+    `;
+
+    clearMessage();
+}
+
+function startNewInspection() {
+    resetForm();
+    openForm();
+}
+
+/* ==================================================
+   LOAD PLANTS
+================================================== */
+
+async function loadPlants() {
+    plantSelect.innerHTML = `<option value="">Loading plants...</option>`;
+    recordsPlantFilter.innerHTML = `<option value="">All Plants</option>`;
+
+    try {
+        const response = await fetch(PLANTS_API, {
+            method: "GET",
+            headers: getHeaders(false)
+        });
+
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(getErrorMessage(data));
+        }
+
+        const plants = getArray(data).filter(isActive);
+
+        plantSelect.innerHTML = `<option value="">Select Plant</option>`;
+
+        plants.forEach(plant => {
+            const option = document.createElement("option");
+            option.value = plant.id;
+            option.textContent = `${plant.code || ""}${plant.code ? " - " : ""}${plant.name || `Plant ${plant.id}`}`;
+            plantSelect.appendChild(option);
+
+            const filterOption = document.createElement("option");
+            filterOption.value = String(plant.id);
+            filterOption.textContent = `${plant.code || ""}${plant.code ? " - " : ""}${plant.name || `Plant ${plant.id}`}`;
+            recordsPlantFilter.appendChild(filterOption);
+        });
+
+        if (plants.length === 0) {
+            showMessage("No active plants were found.", "warning");
+        }
+    } catch (error) {
+        plantSelect.innerHTML = `<option value="">Unable to load plants</option>`;
+        showMessage(error.message, "danger");
+    }
+}
+
+/* ==================================================
+   LOAD INSPECTION TEMPLATES
+================================================== */
+
+async function loadTemplates() {
+    templateSelect.innerHTML = `<option value="">Loading templates...</option>`;
+
+    try {
+        const response = await fetch(TEMPLATES_API, {
+            method: "GET",
+            headers: getHeaders(false)
+        });
+
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(getErrorMessage(data));
+        }
+
+        const templates = getArray(data).filter(isActive);
+
+        templateSelect.innerHTML = `<option value="">Select Template</option>`;
+
+        templates.forEach(template => {
+            const option = document.createElement("option");
+            option.value = template.id;
+            option.textContent = template.name || `Template ${template.id}`;
+            templateSelect.appendChild(option);
+        });
+
+        if (templates.length === 0) {
+            showMessage("No active inspection templates were found.", "warning");
+        }
+    } catch (error) {
+        templateSelect.innerHTML = `<option value="">Unable to load templates</option>`;
+        showMessage(error.message, "danger");
+    }
+}
+
+/* ==================================================
+   LOAD QUESTIONS
+================================================== */
+
+async function loadQuestions() {
+    const templateId = templateSelect.value;
+
+    if (!templateId) {
+        currentQuestions = [];
+
+        questionsContainer.innerHTML = `
+            <div class="empty-state">
+                Select an inspection template to load its questions.
+            </div>
+        `;
+
+        return;
+    }
+
+    questionsContainer.innerHTML = `
+        <div class="empty-state">Loading inspection questions...</div>
+    `;
+
+    try {
+        const response = await fetch(
+            `${QUESTIONS_API}?template=${encodeURIComponent(templateId)}`,
+            {
+                method: "GET",
+                headers: getHeaders(false)
+            }
+        );
+
+        const data = await readResponse(response);
+
+        if (!response.ok) {
+            throw new Error(getErrorMessage(data));
+        }
+
+        currentQuestions = getArray(data).filter(isActive);
+
+        renderQuestions(currentQuestions);
+    } catch (error) {
+        currentQuestions = [];
+
+        questionsContainer.innerHTML = `
+            <div class="alert alert-danger">
+                ${escapeHtml(error.message)}
+            </div>
+        `;
+
+        showMessage(error.message, "danger");
+    }
+}
 
 /* ==================================================
    RENDER QUESTIONS
 ================================================== */
 
-function renderQuestions(
-    questions
-) {
+function renderQuestions(questions) {
+    questionsContainer.innerHTML = "";
 
-    questionsContainer.innerHTML =
-        "";
-
-
-    if (
-        questions.length === 0
-    ) {
-
+    if (!questions.length) {
         questionsContainer.innerHTML = `
-
-            <div class="alert alert-warning">
-
-                No active questions were found
-                for this template.
-
+            <div class="empty-state">
+                No active questions were found for this template.
             </div>
-
         `;
 
-
         return;
-
     }
 
-
-    const card =
-        document.createElement(
-            "div"
-        );
-
-
-    card.className =
-        "card shadow";
-
-
-    const body =
-        document.createElement(
-            "div"
-        );
-
-
-    body.className =
-        "card-body";
-
-
-    const heading =
-        document.createElement(
-            "h4"
-        );
-
-
-    heading.className =
-        "mb-4";
-
-
-    heading.textContent =
-        "Inspection Questions";
-
-
-    body.appendChild(
-        heading
-    );
-
-
-    questions.forEach(
-        (
-            question,
-            index
-        ) => {
-
-            const questionCard =
-                document.createElement(
-                    "div"
-                );
-
-
-            questionCard.className =
-                "border rounded p-3 mb-3";
-
-
-            const questionText =
-                document.createElement(
-                    "div"
-                );
-
-
-            questionText.className =
-                "mb-3";
-
-
-            const strong =
-                document.createElement(
-                    "strong"
-                );
-
-
-            const text =
-                getQuestionText(
-                    question
-                );
-
-
-            strong.textContent =
-                `${index + 1}. ${text}`;
-
-
-            questionText.appendChild(
-                strong
-            );
-
-
-            questionCard.appendChild(
-                questionText
-            );
-
-
-            /* ==========================================
-               ANSWER BUTTONS
-
-               N/A HAS BEEN REMOVED.
-               ONLY YES AND NO ARE AVAILABLE.
-            ========================================== */
-
-            const answerContainer =
-                document.createElement(
-                    "div"
-                );
-
-
-            answerContainer.className =
-                "mb-3";
-
-
-            const choices = [
-
-                {
-                    value: "YES",
-                    label: "YES"
-                },
-
-                {
-                    value: "NO",
-                    label: "NO"
-                }
-
-            ];
-
-
-            choices.forEach(
-                choice => {
-
-                    const wrapper =
-                        document.createElement(
-                            "div"
-                        );
-
-
-                    wrapper.className =
-                        "form-check form-check-inline";
-
-
-                    const radio =
-                        document.createElement(
-                            "input"
-                        );
-
-
-                    radio.className =
-                        "form-check-input answer-radio";
-
-
-                    radio.type =
-                        "radio";
-
-
-                    radio.name =
-                        `question_${question.id}`;
-
-
-                    radio.value =
-                        choice.value;
-
-
-                    radio.dataset.questionId =
-                        question.id;
-
-
-                    radio.dataset.requiresObservation =
-                        question.requires_observation_on_no;
-
-
-                    const label =
-                        document.createElement(
-                            "label"
-                        );
-
-
-                    label.className =
-                        "form-check-label";
-
-
-                    label.textContent =
-                        choice.label;
-
-
-                    wrapper.appendChild(
-                        radio
-                    );
-
-
-                    wrapper.appendChild(
-                        label
-                    );
-
-
-                    answerContainer.appendChild(
-                        wrapper
-                    );
-
-                }
-            );
-
-
-            questionCard.appendChild(
-                answerContainer
-            );
-
-
-            /* ==========================================
-               OBSERVATION
-            ========================================== */
-
-            const observationContainer =
-                document.createElement(
-                    "div"
-                );
-
-
-            observationContainer.id =
-                `observation_container_${question.id}`;
-
-
-            observationContainer.className =
-                "d-none";
-
-
-            const observationLabel =
-                document.createElement(
-                    "label"
-                );
-
-
-            observationLabel.className =
-                "form-label";
-
-
-            observationLabel.textContent =
-                "Observation";
-
-
-            const observation =
-                document.createElement(
-                    "textarea"
-                );
-
-
-            observation.id =
-                `observation_${question.id}`;
-
-
-            observation.className =
-                "form-control";
-
-
-            observation.rows =
-                2;
-
-
-            observation.placeholder =
-                "Enter observation...";
-
-
-            observationContainer.appendChild(
-                observationLabel
-            );
-
-
-            observationContainer.appendChild(
-                observation
-            );
-
-
-            questionCard.appendChild(
-                observationContainer
-            );
-
-
-            body.appendChild(
-                questionCard
-            );
-
+    const list = document.createElement("div");
+    list.className = "question-list";
+
+    questions.forEach((question, index) => {
+        const questionCard = document.createElement("div");
+        questionCard.className = "question-card";
+
+        const questionTitle = document.createElement("div");
+        questionTitle.className = "question-title";
+
+        const number = document.createElement("span");
+        number.className = "question-number";
+        number.textContent = String(index + 1);
+
+        const title = document.createElement("span");
+        title.textContent = getQuestionText(question);
+
+        questionTitle.appendChild(number);
+        questionTitle.appendChild(title);
+        questionCard.appendChild(questionTitle);
+
+        const answerContainer = document.createElement("div");
+        answerContainer.className = "answer-options";
+
+        [
+            { value: "YES", label: "YES" },
+            { value: "NO", label: "NO" }
+        ].forEach(choice => {
+            const label = document.createElement("label");
+            label.className = "answer-option";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = `question_${question.id}`;
+            radio.value = choice.value;
+            radio.className = "answer-radio";
+            radio.dataset.questionId = question.id;
+
+            const labelText = document.createElement("span");
+            labelText.textContent = choice.label;
+
+            label.appendChild(radio);
+            label.appendChild(labelText);
+            answerContainer.appendChild(label);
+        });
+
+        questionCard.appendChild(answerContainer);
+
+        const observationContainer = document.createElement("div");
+        observationContainer.className = "observation-area";
+        observationContainer.id = `observation_container_${question.id}`;
+        observationContainer.hidden = true;
+
+        const observationLabel = document.createElement("label");
+        observationLabel.className = "form-label";
+        observationLabel.htmlFor = `observation_${question.id}`;
+        observationLabel.textContent = "Observation";
+
+        const observation = document.createElement("textarea");
+        observation.id = `observation_${question.id}`;
+        observation.className = "form-control";
+        observation.rows = 2;
+        observation.placeholder = "Enter observation...";
+
+        observationContainer.appendChild(observationLabel);
+        observationContainer.appendChild(observation);
+
+        if (question.requires_observation_on_no) {
+            const requiredHint = document.createElement("div");
+            requiredHint.className = "observation-required";
+            requiredHint.textContent = "An observation is required when the answer is NO.";
+            observationContainer.appendChild(requiredHint);
         }
-    );
 
+        questionCard.appendChild(observationContainer);
+        list.appendChild(questionCard);
+    });
 
-    card.appendChild(
-        body
-    );
-
-
-    questionsContainer.appendChild(
-        card
-    );
-
+    questionsContainer.appendChild(list);
 
     attachAnswerListeners();
-
 }
-
 
 /* ==================================================
    ANSWER LISTENERS
 ================================================== */
 
 function attachAnswerListeners() {
-
-    const radios =
-        document.querySelectorAll(
-            ".answer-radio"
-        );
-
-
-    radios.forEach(
-        radio => {
-
-            radio.addEventListener(
-                "change",
-                function() {
-
-                    const questionId =
-                        this.dataset.questionId;
-
-
-                    const requiresObservation =
-                        this.dataset.requiresObservation ===
-                        "true";
-
-
-                    const observationContainer =
-                        document.getElementById(
-                            `observation_container_${questionId}`
-                        );
-
-
-                    if (
-                        this.value === "NO" &&
-                        requiresObservation
-                    ) {
-
-                        observationContainer
-                            .classList
-                            .remove(
-                                "d-none"
-                            );
-
-                    }
-
-                    else {
-
-                        observationContainer
-                            .classList
-                            .add(
-                                "d-none"
-                            );
-
-                    }
-
-                }
+    document.querySelectorAll(".answer-radio").forEach(radio => {
+        radio.addEventListener("change", function() {
+            const questionId = this.dataset.questionId;
+            const observationContainer = document.getElementById(
+                `observation_container_${questionId}`
             );
 
-        }
-    );
+            if (!observationContainer) {
+                return;
+            }
 
+            const question = currentQuestions.find(
+                item => String(item.id) === String(questionId)
+            );
+
+            const requiresObservation = Boolean(
+                question && question.requires_observation_on_no
+            );
+
+            observationContainer.hidden = !(
+                this.value === "NO" && requiresObservation
+            );
+        });
+    });
 }
-
 
 /* ==================================================
    TEMPLATE CHANGE
 ================================================== */
 
-templateSelect.addEventListener(
-    "change",
-    async function() {
-
-        existingAnswers = {};
-
-
-        await loadQuestions();
-
-    }
-);
-
+templateSelect.addEventListener("change", async function() {
+    existingAnswers = {};
+    await loadQuestions();
+});
 
 /* ==================================================
    COLLECT ANSWERS
 ================================================== */
 
 function collectAnswers() {
-
     const answers = [];
 
+    currentQuestions.forEach(question => {
+        const selected = document.querySelector(
+            `input[name="question_${question.id}"]:checked`
+        );
 
-    currentQuestions.forEach(
-        question => {
-
-            const selected =
-                document.querySelector(
-                    `input[name="question_${question.id}"]:checked`
-                );
-
-
-            if (!selected) {
-
-                return;
-
-            }
-
-
-            const observationElement =
-                document.getElementById(
-                    `observation_${question.id}`
-                );
-
-
-            const observation =
-                observationElement
-                    ? observationElement.value.trim()
-                    : "";
-
-
-            answers.push({
-
-                question:
-                    question.id,
-
-                answer:
-                    selected.value,
-
-                observation:
-                    observation
-
-            });
-
+        if (!selected) {
+            return;
         }
-    );
 
+        const observationElement = document.getElementById(
+            `observation_${question.id}`
+        );
+
+        answers.push({
+            question: question.id,
+            answer: selected.value,
+            observation: observationElement
+                ? observationElement.value.trim()
+                : ""
+        });
+    });
 
     return answers;
-
 }
 
-
 /* ==================================================
-   VALIDATE ANSWERS
+   VALIDATE FORM
 ================================================== */
 
+function validateInspectionForm() {
+    if (!plantSelect.value) {
+        showMessage("Please select a plant.", "danger");
+        plantSelect.focus();
+        return false;
+    }
+
+    if (!templateSelect.value) {
+        showMessage("Please select an inspection template.", "danger");
+        templateSelect.focus();
+        return false;
+    }
+
+    if (!inspectionDate.value) {
+        showMessage("Please select an inspection date.", "danger");
+        inspectionDate.focus();
+        return false;
+    }
+
+    if (!validateAnswers()) {
+        return false;
+    }
+
+    return true;
+}
+
 function validateAnswers() {
+    const answers = collectAnswers();
 
-    const answers =
-        collectAnswers();
+    const answeredIds = answers.map(
+        answer => String(answer.question)
+    );
 
+    const missingQuestions = currentQuestions.filter(
+        question => !answeredIds.includes(String(question.id))
+    );
 
-    const answeredIds =
-        answers.map(
-            answer =>
-                answer.question
-        );
-
-
-    const missingQuestions =
-        currentQuestions.filter(
-            question =>
-                !answeredIds.includes(
-                    question.id
-                )
-        );
-
-
-    if (
-        missingQuestions.length > 0
-    ) {
-
+    if (missingQuestions.length > 0) {
         showMessage(
             `Please answer all questions. Missing ${missingQuestions.length} question(s).`,
             "danger"
         );
 
-
         return false;
-
     }
 
-
-    for (
-        const answer of answers
-    ) {
-
-        const question =
-            currentQuestions.find(
-                question =>
-                    question.id ===
-                    answer.question
-            );
-
+    for (const answer of answers) {
+        const question = currentQuestions.find(
+            item => String(item.id) === String(answer.question)
+        );
 
         if (
             answer.answer === "NO" &&
+            question &&
             question.requires_observation_on_no &&
             !answer.observation
         ) {
-
             showMessage(
                 `Observation is required for: ${getQuestionText(question)}`,
                 "danger"
             );
 
+            const observation = document.getElementById(
+                `observation_${answer.question}`
+            );
+
+            if (observation) {
+                observation.focus();
+            }
 
             return false;
-
         }
-
     }
 
-
     return true;
-
 }
-
 
 /* ==================================================
    CREATE INSPECTION
 ================================================== */
 
 async function createInspection() {
-
     const payload = {
-
-        plant:
-            Number(
-                plantSelect.value
-            ),
-
-        template:
-            Number(
-                templateSelect.value
-            ),
-
-        inspection_date:
-            inspectionDate.value,
-
-        general_notes:
-            generalNotes.value
-
+        plant: Number(plantSelect.value),
+        template: Number(templateSelect.value),
+        inspection_date: inspectionDate.value,
+        general_notes: generalNotes.value
     };
 
+    const response = await fetch(INSPECTIONS_API, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(payload)
+    });
 
-    const response =
-        await fetch(
-            INSPECTIONS_API,
-            {
-                method: "POST",
-
-                headers:
-                    getHeaders(),
-
-                body:
-                    JSON.stringify(
-                        payload
-                    )
-            }
-        );
-
-
-    const data =
-        await response.json();
-
+    const data = await readResponse(response);
 
     if (!response.ok) {
-
-        throw new Error(
-            JSON.stringify(data)
-        );
-
+        throw new Error(getErrorMessage(data));
     }
 
-
     return data;
-
 }
-
 
 /* ==================================================
    CREATE ANSWERS
 ================================================== */
 
-async function createAnswers(
-    inspectionId
-) {
+async function createAnswers(inspectionId) {
+    const answers = collectAnswers();
 
-    const answers =
-        collectAnswers();
-
-
-    for (
-        const answer of answers
-    ) {
-
+    for (const answer of answers) {
         const payload = {
-
-            inspection:
-                inspectionId,
-
-            question:
-                answer.question,
-
-            answer:
-                answer.answer,
-
-            observation:
-                answer.observation
-
+            inspection: inspectionId,
+            question: answer.question,
+            answer: answer.answer,
+            observation: answer.observation
         };
 
+        const response = await fetch(ANSWERS_API, {
+            method: "POST",
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+        });
 
-        const response =
-            await fetch(
-                "/api/inspections/answers/",
-                {
-                    method: "POST",
-
-                    headers:
-                        getHeaders(),
-
-                    body:
-                        JSON.stringify(
-                            payload
-                        )
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await readResponse(response);
 
         if (!response.ok) {
-
-            throw new Error(
-                JSON.stringify(
-                    data
-                )
-            );
-
+            throw new Error(getErrorMessage(data));
         }
-
     }
-
 }
-
 
 /* ==================================================
    UPDATE EXISTING ANSWERS
 ================================================== */
 
 async function updateExistingAnswers() {
+    const answers = collectAnswers();
 
-    const answers =
-        collectAnswers();
-
-
-    for (
-        const answer of answers
-    ) {
-
-        const existingAnswer =
-            existingAnswers[
-                answer.question
-            ];
-
+    for (const answer of answers) {
+        const existingAnswer = existingAnswers[answer.question];
 
         if (!existingAnswer) {
-
             const payload = {
-
-                inspection:
-                    editingInspectionId,
-
-                question:
-                    answer.question,
-
-                answer:
-                    answer.answer,
-
-                observation:
-                    answer.observation
-
+                inspection: editingInspectionId,
+                question: answer.question,
+                answer: answer.answer,
+                observation: answer.observation
             };
 
+            const createResponse = await fetch(ANSWERS_API, {
+                method: "POST",
+                headers: getHeaders(),
+                body: JSON.stringify(payload)
+            });
 
-            const createResponse =
-                await fetch(
-                    "/api/inspections/answers/",
-                    {
-                        method: "POST",
-
-                        headers:
-                            getHeaders(),
-
-                        body:
-                            JSON.stringify(
-                                payload
-                            )
-                    }
-                );
-
-
-            const createData =
-                await createResponse.json();
-
+            const createData = await readResponse(createResponse);
 
             if (!createResponse.ok) {
-
-                throw new Error(
-                    JSON.stringify(
-                        createData
-                    )
-                );
-
+                throw new Error(getErrorMessage(createData));
             }
-
 
             continue;
-
         }
-
 
         const payload = {
-
-            answer:
-                answer.answer,
-
-            observation:
-                answer.observation
-
+            answer: answer.answer,
+            observation: answer.observation
         };
 
+        const response = await fetch(
+            `${ANSWERS_API}${existingAnswer.id}/`,
+            {
+                method: "PATCH",
+                headers: getHeaders(),
+                body: JSON.stringify(payload)
+            }
+        );
 
-        const response =
-            await fetch(
-                `/api/inspections/answers/${existingAnswer.id}/`,
-                {
-                    method: "PATCH",
-
-                    headers:
-                        getHeaders(),
-
-                    body:
-                        JSON.stringify(
-                            payload
-                        )
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await readResponse(response);
 
         if (!response.ok) {
-
-            throw new Error(
-                JSON.stringify(
-                    data
-                )
-            );
-
+            throw new Error(getErrorMessage(data));
         }
-
     }
-
 }
 
-
 /* ==================================================
-   SAVE DRAFT
+   SAVE OR UPDATE DRAFT
 ================================================== */
 
-saveDraftButton.addEventListener(
-    "click",
-    async function() {
-
-        if (
-            !plantSelect.value
-        ) {
-
-            showMessage(
-                "Please select a plant.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !templateSelect.value
-        ) {
-
-            showMessage(
-                "Please select an inspection template.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !inspectionDate.value
-        ) {
-
-            showMessage(
-                "Please select an inspection date.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !validateAnswers()
-        ) {
-
-            return;
-
-        }
-
-
-        saveDraftButton.disabled =
-            true;
-
-
-        try {
-
-            let inspection;
-
-
-            if (
-                editingInspectionId
-            ) {
-
-                const response =
-                    await fetch(
-                        `${INSPECTIONS_API}${editingInspectionId}/`,
-                        {
-                            method: "PATCH",
-
-                            headers:
-                                getHeaders(),
-
-                            body:
-                                JSON.stringify({
-
-                                    plant:
-                                        Number(
-                                            plantSelect.value
-                                        ),
-
-                                    template:
-                                        Number(
-                                            templateSelect.value
-                                        ),
-
-                                    inspection_date:
-                                        inspectionDate.value,
-
-                                    general_notes:
-                                        generalNotes.value
-
-                                })
-                        }
-                    );
-
-
-                const data =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        JSON.stringify(data)
-                    );
-
-                }
-
-
-                inspection =
-                    data;
-
-
-                await updateExistingAnswers();
-
-            }
-
-            else {
-
-                inspection =
-                    await createInspection();
-
-
-                await createAnswers(
-                    inspection.id
-                );
-
-
-                existingAnswers = {};
-
-            }
-
-
-            showMessage(
-                "Inspection saved successfully as a draft.",
-                "success"
-            );
-
-
-            editingInspectionId =
-                inspection.id;
-
-
-            submitButton.classList.remove(
-                "d-none"
-            );
-
-
-            cancelButton.classList.remove(
-                "d-none"
-            );
-
-
-            await loadInspections();
-
-
-        }
-
-        catch (error) {
-
-            showMessage(
-                error.message,
-                "danger"
-            );
-
-        }
-
-        finally {
-
-            saveDraftButton.disabled =
-                false;
-
-        }
-
+saveDraftButton.addEventListener("click", async function() {
+    if (busy) {
+        return;
     }
-);
 
+    clearMessage();
+
+    if (!validateInspectionForm()) {
+        return;
+    }
+
+    busy = true;
+    saveDraftButton.disabled = true;
+
+    try {
+        let inspection;
+
+        if (editingInspectionId) {
+            const response = await fetch(
+                `${INSPECTIONS_API}${editingInspectionId}/`,
+                {
+                    method: "PATCH",
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        plant: Number(plantSelect.value),
+                        template: Number(templateSelect.value),
+                        inspection_date: inspectionDate.value,
+                        general_notes: generalNotes.value
+                    })
+                }
+            );
+
+            const data = await readResponse(response);
+
+            if (!response.ok) {
+                throw new Error(getErrorMessage(data));
+            }
+
+            inspection = data;
+
+            await updateExistingAnswers();
+        } else {
+            inspection = await createInspection();
+
+            // Retain the created ID so a retry updates this draft
+            // rather than creating another inspection.
+            editingInspectionId = inspection.id;
+
+            await createAnswers(inspection.id);
+
+            existingAnswers = {};
+        }
+
+        showMessage("Inspection saved successfully as a draft.", "success");
+
+        resetForm();
+        closeForm();
+
+        await loadInspections();
+    } catch (error) {
+        showMessage(
+            `Unable to save inspection: ${error.message}`,
+            "danger"
+        );
+    } finally {
+        busy = false;
+        saveDraftButton.disabled = false;
+    }
+});
 
 /* ==================================================
    LOAD INSPECTIONS
 ================================================== */
 
 async function loadInspections() {
+    inspectionTable.innerHTML = `
+        <tr>
+            <td colspan="7" class="empty-state">Loading inspections...</td>
+        </tr>
+    `;
 
     try {
+        const response = await fetch(INSPECTIONS_API, {
+            method: "GET",
+            headers: getHeaders(false)
+        });
 
-        const response =
-            await fetch(
-                INSPECTIONS_API,
-                {
-                    method: "GET",
-
-                    headers:
-                        getHeaders()
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await readResponse(response);
 
         if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load inspections."
-            );
-
+            throw new Error(getErrorMessage(data));
         }
 
+        allInspections = getArray(data);
 
-        const inspections =
-            Array.isArray(data)
-                ? data
-                : data.results || [];
+        renderInspections();
+    } catch (error) {
+        inspectionTable.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    Unable to load inspections.
+                </td>
+            </tr>
+        `;
 
+        recordsCount.textContent = "Records unavailable";
+        showMessage(error.message, "danger");
+    }
+}
 
-        inspectionTable.innerHTML =
-            "";
+/* ==================================================
+   RENDER INSPECTIONS AND FILTERS
+================================================== */
 
+function renderInspections() {
+    const searchTerm = searchInspections.value.trim().toLowerCase();
+    const selectedPlant = recordsPlantFilter.value;
+    const selectedStatus = recordsStatusFilter.value;
 
-        if (
-            inspections.length === 0
-        ) {
+    const filtered = allInspections.filter(inspection => {
+        const plantName = (
+            inspection.plant_name ||
+            `Plant ${inspection.plant}`
+        ).toLowerCase();
 
-            inspectionTable.innerHTML = `
+        const templateName = (
+            inspection.template_name ||
+            `Template ${inspection.template}`
+        ).toLowerCase();
 
-                <tr>
+        const matchesSearch = (
+            !searchTerm ||
+            plantName.includes(searchTerm) ||
+            templateName.includes(searchTerm) ||
+            String(inspection.id).includes(searchTerm)
+        );
 
-                    <td
-                        colspan="7"
-                        class="text-center"
+        const matchesPlant = (
+            !selectedPlant ||
+            String(inspection.plant) === selectedPlant
+        );
+
+        const matchesStatus = (
+            !selectedStatus ||
+            inspection.status === selectedStatus
+        );
+
+        return matchesSearch && matchesPlant && matchesStatus;
+    });
+
+    inspectionTable.innerHTML = "";
+
+    recordsCount.textContent =
+        `${filtered.length} inspection${filtered.length === 1 ? "" : "s"}`;
+
+    if (!filtered.length) {
+        inspectionTable.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    No inspections match your filters.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    filtered.forEach(inspection => {
+        const row = document.createElement("tr");
+
+        const plantName = (
+            inspection.plant_name ||
+            `Plant ${inspection.plant}`
+        );
+
+        const templateName = (
+            inspection.template_name ||
+            `Template ${inspection.template}`
+        );
+
+        let actions = `
+            <span class="locked-label">Locked</span>
+        `;
+
+        if (inspection.status === "DRAFT") {
+            actions = `
+                <div class="table-actions">
+                    <button
+                        type="button"
+                        class="table-button"
+                        onclick="editInspection(${Number(inspection.id)})"
                     >
-                        No inspections found.
-                    </td>
+                        Edit
+                    </button>
 
-                </tr>
-
+                    <button
+                        type="button"
+                        class="table-button table-button-submit"
+                        onclick="submitInspection(${Number(inspection.id)})"
+                    >
+                        Submit
+                    </button>
+                </div>
             `;
-
-
-            return;
-
         }
 
+        row.innerHTML = `
+            <td>${escapeHtml(inspection.id)}</td>
+            <td>${escapeHtml(plantName)}</td>
+            <td>${escapeHtml(templateName)}</td>
+            <td>${escapeHtml(inspection.inspection_date || "-")}</td>
+            <td>${formatStatus(inspection.status)}</td>
+            <td>${formatDate(inspection.created_at)}</td>
+            <td>${actions}</td>
+        `;
 
-        inspections.forEach(
-            inspection => {
-
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                let actions =
-                    "";
-
-
-                if (
-                    inspection.status ===
-                    "DRAFT"
-                ) {
-
-                    actions = `
-
-                        <button
-                            class="btn btn-sm btn-primary me-1"
-                            onclick="editInspection(${inspection.id})"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            class="btn btn-sm btn-success"
-                            onclick="submitInspection(${inspection.id})"
-                        >
-                            Submit
-                        </button>
-
-                    `;
-
-                }
-
-                else {
-
-                    actions = `
-
-                        <span class="text-muted">
-                            Locked
-                        </span>
-
-                    `;
-
-                }
-
-
-                row.innerHTML = `
-
-                    <td>
-                        ${inspection.id}
-                    </td>
-
-                    <td>
-                        ${
-                            inspection.plant_name ||
-                            `Plant ${inspection.plant}`
-                        }
-                    </td>
-
-                    <td>
-                        ${
-                            inspection.template_name ||
-                            `Template ${inspection.template}`
-                        }
-                    </td>
-
-                    <td>
-                        ${inspection.inspection_date}
-                    </td>
-
-                    <td>
-                        ${formatStatus(
-                            inspection.status
-                        )}
-                    </td>
-
-                    <td>
-                        ${formatDate(
-                            inspection.created_at
-                        )}
-                    </td>
-
-                    <td>
-                        ${actions}
-                    </td>
-
-                `;
-
-
-                inspectionTable.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-    }
-
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
+        inspectionTable.appendChild(row);
+    });
 }
-
 
 /* ==================================================
-   STATUS
+   STATUS DISPLAY
 ================================================== */
 
-function formatStatus(
-    status
-) {
+function formatStatus(status) {
+    const labels = {
+        DRAFT: ["DRAFT", "status-draft"],
+        SUBMITTED: ["SUBMITTED", "status-submitted"],
+        CORRECTED: ["CORRECTED", "status-corrected"],
+        REVIEW_REQUIRED: ["REVIEW REQUIRED", "status-review"]
+    };
 
-    if (
-        status === "DRAFT"
-    ) {
+    const [label, className] = labels[status] || [
+        status || "-",
+        "status-other"
+    ];
 
-        return `
-
-            <span class="badge bg-secondary">
-                DRAFT
-            </span>
-
-        `;
-
-    }
-
-
-    if (
-        status === "SUBMITTED"
-    ) {
-
-        return `
-
-            <span class="badge bg-success">
-                SUBMITTED
-            </span>
-
-        `;
-
-    }
-
-
-    if (
-        status === "CORRECTED"
-    ) {
-
-        return `
-
-            <span class="badge bg-warning text-dark">
-                CORRECTED
-            </span>
-
-        `;
-
-    }
-
-
-    if (
-        status === "REVIEW_REQUIRED"
-    ) {
-
-        return `
-
-            <span class="badge bg-danger">
-                REVIEW REQUIRED
-            </span>
-
-        `;
-
-    }
-
-
-    return escapeHtml(
-        status || "-"
-    );
-
+    return `
+        <span class="status-badge ${className}">
+            ${escapeHtml(label)}
+        </span>
+    `;
 }
-
-
-/* ==================================================
-   DATE
-================================================== */
-
-function formatDate(
-    dateString
-) {
-
-    if (!dateString) {
-
-        return "";
-
-    }
-
-
-    return new Date(
-        dateString
-    ).toLocaleString();
-
-}
-
 
 /* ==================================================
    EDIT INSPECTION
 ================================================== */
 
-async function editInspection(
-    id
-) {
+async function editInspection(id) {
+    clearMessage();
 
     try {
+        const response = await fetch(
+            `${INSPECTIONS_API}${id}/`,
+            {
+                method: "GET",
+                headers: getHeaders(false)
+            }
+        );
 
-        const response =
-            await fetch(
-                `${INSPECTIONS_API}${id}/`,
-                {
-                    method: "GET",
-
-                    headers:
-                        getHeaders()
-                }
-            );
-
-
-        const inspection =
-            await response.json();
-
+        const inspection = await readResponse(response);
 
         if (!response.ok) {
-
-            throw new Error(
-                JSON.stringify(
-                    inspection
-                )
-            );
-
+            throw new Error(getErrorMessage(inspection));
         }
 
-
-        if (
-            inspection.status !==
-            "DRAFT"
-        ) {
-
-            showMessage(
-                "Only draft inspections can be edited.",
-                "danger"
-            );
-
+        if (inspection.status !== "DRAFT") {
+            showMessage("Only draft inspections can be edited.", "danger");
             return;
-
         }
 
+        editingInspectionId = id;
 
-        editingInspectionId =
-            id;
-
-
-        plantSelect.value =
-            inspection.plant;
-
-
-        templateSelect.value =
-            inspection.template;
-
-
-        inspectionDate.value =
-            inspection.inspection_date;
-
-
-        generalNotes.value =
-            inspection.general_notes ||
-            "";
-
+        plantSelect.value = inspection.plant;
+        templateSelect.value = inspection.template;
+        inspectionDate.value = inspection.inspection_date || "";
+        generalNotes.value = inspection.general_notes || "";
 
         existingAnswers = {};
 
+        const answers = inspection.answers || [];
 
-        const answers =
-            inspection.answers ||
-            [];
-
-
-        answers.forEach(
-            answer => {
-
-                existingAnswers[
-                    answer.question
-                ] = answer;
-
-            }
-        );
-
+        answers.forEach(answer => {
+            existingAnswers[answer.question] = answer;
+        });
 
         await loadQuestions();
 
+        answers.forEach(answer => {
+            const radio = document.querySelector(
+                `input[name="question_${answer.question}"][value="${answer.answer}"]`
+            );
 
-        answers.forEach(
-            answer => {
-
-                const radio =
-                    document.querySelector(
-                        `input[name="question_${answer.question}"][value="${answer.answer}"]`
-                    );
-
-
-                if (radio) {
-
-                    radio.checked =
-                        true;
-
-
-                    radio.dispatchEvent(
-                        new Event(
-                            "change"
-                        )
-                    );
-
-                }
-
-
-                const observation =
-                    document.getElementById(
-                        `observation_${answer.question}`
-                    );
-
-
-                if (observation) {
-
-                    observation.value =
-                        answer.observation ||
-                        "";
-
-                }
-
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event("change"));
             }
-        );
 
+            const observation = document.getElementById(
+                `observation_${answer.question}`
+            );
 
-        saveDraftButton.textContent =
-            "Update Draft";
-
-
-        submitButton.classList.remove(
-            "d-none"
-        );
-
-
-        cancelButton.classList.remove(
-            "d-none"
-        );
-
-
-        window.scrollTo({
-
-            top: 0,
-
-            behavior: "smooth"
-
+            if (observation) {
+                observation.value = answer.observation || "";
+            }
         });
 
+        formHeading.textContent = "Edit Inspection Draft";
+        saveDraftButton.textContent = "Update Draft";
+        submitButton.style.display = "inline-flex";
 
+        openForm();
+    } catch (error) {
+        showMessage(`Unable to open inspection: ${error.message}`, "danger");
     }
-
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
 }
-
 
 /* ==================================================
    SUBMIT INSPECTION
 ================================================== */
 
-async function submitInspection(
-    id
-) {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to submit this inspection? It cannot be edited after submission."
-        );
-
+async function submitInspection(id) {
+    const confirmed = confirm(
+        "Are you sure you want to submit this inspection? It cannot be edited after submission."
+    );
 
     if (!confirmed) {
-
         return;
-
     }
 
-
     try {
+        const response = await fetch(
+            `${INSPECTIONS_API}${id}/submit/`,
+            {
+                method: "POST",
+                headers: getHeaders()
+            }
+        );
 
-        const response =
-            await fetch(
-                `${INSPECTIONS_API}${id}/submit/`,
-                {
-                    method: "POST",
-
-                    headers:
-                        getHeaders()
-                }
-            );
-
-
-        const data =
-            await response.json();
-
+        const data = await readResponse(response);
 
         if (!response.ok) {
-
             showMessage(
-                JSON.stringify(data),
+                `Unable to submit inspection: ${getErrorMessage(data)}`,
                 "danger"
             );
 
             return;
-
         }
 
-
-        showMessage(
-            "Inspection submitted successfully.",
-            "success"
-        );
-
-
-        editingInspectionId =
-            null;
-
-
-        existingAnswers =
-            {};
-
+        showMessage("Inspection submitted successfully.", "success");
 
         resetForm();
-
+        closeForm();
 
         await loadInspections();
-
-
-    }
-
-    catch (error) {
-
+    } catch (error) {
         showMessage(
-            "Unable to submit inspection.",
+            `Unable to submit inspection: ${error.message}`,
             "danger"
         );
-
     }
-
 }
 
-
 /* ==================================================
-   CANCEL EDIT
+   BUTTON EVENTS
 ================================================== */
 
-cancelButton.addEventListener(
-    "click",
-    function() {
+newInspectionButton.addEventListener("click", startNewInspection);
 
-        editingInspectionId =
-            null;
+cancelButton.addEventListener("click", function() {
+    resetForm();
+    closeForm();
+});
 
+submitButton.addEventListener("click", async function() {
+    if (!editingInspectionId) {
+        showMessage(
+            "Save the inspection draft before submitting it.",
+            "warning"
+        );
 
-        existingAnswers =
-            {};
-
-
-        resetForm();
-
+        return;
     }
-);
 
+    if (busy) {
+        return;
+    }
 
-/* ==================================================
-   RESET FORM
-================================================== */
+    if (!validateInspectionForm()) {
+        return;
+    }
 
-function resetForm() {
+    busy = true;
+    submitButton.disabled = true;
 
-    plantSelect.value =
-        "";
+    try {
+        // Save the current edits before submitting the draft.
+        const response = await fetch(
+            `${INSPECTIONS_API}${editingInspectionId}/`,
+            {
+                method: "PATCH",
+                headers: getHeaders(),
+                body: JSON.stringify({
+                    plant: Number(plantSelect.value),
+                    template: Number(templateSelect.value),
+                    inspection_date: inspectionDate.value,
+                    general_notes: generalNotes.value
+                })
+            }
+        );
 
+        const data = await readResponse(response);
 
-    templateSelect.value =
-        "";
+        if (!response.ok) {
+            throw new Error(getErrorMessage(data));
+        }
 
+        await updateExistingAnswers();
 
-    inspectionDate.value =
-        "";
+        await submitInspection(editingInspectionId);
+    } catch (error) {
+        showMessage(
+            `Unable to save changes before submission: ${error.message}`,
+            "danger"
+        );
+    } finally {
+        busy = false;
+        submitButton.disabled = false;
+    }
+});
 
+refreshInspectionsButton.addEventListener("click", loadInspections);
 
-    generalNotes.value =
-        "";
-
-
-    questionsContainer.innerHTML = `
-
-        <div class="alert alert-info">
-
-            Select a plant and inspection template
-            to load the inspection questions.
-
-        </div>
-
-    `;
-
-
-    currentQuestions =
-        [];
-
-
-    existingAnswers =
-        {};
-
-
-    saveDraftButton.textContent =
-        "Save Draft";
-
-
-    submitButton.classList.add(
-        "d-none"
-    );
-
-
-    cancelButton.classList.add(
-        "d-none"
-    );
-
-}
-
+searchInspections.addEventListener("input", renderInspections);
+recordsPlantFilter.addEventListener("change", renderInspections);
+recordsStatusFilter.addEventListener("change", renderInspections);
 
 /* ==================================================
    INITIAL LOAD
 ================================================== */
 
 async function initializePage() {
-
     setTodayDate();
 
     await loadPlants();
-
     await loadTemplates();
-
     await loadInspections();
-
 }
 
-
 initializePage();
-
-
 </script>
-
-</body>
-
-</html>
+{% endblock %}
