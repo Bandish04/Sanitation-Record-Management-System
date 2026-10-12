@@ -1,2022 +1,1025 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}Search Records | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}Search Records{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block extra_css %}
+<style>
+.search-records-page{width:100%;max-width:100%;min-width:0;color:var(--text-primary,#101828)}
+.search-records-page,.search-records-page *{box-sizing:border-box}
+.search-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.search-header h1{margin:0 0 6px;font-size:26px;font-weight:700;color:var(--text-primary,#101828)}
+.search-header p{margin:0;color:var(--text-secondary,#667085);font-size:14px}
+.search-card{width:100%;min-width:0;padding:24px;margin-bottom:24px;border:1px solid var(--border-color,#eaecf0);border-radius:12px;background:var(--bg-primary,#fff);box-shadow:0 1px 3px rgba(16,24,40,.05)}
+.search-card-title{margin:0 0 20px;font-size:17px;font-weight:700;color:var(--text-primary,#101828)}
+.search-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;align-items:end}
+.search-field{min-width:0}
+.search-field label{display:block;margin-bottom:7px;color:var(--text-primary,#344054);font-size:13px;font-weight:600}
+.search-field input,.search-field select{display:block;width:100%;min-width:0;height:43px;padding:9px 12px;border:1px solid var(--border-color,#d0d5dd);border-radius:8px;background:var(--bg-primary,#fff);color:var(--text-primary,#344054);font:inherit;font-size:14px;outline:none}
+.search-field input:focus,.search-field select:focus{border-color:#465fff;box-shadow:0 0 0 3px rgba(70,95,255,.12)}
+.filter-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.search-records-page .action-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:9px 16px;border:1px solid transparent;border-radius:8px;font-size:13px;font-weight:600;line-height:1.3;text-decoration:none;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.search-records-page .action-button:disabled{cursor:not-allowed;opacity:.6}
+.search-records-page .primary-button{background:#465fff;color:#fff}
+.search-records-page .primary-button:hover{background:#3641f5}
+.search-records-page .secondary-button{border-color:var(--border-color,#d0d5dd);background:var(--bg-primary,#fff);color:var(--text-primary,#344054)}
+.search-records-page .secondary-button:hover{background:var(--bg-secondary,#f9fafb)}
+.results-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.results-heading h2{margin:0;font-size:17px;font-weight:700;color:var(--text-primary,#101828)}
+.results-count{display:inline-flex;align-items:center;justify-content:center;min-width:30px;min-height:26px;padding:4px 9px;border-radius:20px;background:#eef2ff;color:#3538cd;font-size:12px;font-weight:700}
+.results-table-wrapper{width:100%;overflow-x:auto;border:1px solid var(--border-color,#eaecf0);border-radius:9px}
+.results-table{width:100%;min-width:760px;margin:0;border-collapse:collapse;text-align:left}
+.results-table thead{background:var(--bg-secondary,#f9fafb)}
+.results-table th{padding:14px 16px;border-bottom:1px solid var(--border-color,#eaecf0);color:var(--text-secondary,#667085);font-size:12px;font-weight:700;white-space:nowrap}
+.results-table td{padding:15px 16px;border-bottom:1px solid var(--border-color,#eaecf0);color:var(--text-primary,#344054);font-size:13px;vertical-align:middle}
+.results-table tbody tr:last-child td{border-bottom:none}
+.results-table tbody tr:hover{background:var(--bg-secondary,#f9fafb)}
+.record-type{display:inline-flex;align-items:center;padding:5px 9px;border-radius:6px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:600;white-space:nowrap}
+.status-badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:20px;background:#f2f4f7;color:#344054;font-size:11px;font-weight:700;white-space:nowrap}
+.status-badge.pass,.status-badge.completed,.status-badge.corrected{background:#ecfdf3;color:#027a48}
+.status-badge.fail,.status-badge.review_required{background:#fef3f2;color:#b42318}
+.status-badge.submitted,.status-badge.in_progress{background:#eff8ff;color:#175cd3}
+.status-badge.draft,.status-badge.open{background:#fffaeb;color:#b54708}
+.view-record-button{padding:7px 12px!important;min-height:32px!important;font-size:12px!important}
+.table-message{padding:35px 16px!important;text-align:center;color:var(--text-secondary,#667085)!important}
+.table-error{color:#b42318!important}
+.record-popup-overlay{display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;padding:24px;background:rgba(16,24,40,.58);overflow-y:auto;overscroll-behavior:contain}
+.record-popup-overlay.is-open{display:flex}
+.record-popup{position:relative;display:flex;flex-direction:column;width:100%;max-width:760px;max-height:calc(100vh - 48px);margin:auto;overflow:hidden;border:1px solid var(--border-color,#eaecf0);border-radius:14px;background:var(--bg-primary,#fff);box-shadow:0 24px 64px rgba(16,24,40,.28);animation:recordPopupAppear .18s ease-out}
+@keyframes recordPopupAppear{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+.record-popup-header{display:flex;flex-shrink:0;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--border-color,#eaecf0);background:var(--bg-primary,#fff)}
+.record-popup-heading{min-width:0}
+.record-popup-heading h2{margin:0;color:var(--text-primary,#101828);font-size:19px;font-weight:700}
+.record-popup-heading p{margin:5px 0 0;color:var(--text-secondary,#667085);font-size:13px}
+.record-popup-x{display:inline-flex;flex-shrink:0;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:1px solid var(--border-color,#eaecf0);border-radius:8px;background:var(--bg-primary,#fff);color:var(--text-secondary,#667085);font-size:24px;line-height:1;cursor:pointer}
+.record-popup-x:hover{background:var(--bg-secondary,#f9fafb);color:var(--text-primary,#101828)}
+.record-popup-body{min-height:100px;padding:24px;overflow-y:auto;overscroll-behavior:contain;color:var(--text-primary,#344054)}
+.record-popup-footer{display:flex;flex-shrink:0;justify-content:flex-end;padding:15px 24px;border-top:1px solid var(--border-color,#eaecf0);background:var(--bg-primary,#fff)}
+.detail-section{margin-bottom:24px}
+.detail-section:last-child{margin-bottom:0}
+.detail-section h3{margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid var(--border-color,#eaecf0);color:var(--text-primary,#101828);font-size:14px;font-weight:700}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.detail-item{min-width:0;padding:12px 14px;border:1px solid var(--border-color,#eaecf0);border-radius:8px;background:var(--bg-secondary,#fcfcfd)}
+.detail-label{display:block;margin-bottom:6px;color:var(--text-secondary,#667085);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.035em}
+.detail-value{display:block;color:var(--text-primary,#344054);font-size:14px;font-weight:500;overflow-wrap:anywhere;white-space:pre-wrap}
+.detail-empty{padding:24px 10px;color:var(--text-secondary,#667085);font-size:14px;text-align:center}
+.detail-link{color:#465fff;text-decoration:underline;overflow-wrap:anywhere}
+body.record-popup-open{overflow:hidden!important}
+@media(max-width:1100px){.search-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.search-card{padding:17px}.search-header h1{font-size:22px}.search-filters{grid-template-columns:minmax(0,1fr)}.filter-actions{align-items:stretch}.filter-actions .action-button{flex:1}.record-popup-overlay{padding:10px;align-items:center}.record-popup{max-height:calc(100vh - 20px);border-radius:12px}.record-popup-header,.record-popup-body{padding:16px}.record-popup-footer{padding:13px 16px}.detail-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+{% endblock %}
 
-    <title>Search Records</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
-
-</head>
-
-
-<body class="bg-light">
-
-
-<div class="container py-5">
-
-
-    <!-- HEADER -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
+{% block content %}
+<div class="search-records-page">
+    <div class="search-header">
         <div>
-
-            <h1 class="mb-1">
-                Search Records
-            </h1>
-
-            <p class="text-muted mb-0">
-                Search and view sanitation records.
-            </p>
-
+            <h1>Search Records</h1>
+            <p>Find and view sanitation records across plants and record types.</p>
         </div>
-
-        <a
-            href="/dashboard/"
-            class="btn btn-outline-secondary"
-        >
-            Dashboard
-        </a>
-
     </div>
 
-
-    <!-- SEARCH CARD -->
-    <div class="card shadow-sm mb-4">
-
-        <div class="card-header">
-
-            <h5 class="mb-0">
-                Search Filters
-            </h5>
-
-        </div>
-
-
-        <div class="card-body">
-
-            <div class="row g-3">
-
-
-                <!-- PLANT -->
-                <div class="col-md-3">
-
-                    <label
-                        for="plant"
-                        class="form-label"
-                    >
-                        Plant
-                    </label>
-
-                    <select
-                        id="plant"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            All Plants
-                        </option>
-
+    <section class="search-card">
+        <h2 class="search-card-title">Filter Records</h2>
+        <form id="searchForm">
+            <div class="search-filters">
+                <div class="search-field">
+                    <label for="plantFilter">Plant</label>
+                    <select id="plantFilter" name="plant">
+                        <option value="">All Plants</option>
                     </select>
-
                 </div>
 
-
-                <!-- START DATE -->
-                <div class="col-md-2">
-
-                    <label
-                        for="startDate"
-                        class="form-label"
-                    >
-                        Start Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="startDate"
-                        class="form-control"
-                    >
-
+                <div class="search-field">
+                    <label for="startDateFilter">Start Date</label>
+                    <input type="date" id="startDateFilter" name="start_date">
                 </div>
 
-
-                <!-- END DATE -->
-                <div class="col-md-2">
-
-                    <label
-                        for="endDate"
-                        class="form-label"
-                    >
-                        End Date
-                    </label>
-
-                    <input
-                        type="date"
-                        id="endDate"
-                        class="form-control"
-                    >
-
+                <div class="search-field">
+                    <label for="endDateFilter">End Date</label>
+                    <input type="date" id="endDateFilter" name="end_date">
                 </div>
 
-
-                <!-- RECORD TYPE -->
-                <div class="col-md-2">
-
-                    <label
-                        for="recordType"
-                        class="form-label"
-                    >
-                        Record Type
-                    </label>
-
-                    <select
-                        id="recordType"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            All Types
-                        </option>
-
-                        <option value="sanitizer">
-                            Sanitizer / Maxquat
-                        </option>
-
-                        <option value="chloragel">
-                            Chloragel
-                        </option>
-
-                        <option value="inspection">
-                            Inspection
-                        </option>
-
-                        <option value="atp">
-                            ATP Report
-                        </option>
-
+                <div class="search-field">
+                    <label for="typeFilter">Record Type</label>
+                    <select id="typeFilter" name="record_type">
+                        <option value="">All Record Types</option>
+                        <option value="sanitizer">Sanitizer Titration</option>
+                        <option value="chloragel">Chloragel Titration</option>
+                        <option value="inspection">Sanitation Inspection</option>
+                        <option value="atp">ATP Report</option>
                     </select>
-
                 </div>
 
-
-                <!-- STATUS -->
-                <div class="col-md-2">
-
-                    <label
-                        for="status"
-                        class="form-label"
-                    >
-                        Status
-                    </label>
-
-                    <select
-                        id="status"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            All Statuses
-                        </option>
-
-                        <option value="DRAFT">
-                            DRAFT
-                        </option>
-
-                        <option value="SUBMITTED">
-                            SUBMITTED
-                        </option>
-
-                        <option value="CORRECTED">
-                            CORRECTED
-                        </option>
-
-                        <option value="REVIEW_REQUIRED">
-                            REVIEW_REQUIRED
-                        </option>
-
-                        <option value="PASS">
-                            PASS
-                        </option>
-
-                        <option value="FAIL">
-                            FAIL
-                        </option>
-
+                <div class="search-field">
+                    <label for="statusFilter">Status</label>
+                    <select id="statusFilter" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="DRAFT">Draft</option>
+                        <option value="SUBMITTED">Submitted</option>
+                        <option value="CORRECTED">Corrected</option>
+                        <option value="REVIEW_REQUIRED">Review Required</option>
+                        <option value="PASS">Pass</option>
+                        <option value="FAIL">Fail</option>
+                        <option value="OPEN">Open</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
                     </select>
-
                 </div>
-
-
-                <!-- SEARCH BUTTON -->
-                <div class="col-md-1 d-flex align-items-end">
-
-                    <button
-                        type="button"
-                        id="searchButton"
-                        class="btn btn-primary w-100"
-                        onclick="loadRecords()"
-                    >
-                        Search
-                    </button>
-
-                </div>
-
             </div>
 
-        </div>
-
-    </div>
-
-
-    <!-- MESSAGE -->
-    <div
-        id="message"
-        class="alert d-none"
-    ></div>
-
-
-    <!-- RESULTS CARD -->
-    <div class="card shadow-sm">
-
-        <div class="card-header d-flex justify-content-between align-items-center">
-
-            <h5 class="mb-0">
-                Search Results
-            </h5>
-
-            <span
-                id="resultCount"
-                class="badge bg-secondary"
-            >
-                0
-            </span>
-
-        </div>
-
-
-        <div class="card-body p-0">
-
-
-            <div class="table-responsive">
-
-
-                <table class="table table-hover table-bordered mb-0">
-
-
-                    <thead class="table-light">
-
-                        <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Type
-                            </th>
-
-                            <th>
-                                Plant
-                            </th>
-
-                            <th>
-                                Date
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Created By
-                            </th>
-
-                            <th>
-                                Created At
-                            </th>
-
-                            <th>
-                                Details
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="resultsBody">
-
-                        <tr>
-
-                            <td
-                                colspan="8"
-                                class="text-center text-muted py-4"
-                            >
-                                No records loaded.
-                            </td>
-
-                        </tr>
-
-                    </tbody>
-
-
-                </table>
-
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-
-</div>
-
-
-<!-- DETAILS MODAL -->
-<div
-    class="modal fade"
-    id="detailsModal"
-    tabindex="-1"
-    aria-labelledby="detailsModalLabel"
-    aria-hidden="true"
->
-
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
-
-        <div class="modal-content">
-
-
-            <div class="modal-header">
-
-                <h5
-                    class="modal-title"
-                    id="detailsModalLabel"
-                >
-                    Record Details
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-                <div id="detailsContent"></div>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                >
-                    Close
+            <div class="filter-actions">
+                <button type="submit" class="action-button primary-button" id="searchButton">
+                    Search Records
                 </button>
-
+                <button type="button" class="action-button secondary-button" id="resetButton">
+                    Reset Filters
+                </button>
             </div>
+        </form>
+    </section>
 
-
+    <section class="search-card">
+        <div class="results-heading">
+            <h2>Search Results</h2>
+            <span class="results-count" id="resultsCount">0</span>
         </div>
 
-    </div>
-
+        <div class="results-table-wrapper">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Plant</th>
+                        <th>Record Type</th>
+                        <th>Person</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    <tr>
+                        <td colspan="6" class="table-message">Loading records...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
 </div>
 
+<div class="record-popup-overlay" id="detailsModal" aria-hidden="true">
+    <section class="record-popup" role="dialog" aria-modal="true" aria-labelledby="detailsModalLabel">
+        <header class="record-popup-header">
+            <div class="record-popup-heading">
+                <h2 id="detailsModalLabel">Record Details</h2>
+                <p>Full information for the selected record.</p>
+            </div>
+            <button type="button" class="record-popup-x" id="detailsModalX"
+                    aria-label="Close record details" title="Close">&times;</button>
+        </header>
 
-<!-- BOOTSTRAP -->
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
+        <div class="record-popup-body" id="detailsContent">
+            <div class="detail-empty">Select a record to view its details.</div>
+        </div>
 
+        <footer class="record-popup-footer">
+            <button type="button" class="action-button secondary-button" id="detailsModalClose">
+                Close
+            </button>
+        </footer>
+    </section>
+</div>
+{% endblock %}
 
+{% block extra_js %}
 <script>
+(function () {
+    "use strict";
 
+    const API_PLANTS = "/api/plants/";
+    const API_RECORDS = "/api/records/";
 
-/* =========================================================
-   GLOBAL ELEMENTS
-========================================================= */
+    const plantFilter = document.getElementById("plantFilter");
+    const startDateFilter = document.getElementById("startDateFilter");
+    const endDateFilter = document.getElementById("endDateFilter");
+    const typeFilter = document.getElementById("typeFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const searchForm = document.getElementById("searchForm");
+    const searchButton = document.getElementById("searchButton");
+    const resetButton = document.getElementById("resetButton");
+    const recordsTableBody = document.getElementById("recordsTableBody");
+    const resultsCount = document.getElementById("resultsCount");
+    const detailsModal = document.getElementById("detailsModal");
+    const detailsContent = document.getElementById("detailsContent");
+    const detailsModalX = document.getElementById("detailsModalX");
+    const detailsModalClose = document.getElementById("detailsModalClose");
 
-const plantSelect =
-    document.getElementById("plant");
+    let currentRecords = [];
+    let previousFocusedElement = null;
 
-const startDate =
-    document.getElementById("startDate");
-
-const endDate =
-    document.getElementById("endDate");
-
-const recordType =
-    document.getElementById("recordType");
-
-const statusSelect =
-    document.getElementById("status");
-
-const resultsBody =
-    document.getElementById("resultsBody");
-
-const resultCount =
-    document.getElementById("resultCount");
-
-const message =
-    document.getElementById("message");
-
-const detailsContent =
-    document.getElementById("detailsContent");
-
-
-/* =========================================================
-   TOKEN
-========================================================= */
-
-function getToken() {
-
-    return (
-        localStorage.getItem("access_token") ||
-        localStorage.getItem("access")
-    );
-
-}       
-
-
-/* =========================================================
-   MESSAGE
-========================================================= */
-
-function showMessage(text, type = "danger") {
-
-    message.className =
-        `alert alert-${type}`;
-
-    message.textContent =
-        text;
-
-}
-
-
-function hideMessage() {
-
-    message.className =
-        "alert d-none";
-
-    message.textContent =
-        "";
-
-}
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHtml(value) {
-
-    if (
-        value === null ||
-        value === undefined
-    ) {
-
-        return "";
-
+    function getToken() {
+        return localStorage.getItem("access_token") ||
+               localStorage.getItem("access") || "";
     }
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
-}
-
-
-/* =========================================================
-   STATUS BADGE
-========================================================= */
-
-function getStatusBadge(status) {
-
-    if (
-        status === null ||
-        status === undefined ||
-        status === ""
-    ) {
-
-        return `
-            <span class="badge bg-secondary">
-                -
-            </span>
-        `;
-
-    }
-
-
-    let badgeClass =
-        "bg-secondary";
-
-
-    const normalized =
-        String(status).toUpperCase();
-
-
-    if (
-        normalized === "PASS" ||
-        normalized === "SUBMITTED" ||
-        normalized === "COMPLETED"
-    ) {
-
-        badgeClass =
-            "bg-success";
-
-    }
-
-    else if (
-        normalized === "FAIL" ||
-        normalized === "CANCELLED"
-    ) {
-
-        badgeClass =
-            "bg-danger";
-
-    }
-
-    else if (
-        normalized === "DRAFT" ||
-        normalized === "IN_PROGRESS"
-    ) {
-
-        badgeClass =
-            "bg-warning text-dark";
-
-    }
-
-    else if (
-        normalized === "REVIEW_REQUIRED" ||
-        normalized === "CORRECTED"
-    ) {
-
-        badgeClass =
-            "bg-info text-dark";
-
-    }
-
-
-    return `
-        <span class="badge ${badgeClass}">
-            ${escapeHtml(status)}
-        </span>
-    `;
-
-}
-
-
-/* =========================================================
-   ANSWER BADGE
-========================================================= */
-
-function getAnswerBadge(answer) {
-
-    if (
-        answer === null ||
-        answer === undefined ||
-        answer === ""
-    ) {
-
-        return `
-            <span class="badge bg-secondary">
-                -
-            </span>
-        `;
-
-    }
-
-
-    const normalized =
-        String(answer).toUpperCase();
-
-
-    if (normalized === "YES") {
-
-        return `
-            <span class="badge bg-success">
-                YES
-            </span>
-        `;
-
-    }
-
-
-    if (normalized === "NO") {
-
-        return `
-            <span class="badge bg-danger">
-                NO
-            </span>
-        `;
-
-    }
-
-
-    if (
-        normalized === "NA" ||
-        normalized === "N/A"
-    ) {
-
-        return `
-            <span class="badge bg-secondary">
-                N/A
-            </span>
-        `;
-
-    }
-
-
-    return escapeHtml(answer);
-
-}
-
-
-/* =========================================================
-   FORMAT DATE
-========================================================= */
-
-function formatDate(value) {
-
-    if (!value) {
-
-        return "-";
-
-    }
-
-
-    try {
-
-        const date =
-            new Date(value);
-
-
-        if (isNaN(date.getTime())) {
-
-            return escapeHtml(value);
-
-        }
-
-
-        return date.toLocaleString();
-
-    }
-
-    catch (error) {
-
-        return escapeHtml(value);
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD PLANTS
-========================================================= */
-
-async function loadPlants() {
-
-    try {
-
-        const token =
-            getToken();
-
-
-        const headers = {};
-
+    function getHeaders() {
+        const headers = {"Content-Type": "application/json"};
+        const token = getToken();
 
         if (token) {
-
-            headers["Authorization"] =
-                `Bearer ${token}`;
-
+            headers.Authorization = "Bearer " + token;
         }
 
+        return headers;
+    }
 
-        const response =
-            await fetch(
-                "/api/plants/",
-                {
-                    method: "GET",
-                    headers: headers
-                }
-            );
+    async function apiGet(url) {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: getHeaders(),
+            credentials: "same-origin"
+        });
 
+        if (response.status === 401) {
+            throw new Error("Your session has expired. Please log in again.");
+        }
 
         if (!response.ok) {
-
-            throw new Error(
-                "Unable to load plants."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        plantSelect.innerHTML = `
-
-            <option value="">
-                All Plants
-            </option>
-
-        `;
-
-
-        let plants = [];
-
-
-        if (Array.isArray(data)) {
-
-            plants = data;
-
-        }
-
-        else if (
-            data &&
-            Array.isArray(data.results)
-        ) {
-
-            plants = data.results;
-
-        }
-
-
-        plants.forEach(
-            function(plant) {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    plant.id;
-
-
-                option.textContent =
-                    `${plant.code || ""} - ${plant.name || ""}`;
-
-
-                plantSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Plant loading error:",
-            error
-        );
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   LOAD RECORDS
-========================================================= */
-
-async function loadRecords() {
-
-    hideMessage();
-
-
-    resultsBody.innerHTML = `
-
-        <tr>
-
-            <td
-                colspan="8"
-                class="text-center py-4"
-            >
-
-                <div
-                    class="spinner-border text-primary"
-                    role="status"
-                ></div>
-
-                <div class="mt-2">
-                    Loading records...
-                </div>
-
-            </td>
-
-        </tr>
-
-    `;
-
-
-    const params =
-        new URLSearchParams();
-
-
-    if (plantSelect.value) {
-
-        params.append(
-            "plant",
-            plantSelect.value
-        );
-
-    }
-
-
-    if (startDate.value) {
-
-        params.append(
-            "start_date",
-            startDate.value
-        );
-
-    }
-
-
-    if (endDate.value) {
-
-        params.append(
-            "end_date",
-            endDate.value
-        );
-
-    }
-
-
-    if (recordType.value) {
-
-        params.append(
-            "record_type",
-            recordType.value
-        );
-
-    }
-
-
-    if (statusSelect.value) {
-
-        params.append(
-            "status",
-            statusSelect.value
-        );
-
-    }
-
-
-    try {
-
-        const token =
-            getToken();
-
-
-        const headers = {};
-
-
-        if (token) {
-
-            headers["Authorization"] =
-                `Bearer ${token}`;
-
-        }
-
-
-        const url =
-            `/api/records/?${params.toString()}`;
-
-
-        const response =
-            await fetch(
-                url,
-                {
-                    method: "GET",
-                    headers: headers
-                }
-            );
-
-
-        if (!response.ok) {
-
-            let errorMessage =
-                "Unable to load records.";
-
+            let message = "Request failed (" + response.status + ").";
 
             try {
+                const data = await response.json();
+                message = data.detail || data.message || JSON.stringify(data);
+            } catch (_) {}
 
-                const errorData =
-                    await response.json();
+            throw new Error(message);
+        }
 
+        return response.json();
+    }
 
-                if (errorData.detail) {
+    function escapeHtml(value) {
+        if (value === null || value === undefined) return "";
 
-                    errorMessage =
-                        errorData.detail;
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
+    function hasRealValue(value) {
+        if (value === null || value === undefined) return false;
+
+        if (typeof value === "string") {
+            const normalized = value.trim().toLowerCase();
+
+            return normalized !== "" &&
+                normalized !== "—" &&
+                normalized !== "-" &&
+                normalized !== "null" &&
+                normalized !== "undefined";
+        }
+
+        return true;
+    }
+
+    /*
+     * Search the combined record and common nested record wrappers.
+     */
+    function sources(record) {
+        const list = [];
+
+        if (record && typeof record === "object") {
+            list.push(record);
+        }
+
+        ["data", "record", "details"].forEach(key => {
+            const nested = record && record[key];
+
+            if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+                list.push(nested);
+            }
+        });
+
+        return list;
+    }
+
+    function getValue(record, keys, fallback = null) {
+        for (const source of sources(record)) {
+            for (const key of keys) {
+                const value = source[key];
+
+                if (hasRealValue(value)) {
+                    return value;
+                }
+            }
+        }
+
+        return fallback;
+    }
+
+    function getList(data) {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.results)) return data.results;
+        if (data && Array.isArray(data.records)) return data.records;
+        return [];
+    }
+
+    function formatDate(value) {
+        if (!hasRealValue(value)) return null;
+
+        const text = String(value);
+
+        if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+            return text;
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return text;
+        }
+
+        return date.toLocaleString();
+    }
+
+    function normalizeType(record) {
+        const raw = String(getValue(record, [
+            "record_type",
+            "type",
+            "recordType",
+            "record_type_display"
+        ], "")).toLowerCase();
+
+        if (raw.includes("sanitizer") || raw.includes("maxquat")) return "sanitizer";
+        if (raw.includes("chloragel")) return "chloragel";
+        if (raw.includes("inspection") || raw.includes("sanitation")) return "inspection";
+        if (raw.includes("atp")) return "atp";
+
+        return raw || "record";
+    }
+
+    function typeLabel(record) {
+        const labels = {
+            sanitizer: "Sanitizer Titration",
+            chloragel: "Chloragel Titration",
+            inspection: "Sanitation Inspection",
+            atp: "ATP Report"
+        };
+
+        const type = normalizeType(record);
+
+        return labels[type] || type.replace(/_/g, " ");
+    }
+
+    function normalizeStatus(record) {
+        return String(getValue(record, [
+            "status",
+            "result_status",
+            "result",
+            "state"
+        ], "Unknown")).toUpperCase().replace(/[\s-]+/g, "_");
+    }
+
+    function statusLabel(status) {
+        return String(status || "Unknown")
+            .replace(/_/g, " ")
+            .toLowerCase()
+            .replace(/\b\w/g, letter => letter.toUpperCase());
+    }
+
+    function statusClass(status) {
+        const value = String(status || "").toLowerCase();
+
+        return [
+            "pass", "fail", "draft", "submitted", "corrected",
+            "review_required", "open", "in_progress",
+            "completed", "cancelled"
+        ].includes(value) ? value : "";
+    }
+
+    function userDisplayName(user) {
+        if (user === null || user === undefined || user === "") return "";
+
+        if (typeof user === "string") {
+            return /^\d+$/.test(user.trim()) ? "" : user.trim();
+        }
+
+        if (typeof user !== "object") return "";
+
+        const direct = user.full_name ||
+            user.display_name ||
+            user.name ||
+            user.username ||
+            user.user_name;
+
+        if (direct) return String(direct);
+
+        const combined = (
+            (user.first_name || "") + " " + (user.last_name || "")
+        ).trim();
+
+        return combined || user.email || "";
+    }
+
+    function plantLabel(record) {
+        const direct = getValue(record, [
+            "plant_name",
+            "plant_display",
+            "plant_label"
+        ], null);
+
+        if (direct) return direct;
+
+        const plant = getValue(record, ["plant"], null);
+
+        if (plant && typeof plant === "object") {
+            const code = plant.code || "";
+            const name = plant.name || "";
+
+            if (code && name) return code + " - " + name;
+
+            return name || code || null;
+        }
+
+        return null;
+    }
+
+    function personLabel(record) {
+        const nameKeys = [
+            "person_name",
+            "inspector_name",
+            "uploaded_by_name",
+            "created_by_name",
+            "submitted_by_name",
+            "created_by_username",
+            "uploaded_by_username",
+            "submitted_by_username",
+            "inspector_username",
+            "user_name",
+            "username",
+            "full_name"
+        ];
+
+        for (const source of sources(record)) {
+            for (const key of nameKeys) {
+                const name = userDisplayName(source[key]);
+
+                if (name) return name;
+            }
+        }
+
+        const userKeys = [
+            "uploaded_by",
+            "created_by",
+            "submitted_by",
+            "inspector",
+            "user",
+            "person"
+        ];
+
+        for (const source of sources(record)) {
+            for (const key of userKeys) {
+                const name = userDisplayName(source[key]);
+
+                if (name) return name;
+            }
+        }
+
+        return null;
+    }
+
+    function recordDate(record) {
+        return getValue(record, [
+            "date",
+            "inspection_date",
+            "report_date",
+            "created_at",
+            "created"
+        ], null);
+    }
+
+    async function loadPlants() {
+        try {
+            const plants = getList(await apiGet(API_PLANTS));
+
+            plantFilter.innerHTML = '<option value="">All Plants</option>';
+
+            plants.forEach(plant => {
+                const option = document.createElement("option");
+
+                option.value = plant.id;
+
+                const code = plant.code || "";
+                const name = plant.name || "";
+
+                option.textContent = code && name
+                    ? code + " - " + name
+                    : name || code || ("Plant " + plant.id);
+
+                plantFilter.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Unable to load plants:", error);
+        }
+    }
+
+    function buildRecordsUrl() {
+        const params = new URLSearchParams();
+
+        if (plantFilter.value) params.set("plant", plantFilter.value);
+        if (startDateFilter.value) params.set("start_date", startDateFilter.value);
+        if (endDateFilter.value) params.set("end_date", endDateFilter.value);
+        if (typeFilter.value) params.set("record_type", typeFilter.value);
+        if (statusFilter.value) params.set("status", statusFilter.value);
+
+        const query = params.toString();
+
+        return query ? API_RECORDS + "?" + query : API_RECORDS;
+    }
+
+    async function loadRecords() {
+        searchButton.disabled = true;
+
+        recordsTableBody.innerHTML =
+            '<tr><td colspan="6" class="table-message">Loading records...</td></tr>';
+
+        try {
+            const data = await apiGet(buildRecordsUrl());
+
+            currentRecords = getList(data);
+
+            renderRecords(currentRecords);
+        } catch (error) {
+            console.error("Unable to load records:", error);
+
+            currentRecords = [];
+            resultsCount.textContent = "0";
+
+            recordsTableBody.innerHTML =
+                '<tr><td colspan="6" class="table-message table-error">' +
+                escapeHtml(error.message) +
+                '</td></tr>';
+        } finally {
+            searchButton.disabled = false;
+        }
+    }
+
+    function renderRecords(records) {
+        resultsCount.textContent = String(records.length);
+
+        if (!records.length) {
+            recordsTableBody.innerHTML =
+                '<tr><td colspan="6" class="table-message">' +
+                'No records found. Try changing your filters.' +
+                '</td></tr>';
+
+            return;
+        }
+
+        recordsTableBody.innerHTML = records.map((record, index) => {
+            const date = formatDate(recordDate(record)) || "Not available";
+            const plant = plantLabel(record) || "Not available";
+            const type = typeLabel(record);
+            const person = personLabel(record) || "Not available";
+            const status = normalizeStatus(record);
+
+            return '<tr>' +
+                '<td>' + escapeHtml(date) + '</td>' +
+                '<td>' + escapeHtml(plant) + '</td>' +
+                '<td><span class="record-type">' + escapeHtml(type) + '</span></td>' +
+                '<td>' + escapeHtml(person) + '</td>' +
+                '<td><span class="status-badge ' + statusClass(status) + '">' +
+                escapeHtml(statusLabel(status)) +
+                '</span></td>' +
+                '<td><button type="button" class="action-button primary-button view-record-button" data-record-index="' +
+                index + '">View</button></td>' +
+                '</tr>';
+        }).join("");
+    }
+
+    /*
+     * Do not render empty values, null values, or em dashes.
+     */
+    function addDetailSection(title, entries) {
+        const valid = entries.filter(entry => hasRealValue(entry[1]));
+
+        if (!valid.length) return "";
+
+        return '<section class="detail-section">' +
+            '<h3>' + escapeHtml(title) + '</h3>' +
+            '<div class="detail-grid">' +
+            valid.map(entry => {
+                let value = entry[1];
+
+                if (typeof value === "object" && value !== null) {
+                    value = userDisplayName(value) ||
+                        value.name ||
+                        value.title ||
+                        JSON.stringify(value, null, 2);
                 }
 
+                return '<div class="detail-item">' +
+                    '<span class="detail-label">' +
+                    escapeHtml(entry[0]) +
+                    '</span>' +
+                    '<span class="detail-value">' +
+                    escapeHtml(value) +
+                    '</span>' +
+                    '</div>';
+            }).join("") +
+            '</div></section>';
+    }
+
+    function commonDetails(record) {
+        return [
+            ["Record ID", getValue(record, ["id", "record_id"])],
+            ["Date", formatDate(getValue(record, [
+                "date", "inspection_date", "report_date"
+            ]))],
+            ["Plant", plantLabel(record)],
+            ["Person", personLabel(record)],
+            ["Status", statusLabel(normalizeStatus(record))],
+            ["Created At", formatDate(getValue(record, [
+                "created_at", "created", "creation_date"
+            ]))],
+            ["Submitted At", formatDate(getValue(record, [
+                "submitted_at",
+                "submitted_on",
+                "submission_date",
+                "submitted_date",
+                "submitted_timestamp"
+            ]))],
+            ["Updated At", formatDate(getValue(record, [
+                "updated_at",
+                "modified_at",
+                "updated",
+                "last_modified",
+                "modified_on"
+            ]))]
+        ];
+    }
+
+    function sanitizerDetails(record) {
+        return addDetailSection("General Information", commonDetails(record)) +
+            addDetailSection("Sanitizer Titration", [
+                ["R71 Drops", getValue(record, ["r71_drops", "drops"])],
+                ["PPM", getValue(record, ["ppm", "result_ppm"])],
+                ["Percent V/V", getValue(record, ["percent_vv", "percentage_vv"])],
+                ["Sample Volume (mL)", getValue(record, [
+                    "sample_volume_ml",
+                    "sample_volume",
+                    "sample_volume_milliliters"
+                ])],
+                ["Result", getValue(record, [
+                    "result",
+                    "result_status",
+                    "pass_fail_status"
+                ])],
+                ["Notes", getValue(record, ["notes", "comments", "observation"])],
+                ["Submitted By", getValue(record, [
+                    "submitted_by_name",
+                    "submitted_by_username"
+                ], personLabel(record))]
+            ]);
+    }
+
+    function chloragelDetails(record) {
+        return addDetailSection("General Information", commonDetails(record)) +
+            addDetailSection("Chloragel Titration", [
+                ["R9 Drops", getValue(record, ["r9_drops", "drops"])],
+                ["Result Percent", getValue(record, [
+                    "result_percent",
+                    "result_percentage",
+                    "percentage"
+                ])],
+                ["Sample Volume (mL)", getValue(record, [
+                    "sample_volume_ml",
+                    "sample_volume",
+                    "sample_volume_milliliters"
+                ])],
+                ["Result", getValue(record, [
+                    "result",
+                    "result_status",
+                    "pass_fail_status"
+                ])],
+                ["Notes", getValue(record, ["notes", "comments", "observation"])],
+                ["Submitted By", getValue(record, [
+                    "submitted_by_name",
+                    "submitted_by_username"
+                ], personLabel(record))]
+            ]);
+    }
+
+    function inspectionDisplay(record) {
+        const inspection = getValue(record, ["inspection"], null);
+
+        if (!hasRealValue(inspection)) return null;
+
+        if (typeof inspection === "object") {
+            const id = inspection.id;
+            const name = inspection.name ||
+                inspection.title ||
+                inspection.inspection_name;
+
+            if (name && id !== undefined) {
+                return name + " (#" + id + ")";
             }
 
-            catch (error) {
-
-                // Ignore JSON parsing error.
-
-            }
-
-
-            throw new Error(
-                errorMessage
-            );
-
+            return name ||
+                (id !== undefined ? "Inspection #" + id : null);
         }
 
+        return inspection;
+    }
 
-        const data =
-            await response.json();
+    function atpDetails(record) {
+        const filename = getValue(record, [
+            "original_filename",
+            "file_name",
+            "filename",
+            "original_file_name"
+        ], null);
 
+        const file = getValue(record, [
+            "file",
+            "file_url",
+            "report_url",
+            "report_file",
+            "attachment"
+        ], null);
 
-        let records = [];
+        let fileUrl = "";
 
-
-        if (Array.isArray(data)) {
-
-            records =
-                data;
-
+        if (typeof file === "string") {
+            fileUrl = file;
+        } else if (file && typeof file === "object") {
+            fileUrl = file.url || file.href || file.file || "";
         }
 
-        else if (
-            data &&
-            Array.isArray(data.results)
-        ) {
-
-            records =
-                data.results;
-
-        }
-
-        else if (
-            data &&
-            Array.isArray(data.records)
-        ) {
-
-            records =
-                data.records;
-
-        }
-
-
-        renderRecords(
-            records
-        );
-
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Record loading error:",
-            error
-        );
-
-
-        resultsBody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="8"
-                    class="text-center text-danger py-4"
-                >
-                    ${escapeHtml(error.message)}
-                </td>
-
-            </tr>
-
-        `;
-
-
-        resultCount.textContent =
-            "0";
-
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   RENDER RECORDS
-========================================================= */
-
-function renderRecords(records) {
-
-    resultCount.textContent =
-        records.length;
-
-
-    if (
-        !records ||
-        records.length === 0
-    ) {
-
-        resultsBody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="8"
-                    class="text-center text-muted py-4"
-                >
-                    No records found.
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-
-    }
-
-
-    resultsBody.innerHTML =
-        "";
-
-
-    records.forEach(
-        function(record) {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-
-            const plantDisplay =
-                record.plant_name
-                    ? `${record.plant_code || ""} - ${record.plant_name}`
-                    : (
-                        record.plant_code ||
-                        "-"
-                    );
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${escapeHtml(
-                        record.id ?? "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        getRecordTypeLabel(
-                            record.record_type
-                        )
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        plantDisplay
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        record.date || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${getStatusBadge(
-                        record.status
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(
-                        record.created_by_username ||
-                        "-"
-                    )}
-                </td>
-
-                <td>
-                    ${formatDate(
-                        record.created_at
-                    )}
-                </td>
-
-                <td>
-
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary"
-                    >
-                        View
-                    </button>
-
-                </td>
-
-            `;
-
-
-            const viewButton =
-                row.querySelector(
-                    "button"
-                );
-
-
-            viewButton.addEventListener(
-                "click",
-                function() {
-
-                    showDetails(
-                        record
-                    );
-
-                }
-            );
-
-
-            resultsBody.appendChild(
-                row
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   RECORD TYPE LABEL
-========================================================= */
-
-function getRecordTypeLabel(type) {
-
-    const labels = {
-
-        sanitizer:
-            "Sanitizer / Maxquat",
-
-        chloragel:
-            "Chloragel",
-
-        inspection:
-            "Sanitation Inspection",
-
-        atp:
-            "ATP Report"
-
-    };
-
-
-    return labels[type] ||
-        type ||
-        "-";
-
-}
-
-
-/* =========================================================
-   SHOW RECORD DETAILS
-========================================================= */
-
-function showDetails(record) {
-
-    const modalElement =
-        document.getElementById(
-            "detailsModal"
-        );
-
-
-    const modal =
-        bootstrap.Modal.getOrCreateInstance(
-            modalElement
-        );
-
-
-    const data =
-        record.data || {};
-
-
-    let html = `
-
-        <!-- COMMON INFORMATION -->
-
-        <div class="row g-3 mb-4">
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Record ID
-                    </small>
-
-                    <div class="fw-bold fs-5">
-
-                        ${escapeHtml(
-                            record.id ?? "-"
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Record Type
-                    </small>
-
-                    <div class="fw-bold">
-
-                        ${escapeHtml(
-                            getRecordTypeLabel(
-                                record.record_type
-                            )
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Plant
-                    </small>
-
-                    <div class="fw-bold">
-
-                        ${escapeHtml(
-                            record.plant_code
-                                ? `${record.plant_code} - ${record.plant_name || ""}`
-                                : (
-                                    record.plant_name ||
-                                    "-"
-                                )
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Date
-                    </small>
-
-                    <div class="fw-bold">
-
-                        ${escapeHtml(
-                            record.date || "-"
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Status
-                    </small>
-
-                    <div class="mt-1">
-
-                        ${getStatusBadge(
-                            record.status
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-                <div class="border rounded p-3 h-100">
-
-                    <small class="text-muted">
-                        Created By
-                    </small>
-
-                    <div class="fw-bold">
-
-                        ${escapeHtml(
-                            record.created_by_username ||
-                            "-"
-                        )}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-        </div>
-
-    `;
-
-
-    /* =====================================================
-       SANITIZER / MAXQUAT
-    ===================================================== */
-
-    if (
-        record.record_type === "sanitizer"
-    ) {
-
-        html += `
-
-            <h5 class="mb-3">
-                Sanitizer / Maxquat Titration
-            </h5>
-
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered">
-
-                    <tbody>
-
-
-                        <tr>
-
-                            <th
-                                style="width:40%;"
-                            >
-                                R-71 Drops
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.r71_drops ?? "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Sample Volume
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.sample_volume_ml ?? "-"
-                                )}
-
-                                mL
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                PPM
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.ppm ?? "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Percent V/V
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.percent_vv ?? "-"
-                                )}
-
-                                %
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Result
-                            </th>
-
-                            <td>
-
-                                ${getStatusBadge(
-                                    data.result_status ||
-                                    record.status
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =====================================================
-       CHLORAGEL
-    ===================================================== */
-
-    else if (
-        record.record_type === "chloragel"
-    ) {
-
-        html += `
-
-            <h5 class="mb-3">
-                Chloragel Titration
-            </h5>
-
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered">
-
-                    <tbody>
-
-
-                        <tr>
-
-                            <th
-                                style="width:40%;"
-                            >
-                                R-9 Drops
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.r9_drops ?? "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Sample Volume
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.sample_volume_ml ?? "-"
-                                )}
-
-                                mL
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Result %
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.result_percent ?? "-"
-                                )}
-
-                                %
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Result
-                            </th>
-
-                            <td>
-
-                                ${getStatusBadge(
-                                    data.result_status ||
-                                    record.status
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
-    }
-
-
-    /* =====================================================
-       SANITATION INSPECTION
-    ===================================================== */
-
-    else if (
-        record.record_type === "inspection"
-    ) {
-
-        const answers =
-            Array.isArray(
-                data.answers
-            )
-                ? data.answers
-                : [];
-
-
-        html += `
-
-            <h5 class="mb-3">
-                Sanitation Inspection
-            </h5>
-
-
-            <div class="row g-3 mb-4">
-
-
-                <div class="col-md-6">
-
-                    <div class="border rounded p-3 h-100">
-
-                        <small class="text-muted">
-                            Inspection Template
-                        </small>
-
-                        <div class="fw-bold">
-
-                            ${escapeHtml(
-                                data.template_name ||
-                                data.template ||
-                                "Daily Sanitation Inspection"
-                            )}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <div class="border rounded p-3 h-100">
-
-                        <small class="text-muted">
-                            Inspection Date
-                        </small>
-
-                        <div class="fw-bold">
-
-                            ${escapeHtml(
-                                data.inspection_date ||
-                                record.date ||
-                                "-"
-                            )}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <div class="border rounded p-3 h-100">
-
-                        <small class="text-muted">
-                            Inspector
-                        </small>
-
-                        <div class="fw-bold">
-
-                            ${escapeHtml(
-                                data.inspector_name ||
-                                data.inspector ||
-                                record.created_by_username ||
-                                "-"
-                            )}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-6">
-
-                    <div class="border rounded p-3 h-100">
-
-                        <small class="text-muted">
-                            Signed At
-                        </small>
-
-                        <div class="fw-bold">
-
-                            ${formatDate(
-                                data.signed_at
-                            )}
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-            </div>
-
-
-            <h5 class="mb-3">
-                General Notes
-            </h5>
-
-
-            <div class="border rounded p-3 bg-light mb-4">
-
-                ${escapeHtml(
-                    data.general_notes ||
-                    "No general notes."
-                )}
-
-            </div>
-
-
-            <h5 class="mb-3">
-                Inspection Answers
-            </h5>
-
-        `;
-
+        const extractedFilename = fileUrl
+            ? String(fileUrl).split("/").pop().split("?")[0]
+            : null;
+
+        const fileName = filename || extractedFilename;
+
+        const reportName = getValue(record, [
+            "report_name",
+            "title",
+            "name"
+        ], fileName);
+
+        const uploadedAt = getValue(record, [
+            "uploaded_at",
+            "upload_date",
+            "created_at",
+            "created",
+            "timestamp"
+        ], null);
+
+        const entries = [
+            ["Report Name", reportName],
+            ["File Name", fileName],
+            ["ATP Value", getValue(record, [
+                "atp_value",
+                "rlu",
+                "result_value",
+                "measurement",
+                "atp_reading"
+            ])],
+            ["Result", getValue(record, [
+                "result",
+                "result_status",
+                "test_result"
+            ])],
+            ["Inspection", inspectionDisplay(record)],
+            ["Uploaded By", personLabel(record)],
+            ["Uploaded At", formatDate(uploadedAt)],
+            ["Notes", getValue(record, [
+                "notes",
+                "comments",
+                "description",
+                "remarks"
+            ])]
+        ];
 
         if (
-            answers.length === 0
+            hasRealValue(fileUrl) &&
+            (fileUrl.startsWith("/") || /^https?:\/\//i.test(fileUrl))
         ) {
-
-            html += `
-
-                <div class="alert alert-info">
-
-                    No inspection answers found.
-
-                </div>
-
-            `;
-
+            entries.push([
+                "File",
+                '<a class="detail-link" href="' +
+                    escapeHtml(fileUrl) +
+                    '" target="_blank" rel="noopener noreferrer">' +
+                    'Open / download report</a>',
+                true
+            ]);
         }
 
-        else {
+        const validEntries = entries.filter(entry => hasRealValue(entry[1]));
 
-            html += `
+        const reportSection = validEntries.length
+            ? '<section class="detail-section">' +
+                '<h3>ATP Report</h3>' +
+                '<div class="detail-grid">' +
+                validEntries.map(entry => {
+                    const value = entry[2]
+                        ? entry[1]
+                        : escapeHtml(entry[1]);
 
-                <div class="table-responsive">
+                    return '<div class="detail-item">' +
+                        '<span class="detail-label">' +
+                        escapeHtml(entry[0]) +
+                        '</span>' +
+                        '<span class="detail-value">' +
+                        value +
+                        '</span>' +
+                        '</div>';
+                }).join("") +
+                '</div></section>'
+            : "";
 
-                    <table class="table table-bordered table-hover">
+        return addDetailSection(
+            "General Information",
+            commonDetails(record)
+        ) + reportSection;
+    }
 
-                        <thead class="table-light">
+    function inspectionDetails(record) {
+        const answers = getValue(record, [
+            "answers",
+            "responses",
+            "question_answers",
+            "inspection_answers"
+        ], []);
 
-                            <tr>
+        const entries = Array.isArray(answers)
+            ? answers.map((item, index) => {
+                if (item && typeof item === "object") {
+                    const question = getValue(item, [
+                        "question_text",
+                        "question",
+                        "text",
+                        "label",
+                        "name"
+                    ], "Question " + (index + 1));
 
-                                <th>
-                                    #
-                                </th>
+                    const answer = getValue(item, [
+                        "answer",
+                        "response",
+                        "value",
+                        "result"
+                    ]);
 
-                                <th>
-                                    Question
-                                </th>
+                    const note = getValue(item, [
+                        "notes",
+                        "observation",
+                        "comment"
+                    ]);
 
-                                <th>
-                                    Answer
-                                </th>
+                    let displayAnswer = answer;
 
-                                <th>
-                                    Observation
-                                </th>
+                    if (hasRealValue(note)) {
+                        displayAnswer = hasRealValue(answer)
+                            ? String(answer) + " — " + String(note)
+                            : String(note);
+                    }
 
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody>
-
-            `;
-
-
-            answers.forEach(
-                function(answer, index) {
-
-                    html += `
-
-                        <tr>
-
-                            <td>
-                                ${index + 1}
-                            </td>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    answer.question ||
-                                    "-"
-                                )}
-
-                            </td>
-
-                            <td>
-
-                                ${getAnswerBadge(
-                                    answer.answer
-                                )}
-
-                            </td>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    answer.observation ||
-                                    "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
+                    return [question, displayAnswer];
                 }
-            );
 
+                return ["Question " + (index + 1), item];
+            })
+            : [];
 
-            html += `
+        return addDetailSection("General Information", commonDetails(record)) +
+            addDetailSection("Inspection Information", [
+                ["Inspector", personLabel(record)],
+                ["Inspection Date", formatDate(getValue(record, [
+                    "inspection_date", "date"
+                ]))],
+                ["Template", getValue(record, [
+                    "template_name", "template_title", "template"
+                ])],
+                ["Shift", getValue(record, ["shift"])],
+                ["Area", getValue(record, ["area"])],
+                ["Notes", getValue(record, [
+                    "notes", "comments", "observations", "general_notes"
+                ])],
+                ["Corrective Action", getValue(record, [
+                    "corrective_action", "corrective_action_notes"
+                ])],
+                ["Signed At", formatDate(getValue(record, [
+                    "signed_at", "submitted_at"
+                ]))]
+            ]) +
+            addDetailSection("Inspection Answers", entries);
+    }
 
-                        </tbody>
+    function showDetails(record) {
+        const type = normalizeType(record);
 
-                    </table>
+        document.getElementById("detailsModalLabel").textContent =
+            typeLabel(record) + " Details";
 
-                </div>
+        let content = "";
 
-            `;
-
+        if (type === "sanitizer") {
+            content = sanitizerDetails(record);
+        } else if (type === "chloragel") {
+            content = chloragelDetails(record);
+        } else if (type === "inspection") {
+            content = inspectionDetails(record);
+        } else if (type === "atp") {
+            content = atpDetails(record);
+        } else {
+            content = addDetailSection("Record Information", commonDetails(record));
         }
 
+        detailsContent.innerHTML = content ||
+            '<div class="detail-empty">No additional details are available for this record.</div>';
     }
 
+    function openDetailsPopup(record, button) {
+        if (!record) return;
 
-    /* =====================================================
-       ATP REPORT
-    ===================================================== */
+        previousFocusedElement = button || document.activeElement;
 
-    else if (
-        record.record_type === "atp"
-    ) {
+        showDetails(record);
 
-        html += `
+        detailsModal.classList.add("is-open");
+        detailsModal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("record-popup-open");
 
-            <h5 class="mb-3">
-                ATP Report
-            </h5>
-
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered">
-
-                    <tbody>
-
-
-                        <tr>
-
-                            <th
-                                style="width:40%;"
-                            >
-                                Original Filename
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.original_filename ||
-                                    "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Inspection
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.inspection ||
-                                    "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                        <tr>
-
-                            <th>
-                                Notes
-                            </th>
-
-                            <td>
-
-                                ${escapeHtml(
-                                    data.notes ||
-                                    "-"
-                                )}
-
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        `;
-
+        detailsModalX.focus();
     }
 
+    function closeDetailsPopup() {
+        detailsModal.classList.remove("is-open");
+        detailsModal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("record-popup-open");
 
-    /* =====================================================
-       UNKNOWN RECORD TYPE
-    ===================================================== */
-
-    else {
-
-        html += `
-
-            <div class="alert alert-warning">
-
-                No formatted details are available
-                for this record type.
-
-            </div>
-
-        `;
-
+        if (
+            previousFocusedElement &&
+            typeof previousFocusedElement.focus === "function" &&
+            document.contains(previousFocusedElement)
+        ) {
+            previousFocusedElement.focus();
+        }
     }
 
+    recordsTableBody.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-record-index]");
 
-    detailsContent.innerHTML =
-        html;
+        if (!button) return;
 
+        event.preventDefault();
 
-    modal.show();
+        const index = Number(button.dataset.recordIndex);
 
-}
+        if (Number.isInteger(index) && index >= 0) {
+            openDetailsPopup(currentRecords[index], button);
+        }
+    });
 
+    detailsModalX.addEventListener("click", closeDetailsPopup);
+    detailsModalClose.addEventListener("click", closeDetailsPopup);
 
-/* =========================================================
-   INITIALIZE PAGE
-========================================================= */
+    detailsModal.addEventListener("click", event => {
+        if (event.target === detailsModal) {
+            closeDetailsPopup();
+        }
+    });
 
-async function initialize() {
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && detailsModal.classList.contains("is-open")) {
+            closeDetailsPopup();
+        }
+    });
 
-    await loadPlants();
+    searchForm.addEventListener("submit", event => {
+        event.preventDefault();
+        loadRecords();
+    });
 
-    await loadRecords();
+    resetButton.addEventListener("click", function () {
+        searchForm.reset();
+        loadRecords();
+    });
 
-}
+    window.loadRecords = loadRecords;
 
+    async function initializePage() {
+        await loadPlants();
+        await loadRecords();
+    }
 
-initialize();
-
-
+    initializePage();
+})();
 </script>
-
-
-</body>
-
-</html>
+{% endblock %}
