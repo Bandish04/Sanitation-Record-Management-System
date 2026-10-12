@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -51,25 +52,17 @@ class CorrectiveActionOptionsAPIView(generics.GenericAPIView):
                 display_name = (
                     f"{user.first_name} {user.last_name}"
                 ).strip()
-                display_name = (
-                    f"{display_name} ({user.username})"
-                )
+                display_name = f"{display_name} ({user.username})"
             else:
                 display_name = user.username
 
-            user_list.append(
-                {
-                    "id": user.id,
-                    "username": user.username,
-                    "name": display_name,
-                }
-            )
+            user_list.append({
+                "id": user.id,
+                "username": user.username,
+                "name": display_name,
+            })
 
-        return Response(
-            {
-                "users": user_list,
-            }
-        )
+        return Response({"users": user_list})
 
 
 class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
@@ -78,6 +71,8 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = CorrectiveAction.objects.select_related(
             "inspection",
+            "inspection__plant",
+            "inspection__template",
             "question",
             "assigned_to",
             "created_by",
@@ -86,9 +81,7 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
         status_filter = self.request.query_params.get("status")
 
         if status_filter:
-            queryset = queryset.filter(
-                status=status_filter
-            )
+            queryset = queryset.filter(status=status_filter)
 
         return queryset
 
@@ -110,13 +103,10 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
             new_values={
                 "inspection": corrective_action.inspection_id,
                 "question": corrective_action.question_id,
+                "is_custom_question": corrective_action.is_custom_question,
                 "observation": corrective_action.observation,
                 "action_required": corrective_action.action_required,
-                "assigned_to": (
-                    corrective_action.assigned_to_id
-                    if corrective_action.assigned_to
-                    else None
-                ),
+                "assigned_to": corrective_action.assigned_to_id,
                 "due_date": (
                     str(corrective_action.due_date)
                     if corrective_action.due_date
@@ -129,14 +119,14 @@ class CorrectiveActionListCreateAPIView(generics.ListCreateAPIView):
         )
 
 
-class CorrectiveActionDetailAPIView(
-    generics.RetrieveUpdateAPIView
-):
+class CorrectiveActionDetailAPIView(generics.RetrieveUpdateAPIView):
     serializer_class = CorrectiveActionSerializer
 
     def get_queryset(self):
         return CorrectiveAction.objects.select_related(
             "inspection",
+            "inspection__plant",
+            "inspection__template",
             "question",
             "assigned_to",
             "created_by",
@@ -164,13 +154,10 @@ class CorrectiveActionDetailAPIView(
         old_values = {
             "inspection": corrective_action.inspection_id,
             "question": corrective_action.question_id,
+            "is_custom_question": corrective_action.is_custom_question,
             "observation": corrective_action.observation,
             "action_required": corrective_action.action_required,
-            "assigned_to": (
-                corrective_action.assigned_to_id
-                if corrective_action.assigned_to
-                else None
-            ),
+            "assigned_to": corrective_action.assigned_to_id,
             "due_date": (
                 str(corrective_action.due_date)
                 if corrective_action.due_date
@@ -180,38 +167,26 @@ class CorrectiveActionDetailAPIView(
             "status": corrective_action.status,
         }
 
-        response = super().update(
-            request,
-            *args,
-            **kwargs,
-        )
+        response = super().update(request, *args, **kwargs)
 
         corrective_action.refresh_from_db()
 
         if (
-            corrective_action.status
-            == CorrectiveAction.Status.COMPLETED
+            corrective_action.status == CorrectiveAction.Status.COMPLETED
+            and corrective_action.completed_at is None
         ):
-            if corrective_action.completed_at is None:
-                corrective_action.completed_at = timezone.now()
-
-                corrective_action.save(
-                    update_fields=[
-                        "completed_at",
-                        "updated_at",
-                    ]
-                )
+            corrective_action.completed_at = timezone.now()
+            corrective_action.save(
+                update_fields=["completed_at", "updated_at"]
+            )
 
         new_values = {
             "inspection": corrective_action.inspection_id,
             "question": corrective_action.question_id,
+            "is_custom_question": corrective_action.is_custom_question,
             "observation": corrective_action.observation,
             "action_required": corrective_action.action_required,
-            "assigned_to": (
-                corrective_action.assigned_to_id
-                if corrective_action.assigned_to
-                else None
-            ),
+            "assigned_to": corrective_action.assigned_to_id,
             "due_date": (
                 str(corrective_action.due_date)
                 if corrective_action.due_date

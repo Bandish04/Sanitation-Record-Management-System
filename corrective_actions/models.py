@@ -1,3 +1,4 @@
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -21,12 +22,16 @@ class CorrectiveAction(models.Model):
         related_name="corrective_actions",
     )
 
+    # Existing inspection question, or NULL for a custom question.
     question = models.ForeignKey(
         InspectionQuestion,
         on_delete=models.PROTECT,
         related_name="corrective_actions",
+        null=True,
+        blank=True,
     )
 
+    # For N/A, this contains the inspector's custom question or doubt.
     observation = models.TextField()
 
     action_required = models.TextField()
@@ -73,8 +78,18 @@ class CorrectiveAction(models.Model):
         blank=True,
     )
 
+    @property
+    def is_custom_question(self):
+        return self.question_id is None
+
     def __str__(self):
+        question_label = (
+            self.question.question_text
+            if self.question_id
+            else "Custom Question"
+        )
+
         return (
             f"Corrective Action #{self.id} - "
-            f"{self.status}"
+            f"{question_label} - {self.status}"
         )
