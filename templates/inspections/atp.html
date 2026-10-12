@@ -1,1371 +1,1222 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}ATP Reports | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}ATP Reports{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block extra_css %}
+<style>
+    .d-none { display: none !important; }
 
-    <title>ATP Reports</title>
+    .atp-page {
+        width: 100%;
+        color: var(--text-primary, #1d2939);
+    }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-bottom: 26px;
+    }
 
-</head>
+    .page-title {
+        margin: 0 0 7px;
+        font-size: 27px;
+        font-weight: 700;
+        letter-spacing: -0.6px;
+        color: var(--text-primary, #101828);
+    }
 
+    .page-description {
+        margin: 0;
+        color: var(--text-secondary, #667085);
+        font-size: 14px;
+        line-height: 1.6;
+    }
 
-<body>
+    .header-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
 
-<div class="container py-5">
+    .atp-card {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 12px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        box-shadow: 0 2px 6px rgba(16, 24, 40, .035);
+    }
 
+    .atp-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 19px 22px;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+    }
 
-    <!-- ================================================== -->
-    <!-- HEADER -->
-    <!-- ================================================== -->
+    .atp-card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 650;
+        color: var(--text-primary, #101828);
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .atp-card-description {
+        margin: 5px 0 0;
+        font-size: 13px;
+        color: var(--text-secondary, #667085);
+    }
 
+    .atp-card-body { padding: 22px; }
+
+    .atp-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .atp-field { min-width: 0; margin-bottom: 19px; }
+    .atp-field.full-width { grid-column: 1 / -1; }
+
+    .atp-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary, #344054);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .atp-label .optional {
+        color: var(--text-secondary, #667085);
+        font-weight: 400;
+    }
+
+    .atp-required { color: #d92d20; margin-left: 3px; }
+
+    .atp-control {
+        display: block;
+        width: 100%;
+        min-height: 43px;
+        padding: 10px 12px;
+        border: 1px solid var(--input-border, #d0d5dd);
+        border-radius: 8px;
+        background: var(--input-bg, #fff);
+        color: var(--text-primary, #344054);
+        font-family: inherit;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: border-color .15s ease, box-shadow .15s ease;
+    }
+
+    .atp-control:focus {
+        outline: none;
+        border-color: #84adff;
+        box-shadow: 0 0 0 3px rgba(21, 112, 239, .12);
+    }
+
+    .atp-control[type="file"] { padding: 8px 10px; }
+
+    textarea.atp-control { min-height: 100px; resize: vertical; }
+
+    .atp-help {
+        display: block;
+        margin-top: 7px;
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .atp-form-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 4px;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 39px;
+        padding: 9px 15px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background .15s ease, border-color .15s ease;
+    }
+
+    .action-button:disabled { opacity: .65; cursor: not-allowed; }
+
+    .button-primary {
+        color: #fff;
+        background: #1570ef;
+        border-color: #1570ef;
+    }
+
+    .button-primary:hover:not(:disabled) {
+        background: #175cd3;
+        border-color: #175cd3;
+    }
+
+    .button-secondary {
+        color: var(--text-primary, #344054);
+        background: var(--card-bg, #fff);
+        border-color: var(--border-color, #d0d5dd);
+    }
+
+    .button-secondary:hover:not(:disabled) {
+        background: var(--hover-bg, #f9fafb);
+    }
+
+    .atp-message {
+        padding: 13px 16px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .atp-message.alert-success {
+        color: #027a48;
+        background: #ecfdf3;
+        border-color: #abefc6;
+    }
+
+    .atp-message.alert-danger {
+        color: #b42318;
+        background: #fef3f2;
+        border-color: #fecdca;
+    }
+
+    .atp-message.alert-info {
+        color: #175cd3;
+        background: #eff8ff;
+        border-color: #b2ddff;
+    }
+
+    .atp-table-wrapper { width: 100%; overflow-x: auto; }
+
+    .atp-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+        text-align: left;
+    }
+
+    .atp-table thead th {
+        padding: 13px 16px;
+        background: var(--table-header-bg, #f9fafb);
+        color: var(--text-secondary, #475467);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .45px;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .atp-table tbody td {
+        padding: 15px 16px;
+        color: var(--text-primary, #344054);
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+        overflow-wrap: anywhere;
+    }
+
+    .atp-table tbody tr:last-child td { border-bottom: none; }
+
+    .atp-table tbody tr:hover { background: var(--hover-bg, #f9fafb); }
+
+    .atp-table a {
+        color: #1570ef;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .atp-table a:hover { text-decoration: underline; }
+
+    .atp-file-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .atp-file-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 34px;
+        flex-shrink: 0;
+        border: 1px solid #d1e0ff;
+        border-radius: 6px;
+        background: #eff4ff;
+        color: #3538cd;
+        font-size: 10px;
+        font-weight: 800;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 650;
+        white-space: nowrap;
+        background: #ecfdf3;
+        color: #027a48;
+    }
+
+    .records-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 26px;
+        height: 25px;
+        padding: 0 8px;
+        border-radius: 7px;
+        background: var(--hover-bg, #f2f4f7);
+        color: var(--text-secondary, #475467);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .atp-loading, .atp-empty {
+        padding: 38px 20px;
+        text-align: center;
+        color: var(--text-secondary, #667085);
+        font-size: 13px;
+    }
+
+    .atp-loading-indicator {
+        width: 24px;
+        height: 24px;
+        margin: 0 auto 12px;
+        border: 3px solid #e4e7ec;
+        border-top-color: #1570ef;
+        border-radius: 50%;
+        animation: atp-spin .8s linear infinite;
+    }
+
+    @keyframes atp-spin { to { transform: rotate(360deg); } }
+
+    .atp-empty-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 13px;
+        border-radius: 12px;
+        background: var(--hover-bg, #f2f4f7);
+        color: var(--text-secondary, #667085);
+        font-size: 22px;
+    }
+
+    .atp-empty-title {
+        margin-bottom: 5px;
+        color: var(--text-primary, #344054);
+        font-size: 14px;
+        font-weight: 650;
+    }
+
+    .atp-empty-description {
+        margin: 0;
+        font-size: 12px;
+    }
+
+    .atp-table-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 20px;
+        border-top: 1px solid var(--border-color, #eaecf0);
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+    }
+
+    @media (max-width: 700px) {
+        .page-title { font-size: 23px; }
+
+        .atp-card-header, .atp-card-body { padding: 16px; }
+
+        .atp-form-grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 0;
+        }
+
+        .atp-field.full-width { grid-column: auto; }
+
+        .header-actions { width: 100%; }
+        .header-actions .action-button { flex: 1; }
+
+        .atp-table-footer {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="atp-page">
+    <div class="page-header">
         <div>
-
-            <h2>
-                ATP Reports
-            </h2>
-
-            <p class="text-muted mb-0">
-                View historical UltraSnap ATP reports.
+            <h1 class="page-title">ATP Reports</h1>
+            <p class="page-description">
+                View historical UltraSnap ATP reports and manage uploaded files.
             </p>
-
         </div>
 
-
-        <a
-            href="/dashboard/"
-            class="btn btn-secondary"
-        >
-            Dashboard
-        </a>
-
+        <div class="header-actions">
+            <button
+                type="button"
+                id="toggleUploadButton"
+                class="action-button button-primary d-none"
+                aria-expanded="false"
+                aria-controls="uploadSection"
+            >
+                <span id="toggleUploadIcon" aria-hidden="true">+</span>
+                <span id="toggleUploadText">Upload ATP Report</span>
+            </button>
+        </div>
     </div>
 
+    <div id="message" class="atp-message d-none" role="alert" aria-live="polite"></div>
 
-    <!-- ================================================== -->
-    <!-- MESSAGE -->
-    <!-- ================================================== -->
-
-    <div
-        id="message"
-        class="alert d-none"
-        role="alert"
-    ></div>
-
-
-    <!-- ================================================== -->
-    <!-- ADMIN UPLOAD SECTION -->
-    <!-- ================================================== -->
-
-    <div
-        id="uploadSection"
-        class="card shadow mb-4 d-none"
-    >
-
-        <div class="card-header">
-
-            <h5 class="mb-0">
-                Upload ATP Report
-            </h5>
-
+    <div id="uploadSection" class="atp-card d-none">
+        <div class="atp-card-header">
+            <div>
+                <h2 class="atp-card-title">Upload ATP Report</h2>
+                <p class="atp-card-description">
+                    Attach an ATP report to a plant and optionally associate it with an inspection.
+                </p>
+            </div>
         </div>
 
-
-        <div class="card-body">
-
+        <div class="atp-card-body">
             <form id="uploadForm">
-
-                <!-- ====================================== -->
-                <!-- PLANT -->
-                <!-- ====================================== -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="plant"
-                        class="form-label"
-                    >
-                        Plant
-                    </label>
-
-
-                    <select
-                        id="plant"
-                        class="form-select"
-                        required
-                    >
-
-                        <option value="">
-                            Select Plant
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- ====================================== -->
-                <!-- INSPECTION -->
-                <!-- ====================================== -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="inspection"
-                        class="form-label"
-                    >
-                        Inspection
-                        <span class="text-muted">
-                            (Optional)
-                        </span>
-                    </label>
-
-
-                    <select
-                        id="inspection"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            No inspection
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- ====================================== -->
-                <!-- FILE -->
-                <!-- ====================================== -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="file"
-                        class="form-label"
-                    >
-                        ATP Report File
-                    </label>
-
-
-                    <input
-                        type="file"
-                        id="file"
-                        class="form-control"
-                        accept=".pdf,.jpg,.jpeg,.png,.webp"
-                        required
-                    >
-
-
-                    <div class="form-text">
-
-                        Allowed:
-                        PDF, JPG, JPEG, PNG, WEBP.
-
-                        Maximum size:
-                        10 MB.
-
+                <div class="atp-form-grid">
+                    <div class="atp-field">
+                        <label for="plant" class="atp-label">
+                            Plant<span class="atp-required">*</span>
+                        </label>
+                        <select id="plant" class="atp-control" required>
+                            <option value="">Select Plant</option>
+                        </select>
                     </div>
 
+                    <div class="atp-field">
+                        <label for="inspection" class="atp-label">
+                            Inspection <span class="optional">(Optional)</span>
+                        </label>
+                        <select id="inspection" class="atp-control">
+                            <option value="">No inspection</option>
+                        </select>
+                        <span class="atp-help">
+                            Leave this as “No inspection” if the report is not linked to an inspection.
+                        </span>
+                    </div>
+
+                    <div class="atp-field full-width">
+                        <label for="file" class="atp-label">
+                            ATP Report File<span class="atp-required">*</span>
+                        </label>
+                        <input
+                            type="file"
+                            id="file"
+                            class="atp-control"
+                            accept=".pdf,.jpg,.jpeg,.png,.webp"
+                            required
+                        >
+                        <span class="atp-help">
+                            Accepted formats: PDF, JPG, JPEG, PNG, WEBP. Maximum file size: 10 MB.
+                        </span>
+                    </div>
+
+                    <div class="atp-field full-width">
+                        <label for="notes" class="atp-label">
+                            Notes <span class="optional">(Optional)</span>
+                        </label>
+                        <textarea
+                            id="notes"
+                            class="atp-control"
+                            rows="3"
+                            placeholder="Add any relevant notes about this report..."
+                        ></textarea>
+                    </div>
                 </div>
 
-
-                <!-- ====================================== -->
-                <!-- NOTES -->
-                <!-- ====================================== -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="notes"
-                        class="form-label"
-                    >
-                        Notes
-                    </label>
-
-
-                    <textarea
-                        id="notes"
-                        class="form-control"
-                        rows="3"
-                    ></textarea>
-
+                <div class="atp-form-actions">
+                    <button type="submit" id="uploadButton" class="action-button button-primary">
+                        Upload ATP Report
+                    </button>
+                    <button type="button" id="cancelUploadButton" class="action-button button-secondary">
+                        Cancel
+                    </button>
                 </div>
-
-
-                <button
-                    type="submit"
-                    id="uploadButton"
-                    class="btn btn-primary"
-                >
-                    Upload ATP Report
-                </button>
-
             </form>
-
         </div>
-
     </div>
 
-
-    <!-- ================================================== -->
-    <!-- REPORT LIST -->
-    <!-- ================================================== -->
-
-    <div class="card shadow">
-
-        <div class="card-header">
-
-            <h5 class="mb-0">
-                Previous ATP Reports
-            </h5>
-
+    <div class="atp-card">
+        <div class="atp-card-header">
+            <div>
+                <h2 class="atp-card-title">Previous ATP Reports</h2>
+                <p class="atp-card-description">Historical reports uploaded to the system.</p>
+            </div>
+            <span id="reportCount" class="records-count">0</span>
         </div>
 
-
-        <div class="card-body">
-
-
-            <div
-                id="loading"
-                class="text-center"
-            >
-                Loading reports...
-            </div>
-
-
-            <div
-                id="emptyMessage"
-                class="alert alert-info d-none"
-            >
-                No ATP reports found.
-            </div>
-
-
-            <div
-                class="table-responsive d-none"
-                id="tableContainer"
-            >
-
-                <table class="table table-bordered table-hover align-middle">
-
-                    <thead class="table-light">
-
-                        <tr>
-
-                            <!-- ID is only displayed to Admin -->
-
-                            <th
-                                id="idHeader"
-                                class="d-none"
-                            >
-                                ID
-                            </th>
-
-
-                            <th>
-                                Plant
-                            </th>
-
-
-                            <th>
-                                Inspection
-                            </th>
-
-
-                            <th>
-                                File
-                            </th>
-
-
-                            <th>
-                                Uploaded By
-                            </th>
-
-
-                            <th>
-                                Uploaded At
-                            </th>
-
-
-                            <th>
-                                Status
-                            </th>
-
-
-                            <th>
-                                Notes
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="reportsTableBody">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
+        <div id="loading" class="atp-loading">
+            <div class="atp-loading-indicator"></div>
+            Loading ATP reports...
         </div>
 
+        <div id="emptyMessage" class="atp-empty d-none">
+            <div class="atp-empty-icon" aria-hidden="true">▤</div>
+            <div class="atp-empty-title">No ATP reports found</div>
+            <p class="atp-empty-description">Uploaded ATP reports will appear here.</p>
+        </div>
+
+        <div class="atp-table-wrapper d-none" id="tableContainer">
+            <table class="atp-table">
+                <thead>
+                    <tr>
+                        <th id="idHeader" class="d-none">ID</th>
+                        <th>Plant</th>
+                        <th>Inspection</th>
+                        <th>File</th>
+                        <th>Uploaded By</th>
+                        <th>Uploaded At</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="tableFooter" class="atp-table-footer d-none">
+            <span id="reportSummary">Showing 0 reports</span>
+            <span>ATP Reports</span>
+        </div>
     </div>
-
 </div>
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
+(() => {
+    "use strict";
 
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("access");
 
-// ============================================================
-// ACCESS TOKEN
-// ============================================================
+    if (!token) {
+        window.location.href = "/login/";
+        return;
+    }
 
-const token =
-    localStorage.getItem(
-        "access_token"
-    );
+    const plantSelect = document.getElementById("plant");
+    const inspectionSelect = document.getElementById("inspection");
+    const uploadSection = document.getElementById("uploadSection");
+    const uploadForm = document.getElementById("uploadForm");
+    const uploadButton = document.getElementById("uploadButton");
+    const toggleUploadButton = document.getElementById("toggleUploadButton");
+    const toggleUploadIcon = document.getElementById("toggleUploadIcon");
+    const toggleUploadText = document.getElementById("toggleUploadText");
+    const cancelUploadButton = document.getElementById("cancelUploadButton");
+    const message = document.getElementById("message");
+    const reportsTableBody = document.getElementById("reportsTableBody");
+    const loading = document.getElementById("loading");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const tableContainer = document.getElementById("tableContainer");
+    const tableFooter = document.getElementById("tableFooter");
+    const idHeader = document.getElementById("idHeader");
+    const reportCount = document.getElementById("reportCount");
+    const reportSummary = document.getElementById("reportSummary");
 
+    let isAdmin = false;
 
-if (!token) {
+    /*
+     * Cross-reference reports and inspections by inspection ID.
+     * This can supply a name when the inspection list response
+     * omits it but an ATP report response contains it.
+     */
+    const inspectorNamesByInspectionId = new Map();
 
-    window.location.href =
-        "/login/";
+    function showMessage(text, type = "success") {
+        message.textContent = text;
+        message.className = `atp-message alert-${type}`;
+        message.classList.remove("d-none");
+    }
 
-}
+    function hideMessage() {
+        message.classList.add("d-none");
+        message.textContent = "";
+    }
 
+    function getList(data) {
+        if (Array.isArray(data)) return data;
+        if (data && Array.isArray(data.results)) return data.results;
+        return [];
+    }
 
-// ============================================================
-// PAGE ELEMENTS
-// ============================================================
+    async function readResponse(response) {
+        const text = await response.text();
+        if (!text) return {};
 
-const plantSelect =
-    document.getElementById(
-        "plant"
-    );
+        try {
+            return JSON.parse(text);
+        } catch {
+            return {};
+        }
+    }
 
+    async function apiGet(url) {
+        const response = await fetch(url, {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
 
-const inspectionSelect =
-    document.getElementById(
-        "inspection"
-    );
+        const data = await readResponse(response);
 
-
-const uploadSection =
-    document.getElementById(
-        "uploadSection"
-    );
-
-
-const uploadForm =
-    document.getElementById(
-        "uploadForm"
-    );
-
-
-const uploadButton =
-    document.getElementById(
-        "uploadButton"
-    );
-
-
-const message =
-    document.getElementById(
-        "message"
-    );
-
-
-const reportsTableBody =
-    document.getElementById(
-        "reportsTableBody"
-    );
-
-
-const loading =
-    document.getElementById(
-        "loading"
-    );
-
-
-const emptyMessage =
-    document.getElementById(
-        "emptyMessage"
-    );
-
-
-const tableContainer =
-    document.getElementById(
-        "tableContainer"
-    );
-
-
-const idHeader =
-    document.getElementById(
-        "idHeader"
-    );
-
-
-// ============================================================
-// USER ROLE
-// ============================================================
-
-let isAdmin = false;
-
-
-// ============================================================
-// SHOW MESSAGE
-// ============================================================
-
-function showMessage(
-    text,
-    type = "success"
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        `alert alert-${type}`;
-
-}
-
-
-// ============================================================
-// HIDE MESSAGE
-// ============================================================
-
-function hideMessage() {
-
-    message.classList.add(
-        "d-none"
-    );
-
-}
-
-
-// ============================================================
-// GET LIST
-// ============================================================
-
-function getList(data) {
-
-    if (Array.isArray(data)) {
+        if (!response.ok) {
+            throw new Error(
+                data.detail || `Request failed (${response.status}): ${url}`
+            );
+        }
 
         return data;
-
     }
 
-
-    if (
-        data &&
-        Array.isArray(data.results)
-    ) {
-
-        return data.results;
-
+    function createOption(value, label) {
+        const option = document.createElement("option");
+        option.value = value == null ? "" : String(value);
+        option.textContent = label;
+        return option;
     }
 
+    function normalizeId(value) {
+        if (value === null || value === undefined || value === "") return "";
 
-    return [];
-
-}
-
-
-// ============================================================
-// LOAD CURRENT USER
-// ============================================================
-
-async function loadCurrentUser() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/auth/me/",
-                {
-                    method: "GET",
-
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.detail ||
-                "Unable to load user information."
-            );
-
+        if (typeof value === "object") {
+            return normalizeId(value.id);
         }
 
-
-        /*
-         * Your /api/auth/me/ response contains
-         * the user's group/role information.
-         *
-         * Check several possible field names
-         * so the page remains compatible with
-         * the existing API response.
-         */
-
-        const groups =
-            data.groups ||
-            data.group_names ||
-            data.roles ||
-            [];
-
-
-        if (Array.isArray(groups)) {
-
-            isAdmin =
-                groups.some(
-                    function(group) {
-
-                        const groupName =
-                            typeof group === "string"
-                                ? group
-                                : group.name;
-
-                        return groupName === "Admin";
-
-                    }
-                );
-
-        }
-
-
-        /*
-         * Some versions of the API may return
-         * a direct role field.
-         */
-
-        if (
-            data.role === "Admin" ||
-            data.group === "Admin"
-        ) {
-
-            isAdmin = true;
-
-        }
-
-
-        /*
-         * Only Admin gets the upload section.
-         */
-
-        if (isAdmin) {
-
-            uploadSection.classList.remove(
-                "d-none"
-            );
-
-            idHeader.classList.remove(
-                "d-none"
-            );
-
-        }
-
-    }
-    catch (error) {
-
-        console.error(
-            "User loading error:",
-            error
-        );
-
-        /*
-         * Fail closed.
-         *
-         * If we cannot determine the role,
-         * do NOT show the upload section.
-         */
-
-        isAdmin = false;
-
-        uploadSection.classList.add(
-            "d-none"
-        );
-
-        idHeader.classList.add(
-            "d-none"
-        );
-
+        return String(value);
     }
 
-}
+    function displayValue(value, fallback = "-") {
+        if (value === null || value === undefined || value === "") {
+            return fallback;
+        }
 
+        if (typeof value === "string" || typeof value === "number") {
+            return String(value);
+        }
 
-// ============================================================
-// LOAD PLANTS
-// ============================================================
+        if (typeof value === "object") {
+            return (
+                value.full_name ||
+                value.get_full_name ||
+                value.username ||
+                value.name ||
+                value.display_name ||
+                fallback
+            );
+        }
 
-async function loadPlants() {
+        return fallback;
+    }
 
     /*
-     * Plants are only required for the Admin
-     * upload form.
+     * Return a human-readable name only. Never mistake a numeric
+     * database ID for an inspector's name.
      */
-
-    if (!isAdmin) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/plants/",
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load plants."
-            );
-
+    function humanName(value) {
+        if (value === null || value === undefined || value === "") {
+            return "";
         }
 
+        if (typeof value === "object") {
+            const fullName = [
+                value.first_name,
+                value.last_name
+            ].filter(Boolean).join(" ").trim();
 
-        const data =
-            await response.json();
+            const result =
+                fullName ||
+                value.full_name ||
+                value.username ||
+                value.name ||
+                value.display_name ||
+                value.inspector_name ||
+                "";
 
+            return humanName(result);
+        }
 
-        const plants =
-            getList(data);
+        if (typeof value === "number") return "";
 
+        const text = String(value).trim();
 
-        plantSelect.innerHTML =
-            `
-                <option value="">
-                    Select Plant
-                </option>
-            `;
+        if (!text || /^\d+$/.test(text)) return "";
 
+        return text;
+    }
 
-        plants.forEach(
-            function(plant) {
+    function getInspectorName(inspection) {
+        if (!inspection || typeof inspection !== "object") {
+            return "";
+        }
 
-                const option =
-                    document.createElement(
-                        "option"
-                    );
+        const candidates = [
+            inspection.inspection_inspector,
+            inspection.inspector_name,
+            inspection.inspector_full_name,
+            inspection.inspector_username,
+            inspection.inspector_display_name,
+            inspection.inspector_detail,
+            inspection.inspector_details,
+            inspection.inspector_user,
+            inspection.inspector_info,
+            inspection.inspector_data,
+            inspection.created_by_name,
+            inspection.created_by_username,
+            inspection.user_name,
+            inspection.username,
+            inspection.inspector
+        ];
 
+        for (const candidate of candidates) {
+            const name = humanName(candidate);
+            if (name) return name;
+        }
 
-                option.value =
-                    plant.id;
+        const id = normalizeId(inspection.id);
 
+        if (id && inspectorNamesByInspectionId.has(id)) {
+            return inspectorNamesByInspectionId.get(id);
+        }
 
-                option.textContent =
-                    `${plant.code} - ${plant.name}`;
+        return "";
+    }
 
+    function getReportInspectorName(report) {
+        const candidates = [
+            report.inspection_inspector,
+            report.inspector_name,
+            report.inspector_username,
+            report.inspector_full_name,
+            report.inspection_name
+        ];
 
-                plantSelect.appendChild(
-                    option
+        for (const candidate of candidates) {
+            const name = humanName(candidate);
+            if (name) return name;
+        }
+
+        const inspectionObject =
+            report.inspection && typeof report.inspection === "object"
+                ? report.inspection
+                : null;
+
+        if (inspectionObject) {
+            return getInspectorName(inspectionObject);
+        }
+
+        return "";
+    }
+
+    function rememberReportInspectorNames(reports) {
+        reports.forEach(report => {
+            const inspectionId = normalizeId(report.inspection);
+            const inspectorName = getReportInspectorName(report);
+
+            if (inspectionId && inspectorName) {
+                inspectorNamesByInspectionId.set(
+                    inspectionId,
+                    inspectorName
                 );
-
             }
-        );
-
-    }
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+        });
     }
 
-}
-
-
-// ============================================================
-// LOAD INSPECTIONS
-// ============================================================
-
-async function loadInspections() {
-
-    /*
-     * Only Admin needs the inspection dropdown
-     * because only Admin can upload ATP reports.
-     */
-
-    if (!isAdmin) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/inspections/",
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load inspections."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const inspections =
-            getList(data);
-
-
-        inspectionSelect.innerHTML =
-            `
-                <option value="">
-                    No inspection
-                </option>
-            `;
-
-
-        inspections.forEach(
-            function(inspection) {
-
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-
-                option.value =
-                    inspection.id;
-
-
-                /*
-                 * Display names instead of numeric
-                 * Plant and Template/Inspection IDs.
-                 */
-
-                const plantName =
-                    inspection.plant_name ||
-                    inspection.plant_code ||
-                    "Unknown Plant";
-
-
-                const inspectorName =
-                    inspection.inspector_username ||
-                    inspection.inspector_name ||
-                    inspection.inspector ||
-                    "Unknown Inspector";
-
-
-                option.textContent =
-                    `${plantName} - ${inspectorName} - ${inspection.inspection_date} - ${inspection.status}`;
-
-
-                inspectionSelect.appendChild(
-                    option
-                );
-
-            }
-        );
-
-    }
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// LOAD ATP REPORTS
-// ============================================================
-
-async function loadReports() {
-
-    loading.classList.remove(
-        "d-none"
-    );
-
-
-    tableContainer.classList.add(
-        "d-none"
-    );
-
-
-    emptyMessage.classList.add(
-        "d-none"
-    );
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/inspections/atp/",
-                {
-                    headers: {
-                        "Authorization":
-                            `Bearer ${token}`
-                    }
-                }
-            );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load ATP reports."
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const reports =
-            getList(data);
-
-
-        reportsTableBody.innerHTML =
-            "";
-
-
-        if (reports.length === 0) {
-
-            emptyMessage.classList.remove(
-                "d-none"
-            );
-
-            return;
-
-        }
-
-
-        reports.forEach(
-            function(report) {
-
-                const row =
-                    document.createElement(
-                        "tr"
-                    );
-
-
-                // ==========================================
-                // FILE LINK
-                // ==========================================
-
-                const fileLink =
-                    document.createElement(
-                        "a"
-                    );
-
-
-                fileLink.href =
-                    report.file;
-
-
-                fileLink.target =
-                    "_blank";
-
-
-                fileLink.rel =
-                    "noopener noreferrer";
-
-
-                fileLink.textContent =
-                    report.original_filename ||
-                    "View File";
-
-
-                const fileCell =
-                    document.createElement(
-                        "td"
-                    );
-
-
-                fileCell.appendChild(
-                    fileLink
-                );
-
-
-                // ==========================================
-                // PLANT NAME
-                // ==========================================
-
-                const plantName =
-                    report.plant_name ||
-                    report.plant_code ||
-                    (
-                        typeof report.plant === "string"
-                            ? report.plant
-                            : "-"
-                    );
-
-
-                // ==========================================
-                // INSPECTION NAME
-                // ==========================================
-
-                const inspectionName =
-                    report.inspection_inspector ||
-                    report.inspector_name ||
-                    report.inspector_username ||
-                    (
-                        typeof report.inspection === "string"
-                            ? report.inspection
-                            : "-"
-                    );
-
-
-                // ==========================================
-                // ROW
-                // ==========================================
-
-                row.innerHTML = `
-
-                    ${
-                        isAdmin
-                            ? `
-                                <td>
-                                    ${report.id ?? "-"}
-                                </td>
-                              `
-                            : ""
-                    }
-
-
-                    <td>
-                        ${plantName}
-                    </td>
-
-
-                    <td>
-                        ${inspectionName}
-                    </td>
-
-
-                    <td></td>
-
-
-                    <td>
-                        ${report.uploaded_by_username ||
-                          report.uploaded_by ||
-                          "-"}
-                    </td>
-
-
-                    <td>
-                        ${formatDate(
-                            report.uploaded_at
-                        )}
-                    </td>
-
-
-                    <td>
-
-                        <span class="badge bg-success">
-
-                            ${report.status || "-"}
-
-                        </span>
-
-                    </td>
-
-
-                    <td>
-                        ${report.notes || ""}
-                    </td>
-
-                `;
-
-
-                /*
-                 * File link goes into the correct
-                 * file column.
-                 */
-
-                const fileColumnIndex =
-                    isAdmin ? 3 : 2;
-
-
-                row.children[
-                    fileColumnIndex
-                ].appendChild(
-                    fileLink
-                );
-
-
-                reportsTableBody.appendChild(
-                    row
-                );
-
-            }
-        );
-
-
-        tableContainer.classList.remove(
-            "d-none"
-        );
-
-    }
-    catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-    finally {
-
-        loading.classList.add(
-            "d-none"
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// FORMAT DATE
-// ============================================================
-
-function formatDate(
-    dateString
-) {
-
-    if (!dateString) {
-
-        return "-";
-
-    }
-
-
-    return new Date(
-        dateString
-    ).toLocaleString();
-
-}
-
-
-// ============================================================
-// UPLOAD ATP REPORT
-// ============================================================
-
-uploadForm.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        /*
-         * Extra frontend security.
-         *
-         * Even though the upload section is hidden
-         * for non-admin users, do not allow the
-         * JavaScript upload function to execute.
-         */
-
-        if (!isAdmin) {
-
-            showMessage(
-                "Only Admin users can upload ATP reports.",
-                "danger"
-            );
-
-            return;
-
-        }
-
+    function openUploadForm() {
+        if (!isAdmin) return;
 
         hideMessage();
 
+        /*
+         * Reset the optional inspection selection every time
+         * the upload form opens.
+         */
+        inspectionSelect.value = "";
 
-        const plant =
-            plantSelect.value;
+        uploadSection.classList.remove("d-none");
+        toggleUploadButton.setAttribute("aria-expanded", "true");
+        toggleUploadIcon.textContent = "−";
+        toggleUploadText.textContent = "Close Form";
 
+        uploadSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
 
-        const inspection =
-            inspectionSelect.value;
+    function closeUploadForm() {
+        uploadSection.classList.add("d-none");
+        toggleUploadButton.setAttribute("aria-expanded", "false");
+        toggleUploadIcon.textContent = "+";
+        toggleUploadText.textContent = "Upload ATP Report";
+    }
 
-
-        const file =
-            document.getElementById(
-                "file"
-            ).files[0];
-
-
-        const notes =
-            document.getElementById(
-                "notes"
-            ).value;
-
-
-        if (!plant) {
-
-            showMessage(
-                "Please select a plant.",
-                "danger"
-            );
-
-            return;
-
+    toggleUploadButton.addEventListener("click", () => {
+        if (uploadSection.classList.contains("d-none")) {
+            openUploadForm();
+        } else {
+            closeUploadForm();
         }
+    });
 
+    cancelUploadButton.addEventListener("click", () => {
+        closeUploadForm();
+        hideMessage();
+    });
 
-        if (!file) {
-
-            showMessage(
-                "Please select a file.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        const maxSize =
-            10 * 1024 * 1024;
-
-
-        if (file.size > maxSize) {
-
-            showMessage(
-                "File size cannot exceed 10 MB.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        const formData =
-            new FormData();
-
-
-        formData.append(
-            "plant",
-            plant
-        );
-
-
-        if (inspection) {
-
-            formData.append(
-                "inspection",
-                inspection
-            );
-
-        }
-
-
-        formData.append(
-            "file",
-            file
-        );
-
-
-        formData.append(
-            "notes",
-            notes
-        );
-
-
-        uploadButton.disabled =
-            true;
-
-
-        uploadButton.textContent =
-            "Uploading...";
-
-
+    async function loadCurrentUser() {
         try {
+            const data = await apiGet("/api/auth/me/");
 
-            const response =
-                await fetch(
-                    "/api/inspections/atp/",
-                    {
-                        method: "POST",
+            const groups =
+                data.groups ||
+                data.group_names ||
+                data.roles ||
+                [];
 
-                        headers: {
-                            "Authorization":
-                                `Bearer ${token}`
-                        },
+            if (Array.isArray(groups)) {
+                isAdmin = groups.some(group => {
+                    const name =
+                        typeof group === "string"
+                            ? group
+                            : group && group.name;
 
-                        body: formData
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                let errorText =
-                    "Unable to upload ATP report.";
-
-
-                if (data.detail) {
-
-                    errorText =
-                        data.detail;
-
-                }
-
-
-                if (data.file) {
-
-                    errorText =
-                        data.file.join(" ");
-
-                }
-
-
-                showMessage(
-                    errorText,
-                    "danger"
-                );
-
-                return;
-
+                    return name === "Admin";
+                });
             }
 
+            if (data.role === "Admin" || data.group === "Admin") {
+                isAdmin = true;
+            }
 
-            showMessage(
-                "ATP report uploaded successfully.",
-                "success"
-            );
-
-
-            uploadForm.reset();
-
-
-            await loadReports();
-
+            if (isAdmin) {
+                toggleUploadButton.classList.remove("d-none");
+                idHeader.classList.remove("d-none");
+            }
+        } catch (error) {
+            console.error("User loading error:", error);
+            isAdmin = false;
+            toggleUploadButton.classList.add("d-none");
+            uploadSection.classList.add("d-none");
+            idHeader.classList.add("d-none");
         }
-        catch (error) {
+    }
 
-            console.error(
-                "ATP upload error:",
-                error
+    async function loadPlants() {
+        if (!isAdmin) return;
+
+        try {
+            const plants = getList(await apiGet("/api/plants/"));
+
+            plantSelect.replaceChildren(
+                createOption("", "Select Plant")
             );
 
+            plants.forEach(plant => {
+                const label =
+                    `${plant.code || "PLANT"} - ${plant.name || "Unnamed Plant"}`;
 
+                plantSelect.appendChild(createOption(plant.id, label));
+            });
+        } catch (error) {
+            showMessage(error.message, "danger");
+        }
+    }
+
+    async function loadInspections() {
+        if (!isAdmin) return;
+
+        try {
+            /*
+             * Load ATP reports first so their inspector names can
+             * be matched to inspection IDs if necessary.
+             */
+            let reports = [];
+
+            try {
+                reports = getList(await apiGet("/api/inspections/atp/"));
+                rememberReportInspectorNames(reports);
+            } catch (error) {
+                console.warn("Could not cross-reference ATP reports:", error);
+            }
+
+            const inspections = getList(
+                await apiGet("/api/inspections/")
+            );
+
+            inspectionSelect.replaceChildren(
+                createOption("", "No inspection")
+            );
+
+            inspections.forEach(inspection => {
+                const plantName =
+                    inspection.plant_name ||
+                    inspection.plant_code ||
+                    (
+                        inspection.plant &&
+                        typeof inspection.plant === "object"
+                            ? (
+                                inspection.plant.name ||
+                                inspection.plant.code
+                            )
+                            : ""
+                    ) ||
+                    "Unknown Plant";
+
+                const inspectorName = getInspectorName(inspection);
+
+                const date =
+                    inspection.inspection_date ||
+                    inspection.date ||
+                    inspection.created_at ||
+                    "";
+
+                const status = inspection.status || "";
+
+                /*
+                 * Do not silently label an ID as a person's name.
+                 * This message indicates the API lacks the name.
+                 */
+                const inspectorLabel = inspectorName ||
+                    "Inspector name unavailable from API";
+
+                const parts = [
+                    plantName,
+                    inspectorLabel,
+                    date ? formatDate(date) : "",
+                    status
+                ].filter(Boolean);
+
+                inspectionSelect.appendChild(
+                    createOption(inspection.id, parts.join(" - "))
+                );
+            });
+
+            /*
+             * Keep the empty option selected after the dropdown
+             * has been populated.
+             */
+            inspectionSelect.value = "";
+        } catch (error) {
+            console.error("Inspection loading error:", error);
+            showMessage(error.message, "danger");
+        }
+    }
+
+    function formatDate(value) {
+        if (!value) return "-";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
+        }
+
+        return date.toLocaleString();
+    }
+
+    function createCell(value, fallback = "-") {
+        const cell = document.createElement("td");
+        cell.textContent = displayValue(value, fallback);
+        return cell;
+    }
+
+    function createFileCell(report) {
+        const cell = document.createElement("td");
+        const link = document.createElement("a");
+
+        link.textContent = report.original_filename || "View File";
+        link.className = "atp-file-link";
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+
+        if (report.file) {
+            link.href = report.file;
+        } else {
+            link.style.pointerEvents = "none";
+            link.style.color = "var(--text-secondary, #667085)";
+        }
+
+        const icon = document.createElement("span");
+        icon.className = "atp-file-icon";
+        icon.textContent = "FILE";
+        icon.setAttribute("aria-hidden", "true");
+
+        cell.append(icon, link);
+        return cell;
+    }
+
+    function createStatusCell(status) {
+        const cell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = "status-badge";
+        badge.textContent = displayValue(status);
+
+        cell.appendChild(badge);
+        return cell;
+    }
+
+    function getPlantName(report) {
+        if (report.plant_name) return report.plant_name;
+        if (report.plant_code) return report.plant_code;
+
+        if (report.plant && typeof report.plant === "object") {
+            return report.plant.name || report.plant.code || "-";
+        }
+
+        if (typeof report.plant === "string") {
+            return /^\d+$/.test(report.plant) ? "-" : report.plant;
+        }
+
+        return "-";
+    }
+
+    function getReportInspectionDisplay(report) {
+        const name = getReportInspectorName(report);
+
+        if (name) return name;
+
+        if (report.inspection && typeof report.inspection === "object") {
+            const inspection = report.inspection;
+            return (
+                inspection.template_name ||
+                inspection.inspection_name ||
+                inspection.name ||
+                "-"
+            );
+        }
+
+        return "-";
+    }
+
+    function renderReport(report) {
+        const row = document.createElement("tr");
+
+        if (isAdmin) {
+            row.appendChild(createCell(report.id));
+        }
+
+        row.appendChild(createCell(getPlantName(report)));
+        row.appendChild(createCell(getReportInspectionDisplay(report)));
+        row.appendChild(createFileCell(report));
+
+        row.appendChild(createCell(
+            report.uploaded_by_username ||
+            report.uploaded_by_name ||
+            report.uploaded_by
+        ));
+
+        row.appendChild(createCell(formatDate(report.uploaded_at)));
+        row.appendChild(createStatusCell(report.status));
+        row.appendChild(createCell(report.notes, ""));
+
+        return row;
+    }
+
+    async function loadReports() {
+        loading.classList.remove("d-none");
+        tableContainer.classList.add("d-none");
+        emptyMessage.classList.add("d-none");
+        tableFooter.classList.add("d-none");
+
+        try {
+            const reports = getList(
+                await apiGet("/api/inspections/atp/")
+            );
+
+            rememberReportInspectorNames(reports);
+
+            reportsTableBody.replaceChildren();
+            reportCount.textContent = String(reports.length);
+
+            reportSummary.textContent =
+                `Showing ${reports.length} report${reports.length === 1 ? "" : "s"}`;
+
+            if (!reports.length) {
+                emptyMessage.querySelector(".atp-empty-title").textContent =
+                    "No ATP reports found";
+
+                emptyMessage.querySelector(".atp-empty-description").textContent =
+                    "Uploaded ATP reports will appear here.";
+
+                emptyMessage.classList.remove("d-none");
+                return;
+            }
+
+            reports.forEach(report => {
+                reportsTableBody.appendChild(renderReport(report));
+            });
+
+            tableContainer.classList.remove("d-none");
+            tableFooter.classList.remove("d-none");
+        } catch (error) {
+            console.error("ATP report loading error:", error);
+            showMessage(error.message, "danger");
+
+            emptyMessage.querySelector(".atp-empty-title").textContent =
+                "Unable to load ATP reports";
+
+            emptyMessage.querySelector(".atp-empty-description").textContent =
+                "Please check your connection and try again.";
+
+            emptyMessage.classList.remove("d-none");
+        } finally {
+            loading.classList.add("d-none");
+        }
+    }
+
+    uploadForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        if (!isAdmin) {
+            showMessage("Only Admin users can upload ATP reports.", "danger");
+            return;
+        }
+
+        hideMessage();
+
+        const plant = plantSelect.value;
+        const inspection = inspectionSelect.value;
+        const file = document.getElementById("file").files[0];
+        const notes = document.getElementById("notes").value;
+
+        if (!plant) {
+            showMessage("Please select a plant.", "danger");
+            return;
+        }
+
+        if (!file) {
+            showMessage("Please select a file.", "danger");
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            showMessage("File size cannot exceed 10 MB.", "danger");
+            return;
+        }
+
+        const allowedExtensions = ["pdf", "jpg", "jpeg", "png", "webp"];
+        const extension = file.name.split(".").pop().toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
             showMessage(
-                "Unable to connect to the server.",
+                "Please upload a PDF, JPG, JPEG, PNG, or WEBP file.",
                 "danger"
             );
-
-        }
-        finally {
-
-            uploadButton.disabled =
-                false;
-
-
-            uploadButton.textContent =
-                "Upload ATP Report";
-
+            return;
         }
 
+        const formData = new FormData();
+        formData.append("plant", plant);
+
+        if (inspection) {
+            formData.append("inspection", inspection);
+        }
+
+        formData.append("file", file);
+        formData.append("notes", notes);
+
+        uploadButton.disabled = true;
+        uploadButton.textContent = "Uploading...";
+
+        try {
+            const response = await fetch("/api/inspections/atp/", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` },
+                body: formData
+            });
+
+            const data = await readResponse(response);
+
+            if (!response.ok) {
+                let errorText =
+                    data.detail || "Unable to upload ATP report.";
+
+                if (data.file) {
+                    errorText = Array.isArray(data.file)
+                        ? data.file.join(" ")
+                        : String(data.file);
+                }
+
+                showMessage(errorText, "danger");
+                return;
+            }
+
+            showMessage("ATP report uploaded successfully.", "success");
+
+            uploadForm.reset();
+            inspectionSelect.value = "";
+
+            closeUploadForm();
+
+            await loadReports();
+            await loadInspections();
+        } catch (error) {
+            console.error("ATP upload error:", error);
+            showMessage("Unable to connect to the server.", "danger");
+        } finally {
+            uploadButton.disabled = false;
+            uploadButton.textContent = "Upload ATP Report";
+        }
+    });
+
+    async function initialize() {
+        await loadCurrentUser();
+        await loadPlants();
+        await loadInspections();
+
+        inspectionSelect.value = "";
+
+        await loadReports();
     }
-);
 
-
-// ============================================================
-// INITIALIZE
-// ============================================================
-
-async function initialize() {
-
-    /*
-     * First determine the user's role.
-     */
-
-    await loadCurrentUser();
-
-
-    /*
-     * Only Admin needs these two endpoints
-     * for uploading.
-     */
-
-    await loadPlants();
-
-    await loadInspections();
-
-
-    /*
-     * Everyone can view historical reports.
-     */
-
-    await loadReports();
-
-}
-
-
-initialize();
-
+    initialize();
+})();
 </script>
-
-
-</body>
-
-</html>
+{% endblock %}
