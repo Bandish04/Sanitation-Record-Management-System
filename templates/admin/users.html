@@ -1,313 +1,798 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}User Management | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}User Management{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block extra_css %}
+<style>
+    .users-page {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        color: var(--text-primary, #182b25);
+    }
 
-    <title>User Management</title>
+    .users-page * {
+        box-sizing: border-box;
+    }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    .users-page .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 26px;
+    }
 
-</head>
+    .users-page .page-title {
+        margin: 0 0 8px;
+        font-size: clamp(24px, 2.5vw, 30px);
+        font-weight: 750;
+        letter-spacing: -0.8px;
+        color: var(--text-primary, #182b25);
+    }
+
+    .users-page .page-description {
+        margin: 0;
+        color: var(--text-secondary, #697b74);
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .users-page .current-user {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-color, #e1e8e4);
+        border-radius: 9px;
+        background: var(--surface-color, #ffffff);
+        color: var(--text-secondary, #697b74);
+        font-size: 12px;
+    }
+
+    .users-page .current-user strong {
+        color: var(--text-primary, #182b25);
+        font-weight: 700;
+    }
+
+    .users-page .admin-badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: #e8f5ef;
+        color: #176b55;
+        font-size: 10px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .users-page .header-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .users-page .btn {
+        min-height: 40px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        border-radius: 9px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 650;
+        transition: background 0.2s, border-color 0.2s;
+    }
+
+    .users-page .btn-primary {
+        border-color: #176b55;
+        background: #176b55;
+        color: #ffffff;
+    }
+
+    .users-page .btn-primary:hover {
+        border-color: #10513f;
+        background: #10513f;
+        color: #ffffff;
+    }
+
+    .users-page .btn-outline-secondary {
+        border-color: var(--border-color, #dfe8e3);
+        background: var(--surface-color, #ffffff);
+        color: var(--text-primary, #34483f);
+    }
+
+    .users-page .btn-outline-secondary:hover {
+        border-color: #176b55;
+        background: #e8f5ef;
+        color: #176b55;
+    }
+
+    .users-page .btn-warning {
+        border-color: #f0d69a;
+        background: #fff6df;
+        color: #885b09;
+    }
+
+    .users-page .btn-warning:hover {
+        background: #fbe9b9;
+        color: #714900;
+    }
+
+    .users-page .btn-success {
+        border-color: #b7e2c8;
+        background: #e7f6ec;
+        color: #176b3b;
+    }
+
+    .users-page .btn-success:hover {
+        background: #d3eedc;
+        color: #12552e;
+    }
+
+    .users-page .btn-sm {
+        min-height: 32px;
+        padding: 6px 10px;
+        border-radius: 7px;
+        font-size: 11px;
+    }
+
+    .users-page .panel {
+        min-width: 0;
+        margin-bottom: 24px;
+        overflow: hidden;
+        border: 1px solid var(--border-color, #e3eae6);
+        border-radius: 14px;
+        background: var(--surface-color, #ffffff);
+        box-shadow: 0 3px 12px rgba(20, 50, 37, 0.035);
+    }
+
+    .users-page .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 19px 22px;
+        border-bottom: 1px solid var(--border-color, #e7ede9);
+    }
+
+    .users-page .panel-heading {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .users-page .panel-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 11px;
+        background: #e8f5ef;
+        color: #176b55;
+        font-size: 18px;
+    }
+
+    .users-page .panel-title {
+        margin: 0;
+        color: var(--text-primary, #182b25);
+        font-size: 16px;
+        font-weight: 750;
+    }
+
+    .users-page .panel-subtitle {
+        margin: 4px 0 0;
+        color: var(--text-secondary, #697b74);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .users-page .panel-body {
+        padding: 23px;
+    }
+
+    .users-page .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary, #34483f);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .users-page .form-control,
+    .users-page .form-select {
+        width: 100%;
+        min-width: 0;
+        min-height: 43px;
+        border: 1px solid var(--border-color, #dfe8e3);
+        border-radius: 9px;
+        background-color: var(--surface-color, #ffffff);
+        color: var(--text-primary, #182b25);
+        font-size: 13px;
+        box-shadow: none;
+    }
+
+    .users-page .form-control,
+    .users-page .form-select {
+        padding: 10px 12px;
+    }
+
+    .users-page .form-control:focus,
+    .users-page .form-select:focus {
+        border-color: #176b55;
+        box-shadow: 0 0 0 3px rgba(23, 107, 85, 0.10);
+    }
+
+    .users-page .form-help {
+        display: block;
+        margin-top: 6px;
+        color: var(--text-secondary, #697b74);
+        font-size: 11px;
+    }
+
+    .users-page .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 8px;
+        padding-top: 19px;
+        border-top: 1px solid var(--border-color, #e7ede9);
+    }
+
+    .users-page .alert {
+        margin-bottom: 20px;
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .users-page .alert pre {
+        margin: 8px 0 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-size: 12px;
+    }
+
+    .users-page .d-none {
+        display: none !important;
+    }
+
+    .users-page .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .users-page .table-count {
+        color: var(--text-secondary, #697b74);
+        font-size: 12px;
+    }
+
+    .users-page .table-count strong {
+        color: var(--text-primary, #182b25);
+    }
+
+    .users-page .table-search {
+        position: relative;
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .users-page .table-search i {
+        position: absolute;
+        top: 50%;
+        left: 12px;
+        transform: translateY(-50%);
+        color: #819189;
+        pointer-events: none;
+    }
+
+    .users-page .table-search input {
+        min-height: 39px;
+        padding-left: 36px;
+    }
+
+    .users-page .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border-color, #e5ebe7);
+        border-radius: 10px;
+    }
+
+    .users-page table {
+        width: 100%;
+        min-width: 760px;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        color: var(--text-primary, #182b25);
+        font-size: 12px;
+    }
+
+    .users-page .table > :not(caption) > * > * {
+        padding: 14px 15px;
+        vertical-align: middle;
+        border-bottom-color: var(--border-color, #e7ede9);
+        background: transparent;
+        color: inherit;
+    }
+
+    .users-page .table thead th {
+        background: var(--table-header-bg, #f5f8f6);
+        color: var(--text-secondary, #65776d);
+        font-size: 10px;
+        font-weight: 750;
+        letter-spacing: 0.65px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .users-page .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .users-page .table tbody tr:hover td {
+        background: var(--hover-bg, #f8fbf9);
+    }
+
+    .users-page .user-identity {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 150px;
+    }
+
+    .users-page .user-avatar {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 10px;
+        background: #e8f5ef;
+        color: #176b55;
+        font-size: 14px;
+        font-weight: 750;
+        text-transform: uppercase;
+    }
+
+    .users-page .user-name {
+        color: var(--text-primary, #182b25);
+        font-size: 12px;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+    }
+
+    .users-page .user-email {
+        color: var(--text-secondary, #697b74);
+        overflow-wrap: anywhere;
+    }
+
+    .users-page .role-select {
+        min-width: 125px;
+        min-height: 35px;
+        padding: 7px 28px 7px 9px;
+        font-size: 11px;
+    }
+
+    .users-page .status-badge,
+    .users-page .role-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 6px 9px;
+        border-radius: 7px;
+        font-size: 10px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .users-page .status-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        display: inline-block;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .users-page .status-active {
+        background: #e8f7ed;
+        color: #197343;
+    }
+
+    .users-page .status-disabled {
+        background: #fceaea;
+        color: #b42318;
+    }
+
+    .users-page .role-inspector {
+        background: #eaf2ff;
+        color: #2859a8;
+    }
+
+    .users-page .role-team-lead {
+        background: #fff2d8;
+        color: #8a5a00;
+    }
+
+    .users-page .role-admin {
+        background: #f0e9ff;
+        color: #6941a5;
+    }
+
+    .users-page .actions-cell {
+        min-width: 180px;
+    }
+
+    .users-page .action-buttons {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .users-page .empty-state {
+        padding: 45px 20px !important;
+        text-align: center;
+    }
+
+    .users-page .empty-state i {
+        display: block;
+        margin-bottom: 12px;
+        color: #9aaba1;
+        font-size: 34px;
+    }
+
+    .users-page .empty-state strong {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .users-page .empty-state span {
+        color: var(--text-secondary, #697b74);
+        font-size: 12px;
+    }
+
+    .users-page .loading-row {
+        padding: 28px !important;
+        text-align: center;
+        color: var(--text-secondary, #697b74);
+    }
+
+    @media (max-width: 768px) {
+        .users-page .page-header {
+            gap: 16px;
+        }
+
+        .users-page .header-actions {
+            width: 100%;
+        }
+
+        .users-page .header-actions .btn {
+            flex: 1;
+        }
+
+        .users-page .panel-header {
+            padding: 16px;
+        }
+
+        .users-page .panel-body {
+            padding: 16px;
+        }
+
+        .users-page .table-search {
+            max-width: 100%;
+        }
+
+        .users-page .table-toolbar {
+            align-items: stretch;
+        }
+    }
+
+    @media (max-width: 420px) {
+        .users-page .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .users-page .header-actions .btn {
+            width: 100%;
+        }
+
+        .users-page .form-actions {
+            flex-direction: column;
+        }
+
+        .users-page .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
 
 
-<body class="bg-light">
+{% block content %}
+<div class="users-page">
 
-
-<div class="container py-5">
-
-
-    <!-- Header -->
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Page header -->
+    <div class="page-header">
 
         <div>
+            <h1 class="page-title">User Management</h1>
 
-            <h1 class="fw-bold">
-                User Management
-            </h1>
-
-            <p class="text-muted mb-2">
-                Manage system users and their roles.
+            <p class="page-description">
+                Create accounts, manage system roles, and control user access.
             </p>
 
-            <div>
+            <div class="current-user">
+                <i class="bi bi-person-circle"></i>
 
-                <span class="text-muted">
-                    Logged in as:
-                </span>
+                <span>Logged in as</span>
 
-                <strong>
-                    {{ user.username }}
-                </strong>
+                <strong>{{ user.username }}</strong>
 
-                <span class="badge bg-danger ms-2">
-                    Admin
-                </span>
-
+                <span class="admin-badge">Admin</span>
             </div>
-
         </div>
 
+        <div class="header-actions">
 
-        <div class="d-flex gap-2">
-
-            <a
-                href="/dashboard/"
-                class="btn btn-secondary"
-            >
-                Back to Dashboard
+            <a href="/dashboard/" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Dashboard
             </a>
 
-            <a
-                href="/logout/"
-                class="btn btn-outline-danger"
+            <button
+                type="button"
+                id="toggleCreateFormButton"
+                class="btn btn-primary"
+                onclick="toggleCreateForm()"
             >
-                Logout
-            </a>
+                <i class="bi bi-person-plus"></i>
+                Create User
+            </button>
 
         </div>
-
     </div>
 
 
-    <!-- Message -->
+    <!-- Feedback messages -->
+    <div id="message" aria-live="polite"></div>
 
-    <div id="message"></div>
 
+    <!-- Create user form -->
+    <section id="createUserPanel" class="panel d-none">
 
-    <!-- Create User -->
+        <div class="panel-header">
 
-    <div class="card shadow-sm mb-4">
+            <div class="panel-heading">
+                <div class="panel-icon">
+                    <i class="bi bi-person-plus"></i>
+                </div>
 
-        <div class="card-header">
+                <div>
+                    <h2 class="panel-title">Create New User</h2>
 
-            <h5 class="mb-0">
-                Create User
-            </h5>
+                    <p class="panel-subtitle">
+                        Enter account details and assign a system role.
+                    </p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                onclick="hideCreateForm()"
+                aria-label="Close create user form"
+            >
+                <i class="bi bi-x-lg"></i>
+                Close
+            </button>
 
         </div>
 
+        <div class="panel-body">
 
-        <div class="card-body">
+            <form id="createUserForm" autocomplete="off">
 
-            <form id="createUserForm">
+                <div class="row g-3">
 
-                <div class="row">
-
-
-                    <!-- Username -->
-
-                    <div class="col-md-6 mb-3">
-
-                        <label
-                            class="form-label"
-                            for="username"
-                        >
-                            Username
+                    <div class="col-md-6">
+                        <label class="form-label" for="username">
+                            Username <span class="text-danger">*</span>
                         </label>
 
                         <input
                             type="text"
                             id="username"
                             class="form-control"
+                            placeholder="Enter username"
+                            autocomplete="off"
                             required
                         >
-
                     </div>
 
-
-                    <!-- Email -->
-
-                    <div class="col-md-6 mb-3">
-
-                        <label
-                            class="form-label"
-                            for="email"
-                        >
-                            Email
+                    <div class="col-md-6">
+                        <label class="form-label" for="email">
+                            Email Address <span class="text-danger">*</span>
                         </label>
 
                         <input
                             type="email"
                             id="email"
                             class="form-control"
+                            placeholder="name@example.com"
+                            autocomplete="off"
                             required
                         >
-
                     </div>
 
-
-                    <!-- Password -->
-
-                    <div class="col-md-6 mb-3">
-
-                        <label
-                            class="form-label"
-                            for="password"
-                        >
-                            Password
+                    <div class="col-md-6">
+                        <label class="form-label" for="password">
+                            Password <span class="text-danger">*</span>
                         </label>
 
                         <input
                             type="password"
                             id="password"
                             class="form-control"
+                            placeholder="Enter a password"
                             minlength="8"
+                            autocomplete="new-password"
                             required
                         >
 
+                        <span class="form-help">
+                            Password must contain at least 8 characters.
+                        </span>
                     </div>
 
-
-                    <!-- Role -->
-
-                    <div class="col-md-3 mb-3">
-
-                        <label
-                            class="form-label"
-                            for="role"
-                        >
-                            Role
+                    <div class="col-md-3">
+                        <label class="form-label" for="role">
+                            System Role <span class="text-danger">*</span>
                         </label>
 
-                        <select
-                            id="role"
-                            class="form-select"
-                            required
-                        >
-
-                            <option value="">
-                                Select Role
-                            </option>
-
-                            <option value="Inspector">
-                                Inspector
-                            </option>
-
-                            <option value="Team Lead">
-                                Team Lead
-                            </option>
-
-                            <option value="Admin">
-                                Admin
-                            </option>
-
+                        <select id="role" class="form-select" required>
+                            <option value="">Select role</option>
+                            <option value="Inspector">Inspector</option>
+                            <option value="Team Lead">Team Lead</option>
+                            <option value="Admin">Admin</option>
                         </select>
-
                     </div>
 
-
-                    <!-- Status -->
-
-                    <div class="col-md-3 mb-3">
-
-                        <label
-                            class="form-label"
-                            for="is_active"
-                        >
-                            Status
+                    <div class="col-md-3">
+                        <label class="form-label" for="is_active">
+                            Account Status
                         </label>
 
-                        <select
-                            id="is_active"
-                            class="form-select"
-                        >
-
-                            <option value="true">
-                                Active
-                            </option>
-
-                            <option value="false">
-                                Disabled
-                            </option>
-
+                        <select id="is_active" class="form-select">
+                            <option value="true">Active</option>
+                            <option value="false">Disabled</option>
                         </select>
-
                     </div>
 
                 </div>
 
+                <div class="form-actions">
 
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Create User
-                </button>
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        onclick="hideCreateForm()"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="createUserButton"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-person-check"></i>
+                        Create User
+                    </button>
+
+                </div>
 
             </form>
 
         </div>
+    </section>
 
-    </div>
 
+    <!-- User listing -->
+    <section class="panel">
 
-    <!-- Users -->
+        <div class="panel-header">
 
-    <div class="card shadow-sm">
+            <div class="panel-heading">
+                <div class="panel-icon">
+                    <i class="bi bi-people"></i>
+                </div>
 
-        <div class="card-header">
+                <div>
+                    <h2 class="panel-title">System Users</h2>
 
-            <h5 class="mb-0">
-                System Users
-            </h5>
+                    <p class="panel-subtitle">
+                        Review accounts, change roles, and manage access.
+                    </p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-outline-secondary"
+                onclick="loadUsers()"
+                id="refreshUsersButton"
+            >
+                <i class="bi bi-arrow-clockwise"></i>
+                Refresh
+            </button>
 
         </div>
 
+        <div class="panel-body">
 
-        <div class="card-body">
+            <div class="table-toolbar">
+
+                <div class="table-count" id="usersCount">
+                    Loading users...
+                </div>
+
+                <div class="table-search">
+                    <i class="bi bi-search"></i>
+
+                    <input
+                        type="search"
+                        id="userSearch"
+                        class="form-control"
+                        placeholder="Search username or email..."
+                        aria-label="Search users"
+                    >
+                </div>
+
+            </div>
 
             <div class="table-responsive">
 
-                <table
-                    class="table table-bordered table-hover align-middle"
-                >
+                <table class="table align-middle">
 
-                    <thead class="table-dark">
-
+                    <thead>
                         <tr>
-
-                            <th>
-                                ID
-                            </th>
-
-                            <th>
-                                Username
-                            </th>
-
-                            <th>
-                                Email
-                            </th>
-
-                            <th>
-                                Role
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                                Actions
-                            </th>
-
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
                         </tr>
-
                     </thead>
 
-
                     <tbody id="usersTableBody">
-
+                        <tr>
+                            <td colspan="6" class="loading-row">
+                                <i class="bi bi-arrow-repeat"></i>
+                                Loading users...
+                            </td>
+                        </tr>
                     </tbody>
 
                 </table>
@@ -315,549 +800,582 @@
             </div>
 
         </div>
-
-    </div>
-
+    </section>
 
 </div>
+{% endblock %}
 
 
+{% block extra_js %}
 <script>
+    const API_URL = "/api/auth/users/";
+
+    let allUsers = [];
+    let isCreatingUser = false;
 
 
-const API_URL = "/api/auth/users/";
-
-
-// Get JWT access token
-
-function getAccessToken() {
-
-    return localStorage.getItem(
-        "access_token"
-    );
-
-}
-
-
-// Display message
-
-function showMessage(
-    message,
-    type = "success"
-) {
-
-    const messageBox =
-        document.getElementById(
-            "message"
+    // Authentication token
+    function getAccessToken() {
+        return (
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("access")
         );
-
-    messageBox.innerHTML = `
-
-        <div class="alert alert-${type}">
-
-            ${message}
-
-        </div>
-
-    `;
-
-}
-
-
-// Load users
-
-async function loadUsers() {
-
-    const token =
-        getAccessToken();
-
-
-    if (!token) {
-
-        showMessage(
-            "Authentication token not found.",
-            "danger"
-        );
-
-        return;
-
     }
 
 
-    try {
+    // Escape API-provided strings before inserting them into HTML.
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (character) {
+            const entities = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            };
 
-        const response =
-            await fetch(
-                API_URL,
-                {
-                    method: "GET",
-
-                    headers: {
-
-                        "Authorization":
-                            `Bearer ${token}`
-
-                    }
-
-                }
-            );
+            return entities[character];
+        });
+    }
 
 
-        if (!response.ok) {
+    // Display feedback messages safely.
+    function showMessage(message, type = "success") {
+        const messageBox = document.getElementById("message");
 
-            throw new Error(
-                "Unable to load users."
-            );
+        const alert = document.createElement("div");
+        alert.className = `alert alert-${type}`;
+        alert.setAttribute("role", "alert");
+        alert.textContent = message;
 
+        messageBox.replaceChildren(alert);
+    }
+
+
+    // Format API error responses for readable messages.
+    function formatAPIError(result) {
+        if (typeof result === "string") {
+            return result;
         }
 
+        if (result && typeof result === "object") {
+            if (result.detail) {
+                return String(result.detail);
+            }
 
-        const users =
-            await response.json();
+            const messages = [];
+
+            Object.entries(result).forEach(([field, value]) => {
+                const fieldMessages = Array.isArray(value)
+                    ? value.map(item => String(item))
+                    : [String(value)];
+
+                messages.push(`${field}: ${fieldMessages.join(", ")}`);
+            });
+
+            if (messages.length) {
+                return messages.join(" | ");
+            }
+        }
+
+        return "Something went wrong. Please try again.";
+    }
 
 
-        const tableBody =
-            document.getElementById(
-                "usersTableBody"
+    // Read an API response safely.
+    async function readResponse(response) {
+        const text = await response.text();
+
+        if (!text) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(text);
+        } catch (error) {
+            return { detail: text };
+        }
+    }
+
+
+    // Show the create form and hide it when requested.
+    function showCreateForm() {
+        const panel = document.getElementById("createUserPanel");
+
+        panel.classList.remove("d-none");
+
+        document.getElementById("toggleCreateFormButton").innerHTML =
+            '<i class="bi bi-x-lg"></i> Close Form';
+
+        document.getElementById("toggleCreateFormButton").onclick =
+            hideCreateForm;
+
+        panel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        document.getElementById("username").focus();
+    }
+
+
+    function hideCreateForm() {
+        document.getElementById("createUserPanel").classList.add("d-none");
+
+        const toggleButton =
+            document.getElementById("toggleCreateFormButton");
+
+        toggleButton.innerHTML =
+            '<i class="bi bi-person-plus"></i> Create User';
+
+        toggleButton.onclick = showCreateForm;
+    }
+
+
+    function toggleCreateForm() {
+        const panel = document.getElementById("createUserPanel");
+
+        if (panel.classList.contains("d-none")) {
+            showCreateForm();
+        } else {
+            hideCreateForm();
+        }
+    }
+
+
+    // Return a consistent badge for the user's role.
+    function getRoleBadge(role) {
+        let roleClass = "role-inspector";
+
+        if (role === "Admin") {
+            roleClass = "role-admin";
+        } else if (role === "Team Lead") {
+            roleClass = "role-team-lead";
+        }
+
+        return `
+            <span class="role-badge ${roleClass}">
+                ${escapeHTML(role || "Unassigned")}
+            </span>
+        `;
+    }
+
+
+    // Render users into the table.
+    function renderUsers(users) {
+        const tableBody = document.getElementById("usersTableBody");
+        const count = document.getElementById("usersCount");
+
+        count.innerHTML =
+            `<strong>${users.length}</strong> user${users.length === 1 ? "" : "s"} found`;
+
+        if (!users.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="bi bi-people"></i>
+                        <strong>No users found</strong>
+                        <span>Try a different search or create a new user.</span>
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tableBody.innerHTML = users.map(user => {
+            const username = escapeHTML(user.username);
+            const email = escapeHTML(user.email || "");
+            const role = user.role || "Inspector";
+            const isActive = Boolean(user.is_active);
+            const initial = escapeHTML(
+                (user.username || "?").trim().charAt(0).toUpperCase()
             );
 
+            const statusHTML = isActive
+                ? `<span class="status-badge status-active">Active</span>`
+                : `<span class="status-badge status-disabled">Disabled</span>`;
 
-        tableBody.innerHTML = "";
+            return `
+                <tr>
+                    <td>${escapeHTML(user.id)}</td>
 
+                    <td>
+                        <div class="user-identity">
+                            <div class="user-avatar">${initial}</div>
+                            <div class="user-name">${username}</div>
+                        </div>
+                    </td>
 
-        users.forEach(
-            user => {
+                    <td>
+                        <span class="user-email">${email || "—"}</span>
+                    </td>
 
-
-                const statusBadge =
-                    user.is_active
-
-                        ? `
-                            <span class="badge bg-success">
-                                Active
-                            </span>
-                          `
-
-                        : `
-                            <span class="badge bg-danger">
-                                Disabled
-                            </span>
-                          `;
-
-
-                tableBody.innerHTML += `
-
-                    <tr>
-
-
-                        <td>
-                            ${user.id}
-                        </td>
-
-
-                        <td>
-
-                            <strong>
-                                ${user.username}
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-                            ${user.email}
-                        </td>
-
-
-                        <td>
-
+                    <td>
+                        <div style="min-width: 130px;">
                             <select
-                                class="form-select form-select-sm"
-                                id="role-${user.id}"
+                                class="form-select role-select"
+                                id="role-${Number(user.id)}"
+                                aria-label="Role for ${username}"
                             >
-
                                 <option
                                     value="Inspector"
-                                    ${
-                                        user.role === "Inspector"
-                                            ? "selected"
-                                            : ""
-                                    }
+                                    ${role === "Inspector" ? "selected" : ""}
                                 >
                                     Inspector
                                 </option>
 
-
                                 <option
                                     value="Team Lead"
-                                    ${
-                                        user.role === "Team Lead"
-                                            ? "selected"
-                                            : ""
-                                    }
+                                    ${role === "Team Lead" ? "selected" : ""}
                                 >
                                     Team Lead
                                 </option>
 
-
                                 <option
                                     value="Admin"
-                                    ${
-                                        user.role === "Admin"
-                                            ? "selected"
-                                            : ""
-                                    }
+                                    ${role === "Admin" ? "selected" : ""}
                                 >
                                     Admin
                                 </option>
-
                             </select>
+                            <div style="margin-top: 6px;">
+                                ${getRoleBadge(role)}
+                            </div>
+                        </div>
+                    </td>
 
-                        </td>
+                    <td>${statusHTML}</td>
 
-
-                        <td>
-
-                            ${statusBadge}
-
-                        </td>
-
-
-                        <td>
-
+                    <td class="actions-cell">
+                        <div class="action-buttons">
 
                             <button
-                                class="btn btn-sm btn-primary mb-1"
-                                onclick="updateRole(${user.id})"
+                                type="button"
+                                class="btn btn-primary btn-sm"
+                                onclick="updateRole(${Number(user.id)})"
                             >
+                                <i class="bi bi-check2"></i>
                                 Save Role
                             </button>
 
-
                             <button
-                                class="btn btn-sm ${
-                                    user.is_active
-                                        ? "btn-warning"
-                                        : "btn-success"
-                                }"
-                                onclick="toggleUser(
-                                    ${user.id},
-                                    ${user.is_active}
-                                )"
+                                type="button"
+                                class="btn ${isActive ? "btn-warning" : "btn-success"} btn-sm"
+                                onclick="toggleUser(${Number(user.id)}, ${isActive})"
                             >
-
-                                ${
-                                    user.is_active
-                                        ? "Disable"
-                                        : "Enable"
-                                }
-
+                                <i class="bi ${isActive ? "bi-person-dash" : "bi-person-check"}"></i>
+                                ${isActive ? "Disable" : "Enable"}
                             </button>
 
-
-                        </td>
-
-
-                    </tr>
-
-                `;
-
-            }
-        );
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
     }
 
-}
+
+    // Filter the displayed users.
+    function filterUsers() {
+        const searchValue = document
+            .getElementById("userSearch")
+            .value
+            .trim()
+            .toLowerCase();
+
+        const filteredUsers = allUsers.filter(user => {
+            const username = String(user.username || "").toLowerCase();
+            const email = String(user.email || "").toLowerCase();
+            const role = String(user.role || "").toLowerCase();
+
+            return (
+                username.includes(searchValue) ||
+                email.includes(searchValue) ||
+                role.includes(searchValue)
+            );
+        });
+
+        renderUsers(filteredUsers);
+    }
 
 
-// Create user
+    // Load users from the existing API.
+    async function loadUsers() {
+        const token = getAccessToken();
+        const tableBody = document.getElementById("usersTableBody");
+        const refreshButton = document.getElementById("refreshUsersButton");
 
-document
-    .getElementById(
-        "createUserForm"
-    )
-    .addEventListener(
-        "submit",
-        async function(event) {
+        if (!token) {
+            showMessage(
+                "Authentication token not found. Please log in again.",
+                "danger"
+            );
 
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="bi bi-shield-lock"></i>
+                        <strong>Authentication required</strong>
+                        <span>Please log in again to load system users.</span>
+                    </td>
+                </tr>
+            `;
+
+            document.getElementById("usersCount").textContent =
+                "Unable to load users";
+
+            return;
+        }
+
+        refreshButton.disabled = true;
+        refreshButton.innerHTML =
+            '<i class="bi bi-arrow-repeat"></i> Loading...';
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="loading-row">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Loading users...
+                </td>
+            </tr>
+        `;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const result = await readResponse(response);
+
+            if (!response.ok) {
+                throw new Error(formatAPIError(result));
+            }
+
+            allUsers = Array.isArray(result)
+                ? result
+                : (result.results || []);
+
+            filterUsers();
+
+        } catch (error) {
+            showMessage(error.message, "danger");
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <strong>Unable to load users</strong>
+                        <span>Please try refreshing the list.</span>
+                    </td>
+                </tr>
+            `;
+
+            document.getElementById("usersCount").textContent =
+                "Unable to load users";
+
+        } finally {
+            refreshButton.disabled = false;
+            refreshButton.innerHTML =
+                '<i class="bi bi-arrow-clockwise"></i> Refresh';
+        }
+    }
+
+
+    // Create a user.
+    document
+        .getElementById("createUserForm")
+        .addEventListener("submit", async function(event) {
             event.preventDefault();
 
-
-            const token =
-                getAccessToken();
-
-
-            const data = {
-
-                username:
-                    document.getElementById(
-                        "username"
-                    ).value,
-
-                email:
-                    document.getElementById(
-                        "email"
-                    ).value,
-
-                password:
-                    document.getElementById(
-                        "password"
-                    ).value,
-
-                role:
-                    document.getElementById(
-                        "role"
-                    ).value,
-
-                is_active:
-                    document.getElementById(
-                        "is_active"
-                    ).value === "true"
-
-            };
-
-
-            try {
-
-                const response =
-                    await fetch(
-                        API_URL,
-                        {
-                            method: "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json",
-
-                                "Authorization":
-                                    `Bearer ${token}`
-
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
-
-
-                const result =
-                    await response.json();
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        JSON.stringify(result)
-                    );
-
-                }
-
-
-                showMessage(
-                    "User created successfully."
-                );
-
-
-                document
-                    .getElementById(
-                        "createUserForm"
-                    )
-                    .reset();
-
-
-                loadUsers();
-
-
-            } catch (error) {
-
-                showMessage(
-                    error.message,
-                    "danger"
-                );
-
+            if (isCreatingUser) {
+                return;
             }
 
-        }
-    );
+            const token = getAccessToken();
 
+            if (!token) {
+                showMessage(
+                    "Authentication token not found. Please log in again.",
+                    "danger"
+                );
+                return;
+            }
 
-// Update role
+            const data = {
+                username: document.getElementById("username").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                password: document.getElementById("password").value,
+                role: document.getElementById("role").value,
+                is_active:
+                    document.getElementById("is_active").value === "true"
+            };
 
-async function updateRole(
-    userId
-) {
+            const createButton =
+                document.getElementById("createUserButton");
 
-    const token =
-        getAccessToken();
+            isCreatingUser = true;
+            createButton.disabled = true;
+            createButton.innerHTML =
+                '<i class="bi bi-arrow-repeat"></i> Creating...';
 
-
-    const role =
-        document.getElementById(
-            `role-${userId}`
-        ).value;
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}${userId}/`,
-                {
-                    method: "PATCH",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${token}`
-
-                    },
-
-                    body:
-                        JSON.stringify({
-                            role: role
-                        })
-
-                }
-            );
-
-
-        const result =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                JSON.stringify(result)
-            );
-
-        }
-
-
-        showMessage(
-            "User role updated successfully."
-        );
-
-
-        loadUsers();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-// Enable / Disable user
-
-async function toggleUser(
-    userId,
-    currentlyActive
-) {
-
-    const token =
-        getAccessToken();
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API_URL}${userId}/`,
-                {
-                    method: "PATCH",
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
 
                     headers: {
-
-                        "Content-Type":
-                            "application/json",
-
-                        "Authorization":
-                            `Bearer ${token}`
-
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
 
-                    body:
-                        JSON.stringify({
+                    body: JSON.stringify(data)
+                });
 
-                            is_active:
-                                !currentlyActive
+                const result = await readResponse(response);
 
-                        })
-
+                if (!response.ok) {
+                    throw new Error(formatAPIError(result));
                 }
+
+                document.getElementById("createUserForm").reset();
+
+                hideCreateForm();
+
+                showMessage("User created successfully.", "success");
+
+                document.getElementById("userSearch").value = "";
+
+                await loadUsers();
+
+                showMessage("User created successfully.", "success");
+
+            } catch (error) {
+                showMessage(error.message, "danger");
+
+            } finally {
+                isCreatingUser = false;
+                createButton.disabled = false;
+                createButton.innerHTML =
+                    '<i class="bi bi-person-check"></i> Create User';
+            }
+        });
+
+
+    // Update a user's role.
+    async function updateRole(userId) {
+        const token = getAccessToken();
+        const roleSelect = document.getElementById(`role-${userId}`);
+
+        if (!token) {
+            showMessage(
+                "Authentication token not found. Please log in again.",
+                "danger"
             );
-
-
-        const result =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                JSON.stringify(result)
-            );
-
+            return;
         }
 
+        if (!roleSelect) {
+            showMessage("Unable to find the selected user's role.", "danger");
+            return;
+        }
 
-        showMessage(
+        const role = roleSelect.value;
 
-            currentlyActive
+        try {
+            const response = await fetch(`${API_URL}${userId}/`, {
+                method: "PATCH",
 
-                ? "User disabled successfully."
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
 
-                : "User enabled successfully."
+                body: JSON.stringify({ role: role })
+            });
 
-        );
+            const result = await readResponse(response);
 
+            if (!response.ok) {
+                throw new Error(formatAPIError(result));
+            }
 
-        loadUsers();
+            await loadUsers();
 
+            showMessage("User role updated successfully.", "success");
 
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
+        } catch (error) {
+            showMessage(error.message, "danger");
+        }
     }
 
-}
+
+    // Enable or disable a user.
+    async function toggleUser(userId, currentlyActive) {
+        const token = getAccessToken();
+
+        if (!token) {
+            showMessage(
+                "Authentication token not found. Please log in again.",
+                "danger"
+            );
+            return;
+        }
+
+        const action = currentlyActive ? "disable" : "enable";
+
+        const confirmed = window.confirm(
+            `Are you sure you want to ${action} this user?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_URL}${userId}/`, {
+                method: "PATCH",
+
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+
+                body: JSON.stringify({
+                    is_active: !currentlyActive
+                })
+            });
+
+            const result = await readResponse(response);
+
+            if (!response.ok) {
+                throw new Error(formatAPIError(result));
+            }
+
+            await loadUsers();
+
+            showMessage(
+                currentlyActive
+                    ? "User disabled successfully."
+                    : "User enabled successfully.",
+                "success"
+            );
+
+        } catch (error) {
+            showMessage(error.message, "danger");
+        }
+    }
 
 
-// Initial load
+    // Search users as the administrator types.
+    document
+        .getElementById("userSearch")
+        .addEventListener("input", filterUsers);
 
-loadUsers();
 
+    // Initial load.
+    loadUsers();
 </script>
-
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-></script>
-
-
-</body>
-
-</html>
+{% endblock %}

@@ -23,6 +23,8 @@ from accounts.views import (
 )
 
 urlpatterns = [
+      # Admin user management
+    path("admin/users/", admin_users_page, name="admin-users"),
     # Django Admin
     path("admin/", admin.site.urls),
 
@@ -35,8 +37,7 @@ urlpatterns = [
     path("login/", browser_login, name="login"),
     path("logout/", browser_logout, name="logout"),
 
-    # Admin user management
-    path("admin/users/", admin_users_page, name="admin-users"),
+  
 
     # Application pages
     path("dashboard/", dashboard, name="dashboard"),

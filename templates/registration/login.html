@@ -1,226 +1,828 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Login</title>
+    <title>Login | Sanitation Record Management System</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+
+    <style>
+        :root {
+            --primary: #176b55;
+            --primary-dark: #10513f;
+            --primary-light: #e8f5ef;
+            --text-primary: #182b25;
+            --text-secondary: #697b74;
+            --border: #dfe8e3;
+            --page-background: #f4f7f5;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: Inter, -apple-system, BlinkMacSystemFont,
+                "Segoe UI", sans-serif;
+            background: var(--page-background);
+            color: var(--text-primary);
+        }
+
+        .login-page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Left branding panel */
+
+        .branding-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            padding: 48px 56px;
+            color: #ffffff;
+            background:
+                radial-gradient(
+                    circle at 15% 85%,
+                    rgba(80, 180, 132, 0.25),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    145deg,
+                    #123f34 0%,
+                    #176b55 55%,
+                    #218466 100%
+                );
+        }
+
+        .branding-panel::before,
+        .branding-panel::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .branding-panel::before {
+            width: 480px;
+            height: 480px;
+            right: -180px;
+            top: 8%;
+        }
+
+        .branding-panel::after {
+            width: 350px;
+            height: 350px;
+            right: -100px;
+            top: 20%;
+        }
+
+        .brand-logo {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            font-size: 25px;
+        }
+
+        .brand-name {
+            font-size: 17px;
+            font-weight: 750;
+            letter-spacing: -0.4px;
+            line-height: 1.4;
+        }
+
+        .brand-caption {
+            margin-top: 3px;
+            color: rgba(255, 255, 255, 0.72);
+            font-size: 12px;
+        }
+
+        .branding-content {
+            position: relative;
+            z-index: 1;
+            max-width: 520px;
+            padding: 55px 0;
+        }
+
+        .branding-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding: 8px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.09);
+            color: #e1f5e9;
+            font-size: 12px;
+            font-weight: 650;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .branding-content h1 {
+            margin: 0 0 22px;
+            font-size: clamp(34px, 3.5vw, 49px);
+            font-weight: 750;
+            line-height: 1.17;
+            letter-spacing: -1.7px;
+        }
+
+        .branding-content h1 span {
+            color: #a9e5c4;
+        }
+
+        .branding-content p {
+            max-width: 440px;
+            margin: 0;
+            color: rgba(255, 255, 255, 0.78);
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 19px;
+            margin-top: 38px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 13px;
+        }
+
+        .feature-item i {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #b6f0ce;
+            font-size: 16px;
+        }
+
+        .branding-footer {
+            position: relative;
+            z-index: 1;
+            color: rgba(255, 255, 255, 0.62);
+            font-size: 12px;
+        }
+
+        /* Right login panel */
+
+        .login-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 30px;
+            background: #ffffff;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .mobile-brand {
+            display: none;
+        }
+
+        .login-heading {
+            margin-bottom: 32px;
+        }
+
+        .login-heading .eyebrow {
+            margin-bottom: 12px;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 750;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+        }
+
+        .login-heading h2 {
+            margin: 0 0 10px;
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 750;
+            letter-spacing: -1px;
+        }
+
+        .login-heading p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .form-label {
+            margin-bottom: 9px;
+            color: #34483f;
+            font-size: 13px;
+            font-weight: 650;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper > i {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #819189;
+            font-size: 17px;
+            pointer-events: none;
+        }
+
+        .form-control {
+            min-height: 51px;
+            padding: 12px 45px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #ffffff;
+            color: var(--text-primary);
+            font-size: 14px;
+            box-shadow: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control::placeholder {
+            color: #a0aca6;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(23, 107, 85, 0.10);
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #75877e;
+            cursor: pointer;
+        }
+
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .login-button {
+            min-height: 51px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .login-button:hover,
+        .login-button:focus {
+            background: var(--primary-dark);
+            color: #ffffff;
+        }
+
+        .login-button:hover {
+            transform: translateY(-1px);
+        }
+
+        .login-button:disabled {
+            background: #6d9e8c;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .security-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            margin-top: 24px;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .security-note i {
+            color: var(--primary);
+        }
+
+        .login-bottom {
+            margin-top: 45px;
+            padding-top: 22px;
+            border-top: 1px solid #edf1ee;
+            color: #84918a;
+            font-size: 11px;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .alert {
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* Responsive layout */
+
+        @media (max-width: 900px) {
+            .branding-panel {
+                padding: 35px 32px;
+            }
+
+            .login-panel {
+                padding: 40px 24px;
+            }
+
+            .branding-content h1 {
+                font-size: 36px;
+            }
+
+            .feature-list {
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .login-page {
+                display: block;
+                min-height: 100vh;
+                background: #ffffff;
+            }
+
+            .branding-panel {
+                display: none;
+            }
+
+            .login-panel {
+                min-height: 100vh;
+                align-items: flex-start;
+                padding: 36px 24px;
+            }
+
+            .login-container {
+                max-width: 440px;
+                margin: auto;
+            }
+
+            .mobile-brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 55px;
+            }
+
+            .mobile-brand .brand-icon {
+                background: var(--primary-light);
+                color: var(--primary);
+                border: none;
+            }
+
+            .mobile-brand .brand-name {
+                color: var(--text-primary);
+                font-size: 15px;
+            }
+
+            .mobile-brand .brand-caption {
+                color: var(--text-secondary);
+            }
+
+            .login-heading h2 {
+                font-size: 29px;
+            }
+
+            .login-bottom {
+                margin-top: 35px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .login-panel {
+                padding: 28px 18px;
+            }
+
+            .mobile-brand {
+                margin-bottom: 42px;
+            }
+
+            .login-heading h2 {
+                font-size: 26px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container py-5">
+<div class="login-page">
 
-    <div class="row justify-content-center">
+    <!-- Left branding panel -->
+    <aside class="branding-panel">
 
-        <div class="col-md-5">
+        <div class="brand-logo">
+            <div class="brand-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
 
-            <div class="card shadow">
+            <div>
+                <div class="brand-name">
+                    Sanitation Record Management
+                </div>
 
-                <div class="card-body p-4">
+                <div class="brand-caption">
+                    Quality & Compliance Platform
+                </div>
+            </div>
+        </div>
 
-                    <h2 class="text-center mb-4">
-                        Sanitation Record Management System
-                    </h2>
+        <div class="branding-content">
 
-                    <h4 class="text-center mb-4">
-                        Login
-                    </h4>
+            <div class="branding-label">
+                <i class="bi bi-check-circle-fill"></i>
+                Sanitation management made simple
+            </div>
 
-                    <div
-                        id="errorMessage"
-                        class="alert alert-danger d-none"
-                    ></div>
+            <h1>
+                Maintain standards.<br>
+                <span>Protect quality.</span>
+            </h1>
 
-                    <form
-                        method="post"
-                        id="loginForm"
-                    >
+            <p>
+                Manage sanitation inspections, titration results,
+                ATP reports, and corrective actions in one organized
+                platform built to support your daily operations.
+            </p>
 
-                        {% csrf_token %}
+            <div class="feature-list">
 
-                        <div class="mb-3">
+                <div class="feature-item">
+                    <i class="bi bi-clipboard2-check"></i>
+                    <span>Inspection records and compliance tracking</span>
+                </div>
 
-                            <label
-                                for="username"
-                                class="form-label"
-                            >
-                                Username
-                            </label>
+                <div class="feature-item">
+                    <i class="bi bi-droplet-half"></i>
+                    <span>Sanitizer and Chloragel titration records</span>
+                </div>
 
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                class="form-control"
-                                required
-                            >
+                <div class="feature-item">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Centralized reports and corrective actions</span>
+                </div>
 
-                        </div>
+            </div>
+        </div>
 
+        <div class="branding-footer">
+            &copy; {% now "Y" %} Sanitation Record Management System
+        </div>
 
-                        <div class="mb-3">
-
-                            <label
-                                for="password"
-                                class="form-label"
-                            >
-                                Password
-                            </label>
-
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                class="form-control"
-                                required
-                            >
-
-                        </div>
+    </aside>
 
 
-                        <button
-                            type="submit"
-                            id="loginButton"
-                            class="btn btn-primary w-100"
-                        >
-                            Login
-                        </button>
+    <!-- Login panel -->
+    <main class="login-panel">
 
-                    </form>
+        <div class="login-container">
 
+            <!-- Mobile-only brand -->
+            <div class="mobile-brand">
+
+                <div class="brand-icon">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+
+                <div>
+                    <div class="brand-name">
+                        Sanitation Record Management
+                    </div>
+
+                    <div class="brand-caption">
+                        Quality & Compliance Platform
+                    </div>
                 </div>
 
             </div>
 
+
+            <div class="login-heading">
+
+                <div class="eyebrow">
+                    Welcome back
+                </div>
+
+                <h2>Sign in to your account</h2>
+
+                <p>
+                    Enter your credentials to access your sanitation
+                    management dashboard.
+                </p>
+
+            </div>
+
+
+            <div
+                id="errorMessage"
+                class="alert alert-danger d-none mb-4"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+
+            <form method="post" id="loginForm">
+
+                {% csrf_token %}
+
+                <div class="form-group">
+
+                    <label for="username" class="form-label">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="bi bi-person"></i>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            class="form-control"
+                            placeholder="Enter your username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password" class="form-label">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="bi bi-lock"></i>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="togglePassword"
+                            aria-label="Show password"
+                            title="Show password"
+                        >
+                            <i class="bi bi-eye" id="passwordIcon"></i>
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="btn login-button w-100"
+                >
+                    <span id="loginButtonText">Sign In</span>
+                    <i class="bi bi-arrow-right" id="loginButtonIcon"></i>
+                </button>
+
+            </form>
+
+
+            <div class="security-note">
+                <i class="bi bi-shield-lock-fill"></i>
+                Your account is protected by secure authentication.
+            </div>
+
+
+            <div class="login-bottom">
+                Authorized users only. Please use your assigned account
+                credentials to access the system.
+            </div>
+
         </div>
 
-    </div>
+    </main>
 
 </div>
 
 
 <script>
+    const loginForm = document.getElementById("loginForm");
+    const errorMessage = document.getElementById("errorMessage");
+    const loginButton = document.getElementById("loginButton");
+    const loginButtonText = document.getElementById("loginButtonText");
+    const loginButtonIcon = document.getElementById("loginButtonIcon");
 
-const loginForm =
-    document.getElementById("loginForm");
-
-const errorMessage =
-    document.getElementById("errorMessage");
-
-const loginButton =
-    document.getElementById("loginButton");
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordIcon = document.getElementById("passwordIcon");
 
 
-loginForm.addEventListener(
-    "submit",
-    async function(event) {
+    /*
+     * Show or hide the password.
+     */
+    togglePassword.addEventListener("click", function () {
+        const isPasswordHidden = passwordInput.type === "password";
 
-        /*
-         * Stop the normal form submission temporarily.
-         *
-         * First we authenticate against our REST API
-         * and obtain the JWT access token.
-         */
+        passwordInput.type = isPasswordHidden ? "text" : "password";
+
+        passwordIcon.className = isPasswordHidden
+            ? "bi bi-eye-slash"
+            : "bi bi-eye";
+
+        togglePassword.setAttribute(
+            "aria-label",
+            isPasswordHidden ? "Hide password" : "Show password"
+        );
+
+        togglePassword.setAttribute(
+            "title",
+            isPasswordHidden ? "Hide password" : "Show password"
+        );
+    });
+
+
+    /*
+     * Display an authentication error.
+     */
+    function showLoginError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("d-none");
+    }
+
+
+    /*
+     * Restore the login button after a failed request.
+     */
+    function resetLoginButton() {
+        loginButton.disabled = false;
+        loginButtonText.textContent = "Sign In";
+        loginButtonIcon.className = "bi bi-arrow-right";
+    }
+
+
+    /*
+     * Authenticate through the existing REST API,
+     * save JWT tokens, and then submit the Django form
+     * to establish the browser session.
+     */
+    loginForm.addEventListener("submit", async function (event) {
+
         event.preventDefault();
 
-        const username =
-            document.getElementById(
-                "username"
-            ).value;
+        const username = document.getElementById("username").value.trim();
+        const password = passwordInput.value;
 
-        const password =
-            document.getElementById(
-                "password"
-            ).value;
-
-
+        errorMessage.textContent = "";
         errorMessage.classList.add("d-none");
 
         loginButton.disabled = true;
-
-        loginButton.textContent =
-            "Logging in...";
-
+        loginButtonText.textContent = "Signing in...";
+        loginButtonIcon.className = "bi bi-arrow-repeat";
 
         try {
+            const response = await fetch("/api/auth/login/", {
+                method: "POST",
 
-            /*
-             * Call our existing REST API login endpoint.
-             */
-            const response = await fetch(
-                "/api/auth/login/",
-                {
-                    method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
 
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                }
-            );
+            let data = {};
 
-
-            const data =
-                await response.json();
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                data = {};
+            }
 
 
             /*
-             * If the API rejected the credentials,
-             * show the error and stop.
+             * Handle invalid credentials or API errors.
              */
             if (!response.ok) {
-
-                let message =
-                    "Invalid username or password.";
+                let message = "Invalid username or password.";
 
                 if (data.detail) {
                     message = data.detail;
+                } else if (
+                    data.non_field_errors &&
+                    data.non_field_errors.length
+                ) {
+                    message = data.non_field_errors[0];
+                } else if (data.username && data.username.length) {
+                    message = data.username[0];
+                } else if (data.password && data.password.length) {
+                    message = data.password[0];
                 }
 
-                if (data.non_field_errors) {
-                    message =
-                        data.non_field_errors[0];
-                }
-
-                errorMessage.textContent =
-                    message;
-
-                errorMessage.classList.remove(
-                    "d-none"
-                );
-
-                loginButton.disabled = false;
-
-                loginButton.textContent =
-                    "Login";
-
+                showLoginError(message);
+                resetLoginButton();
                 return;
             }
 
 
             /*
-             * Save the JWT tokens.
-             *
-             * IMPORTANT:
-             * API requests use the ACCESS token.
+             * Validate the expected token response.
+             */
+            if (
+                !data.tokens ||
+                !data.tokens.access ||
+                !data.tokens.refresh
+            ) {
+                showLoginError(
+                    "The server returned an unexpected login response. Please try again."
+                );
+
+                resetLoginButton();
+                return;
+            }
+
+
+            /*
+             * Save JWT tokens for authenticated API requests.
              */
             localStorage.setItem(
                 "access_token",
@@ -234,34 +836,21 @@ loginForm.addEventListener(
 
 
             /*
-             * Now allow the normal Django form
-             * submission to happen.
-             *
-             * This creates the Django browser session.
+             * Establish the Django browser session using
+             * the existing form submission flow.
              */
             loginForm.submit();
 
         } catch (error) {
-
-            errorMessage.textContent =
-                "Unable to connect to the server.";
-
-            errorMessage.classList.remove(
-                "d-none"
+            showLoginError(
+                "Unable to connect to the server. Please check your connection and try again."
             );
 
-            loginButton.disabled = false;
-
-            loginButton.textContent =
-                "Login";
-
+            resetLoginButton();
         }
 
-    }
-);
-
+    });
 </script>
 
 </body>
-
 </html>
