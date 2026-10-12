@@ -93,6 +93,13 @@ def records_search_page(request):
 
 @login_required
 def audit_logs_page(request):
+    is_admin = request.user.groups.filter(name="Admin").exists()
+
+    if not is_admin:
+        return HttpResponseForbidden(
+            "Access denied. Only Admin users can view Audit Logs."
+        )
+
     return render(request, "audit/logs.html")
 
 

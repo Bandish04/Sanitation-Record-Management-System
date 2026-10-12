@@ -1,3 +1,4 @@
+
 from decimal import Decimal
 
 from rest_framework import serializers
@@ -14,6 +15,8 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    created_by_name = serializers.SerializerMethodField()
+
     class Meta:
         model = SanitizerTitration
         fields = [
@@ -27,6 +30,7 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
             "status",
             "result_status",
             "created_by",
+            "created_by_name",
             "created_at",
             "updated_at",
             "submitted_at",
@@ -40,10 +44,20 @@ class SanitizerTitrationSerializer(serializers.ModelSerializer):
             "status",
             "result_status",
             "created_by",
+            "created_by_name",
             "created_at",
             "updated_at",
             "submitted_at",
         ]
+
+    def get_created_by_name(self, obj):
+        if not obj.created_by:
+            return ""
+
+        return (
+            obj.created_by.get_full_name().strip()
+            or obj.created_by.username
+        )
 
     def validate_r71_drops(self, value):
         if value < 1:
@@ -118,6 +132,8 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    created_by_name = serializers.SerializerMethodField()
+
     class Meta:
         model = ChloragelTitration
         fields = [
@@ -130,6 +146,7 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
             "status",
             "result_status",
             "created_by",
+            "created_by_name",
             "created_at",
             "updated_at",
             "submitted_at",
@@ -142,10 +159,20 @@ class ChloragelTitrationSerializer(serializers.ModelSerializer):
             "status",
             "result_status",
             "created_by",
+            "created_by_name",
             "created_at",
             "updated_at",
             "submitted_at",
         ]
+
+    def get_created_by_name(self, obj):
+        if not obj.created_by:
+            return ""
+
+        return (
+            obj.created_by.get_full_name().strip()
+            or obj.created_by.username
+        )
 
     def validate_r9_drops(self, value):
         if value < 1:

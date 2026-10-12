@@ -1,1057 +1,1376 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}Sanitizer Titration | Sanitation Record Management System{% endblock %}
+{% block breadcrumb %}Sanitizer Titration{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block extra_css %}
+<style>
+    .sanitizer-page {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
 
-    <title>Sanitizer Titration</title>
+    .page-header,
+    .records-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    .page-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-primary, #101828);
+    }
 
-</head>
+    .page-description {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: var(--text-secondary, #667085);
+    }
 
-<body>
+    .sanitizer-card {
+        background: var(--card-bg, #fff);
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
 
-<div class="container py-5">
+    /* The form is hidden until New Record or Edit is clicked. */
+    #sanitizerFormCard[hidden] {
+        display: none !important;
+    }
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    .section-heading {
+        margin: 0 0 6px;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text-primary, #101828);
+    }
 
-        <h2>
-            Sanitizer / Maxquat Titration
-        </h2>
+    .section-description {
+        margin: 0 0 22px;
+        font-size: 13px;
+        color: var(--text-secondary, #667085);
+    }
 
-        <a
-            href="/dashboard/"
-            class="btn btn-secondary"
+    .sanitizer-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .form-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary, #344054);
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        min-height: 44px;
+        padding: 10px 12px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 8px;
+        background-color: var(--input-bg, #fff);
+        color: var(--text-primary, #101828);
+        font-size: 14px;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #465fff;
+        box-shadow: 0 0 0 3px rgba(70, 95, 255, .12);
+    }
+
+    .form-control:disabled,
+    .form-select:disabled {
+        background: var(--input-disabled-bg, #f2f4f7);
+        cursor: not-allowed;
+        opacity: .8;
+    }
+
+    .field-help {
+        font-size: 12px;
+        color: var(--text-secondary, #667085);
+    }
+
+    .calculation-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+    }
+
+    .calculation-box {
+        padding: 18px;
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 10px;
+        background: var(--surface-bg, #f9fafb);
+    }
+
+    .calculation-label {
+        margin-bottom: 8px;
+        color: var(--text-secondary, #667085);
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .calculation-value {
+        color: var(--text-primary, #101828);
+        font-size: 25px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .calculation-unit {
+        margin-left: 4px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary, #667085);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-draft,
+    .status-other {
+        color: #344054;
+        background: #f2f4f7;
+    }
+
+    .status-submitted,
+    .status-pass {
+        color: #027a48;
+        background: #ecfdf3;
+    }
+
+    .status-fail {
+        color: #b42318;
+        background: #fef3f2;
+    }
+
+    .status-review {
+        color: #b54708;
+        background: #fffaeb;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color, #e4e7ec);
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 10px 16px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color .2s, border-color .2s;
+    }
+
+    .action-button:disabled {
+        cursor: not-allowed;
+        opacity: .55;
+    }
+
+    .button-primary {
+        background: #465fff;
+        color: #fff;
+    }
+
+    .button-primary:hover:not(:disabled) {
+        background: #3641f5;
+    }
+
+    .button-secondary {
+        color: var(--text-primary, #344054);
+        background: var(--card-bg, #fff);
+        border-color: var(--border-color, #d0d5dd);
+    }
+
+    .button-secondary:hover:not(:disabled) {
+        background: var(--surface-bg, #f9fafb);
+    }
+
+    .button-success {
+        background: #039855;
+        color: #fff;
+    }
+
+    .button-success:hover:not(:disabled) {
+        background: #027a48;
+    }
+
+    .alert-message {
+        display: none;
+        padding: 13px 15px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .alert-message.show {
+        display: block;
+    }
+
+    .alert-success {
+        color: #027a48;
+        background: #ecfdf3;
+        border-color: #abefc6;
+    }
+
+    .alert-error {
+        color: #b42318;
+        background: #fef3f2;
+        border-color: #fecdca;
+    }
+
+    .alert-info {
+        color: #175cd3;
+        background: #eff8ff;
+        border-color: #b2ddff;
+    }
+
+    .records-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .records-filters .form-select {
+        min-width: 150px;
+        width: auto;
+    }
+
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--border-color, #e4e7ec);
+        border-radius: 9px;
+    }
+
+    .sanitizer-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .sanitizer-table thead {
+        background: var(--surface-bg, #f9fafb);
+    }
+
+    .sanitizer-table th {
+        padding: 13px 15px;
+        color: var(--text-secondary, #667085);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--border-color, #e4e7ec);
+    }
+
+    .sanitizer-table td {
+        padding: 14px 15px;
+        color: var(--text-primary, #344054);
+        font-size: 13px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color, #eaecf0);
+    }
+
+    .sanitizer-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .sanitizer-table tbody tr:hover {
+        background: var(--surface-bg, #f9fafb);
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+    }
+
+    .table-button {
+        padding: 6px 10px;
+        border: 1px solid var(--border-color, #d0d5dd);
+        border-radius: 6px;
+        background: var(--card-bg, #fff);
+        color: var(--text-primary, #344054);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .table-button:hover {
+        background: var(--surface-bg, #f2f4f7);
+    }
+
+    .empty-state {
+        padding: 38px 20px;
+        text-align: center;
+        color: var(--text-secondary, #667085);
+        font-size: 13px;
+    }
+
+    .records-count {
+        color: var(--text-secondary, #667085);
+        font-size: 12px;
+        margin-top: 14px;
+    }
+
+    .required-mark {
+        color: #d92d20;
+    }
+
+    @media (max-width: 768px) {
+        .sanitizer-card {
+            padding: 17px;
+        }
+
+        .sanitizer-form-grid,
+        .calculation-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-field.full-width {
+            grid-column: auto;
+        }
+
+        .page-title {
+            font-size: 21px;
+        }
+
+        .records-filters {
+            width: 100%;
+        }
+
+        .records-filters .form-select {
+            flex: 1;
+            min-width: 130px;
+        }
+
+        .form-actions {
+            justify-content: stretch;
+        }
+
+        .form-actions .action-button {
+            flex: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sanitizer-page">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Sanitizer Titration</h1>
+            <p class="page-description">
+                Create, manage, and submit sanitizer and Maxquat titration records.
+            </p>
+        </div>
+
+        <button
+            type="button"
+            class="action-button button-primary"
+            id="newRecordButton"
         >
-            Dashboard
-        </a>
-
+            + New Record
+        </button>
     </div>
 
+    <div id="pageAlert" class="alert-message" role="alert" aria-live="polite"></div>
 
-    <!-- CREATE / EDIT FORM -->
+    <section class="sanitizer-card" id="sanitizerFormCard" hidden>
+        <div class="records-header">
+            <div>
+                <h2 class="section-heading" id="formHeading">New Sanitizer Titration</h2>
+                <p class="section-description" style="margin-bottom:0;">
+                    Enter the plant and R-71 drop count. PPM and percent are calculated automatically.
+                </p>
+            </div>
+        </div>
 
-    <div class="card shadow mb-4">
+        <div id="formAlert" class="alert-message" role="alert" aria-live="polite"></div>
 
-        <div class="card-body">
+        <form id="sanitizerForm" novalidate>
+            {% csrf_token %}
 
-            <h4 class="mb-4">
-                New Titration
-            </h4>
+            <input type="hidden" id="recordId" value="">
 
-
-            <div
-                id="message"
-                class="alert d-none"
-            ></div>
-
-
-            <form id="titrationForm">
-
-                <!-- PLANT -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="plant"
-                        class="form-label"
-                    >
-                        Plant
+            <div class="sanitizer-form-grid">
+                <div class="form-field">
+                    <label class="form-label" for="plant">
+                        Plant <span class="required-mark">*</span>
                     </label>
 
-                    <select
-                        id="plant"
-                        class="form-select"
-                        required
-                    >
-
-                        <option value="">
-                            Select Plant
-                        </option>
-
+                    <select id="plant" name="plant" class="form-select" required>
+                        <option value="">Loading plants...</option>
                     </select>
 
+                    <span class="field-help">
+                        Select the plant where the sample was collected.
+                    </span>
                 </div>
 
-
-                <!-- SAMPLE VOLUME -->
-
-                <div class="mb-3">
-
-                    <label
-                        class="form-label"
-                    >
-                        Sample Volume
-                    </label>
-
-                    <input
-                        type="text"
-                        class="form-control"
-                        value="5 mL"
-                        readonly
-                    >
-
-                </div>
-
-
-                <!-- R-71 DROPS -->
-
-                <div class="mb-3">
-
-                    <label
-                        for="r71_drops"
-                        class="form-label"
-                    >
-                        R-71 Drops
+                <div class="form-field">
+                    <label class="form-label" for="r71Drops">
+                        R-71 Drops <span class="required-mark">*</span>
                     </label>
 
                     <input
                         type="number"
-                        id="r71_drops"
+                        id="r71Drops"
+                        name="r71_drops"
                         class="form-control"
                         min="1"
                         max="32"
+                        step="1"
+                        placeholder="Enter drops (1–32)"
                         required
                     >
 
-                    <div class="form-text">
-                        Enter a value from 1 to 32 drops.
-                    </div>
-
+                    <span class="field-help">Allowed range: 1–32 drops.</span>
                 </div>
 
+                <div class="form-field full-width">
+                    <label class="form-label" for="notes">Notes</label>
 
-                <!-- CALCULATED VALUES -->
+                    <textarea
+                        id="notes"
+                        name="notes"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Optional notes about this titration..."
+                    ></textarea>
+                </div>
+            </div>
 
-                <div class="row">
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            PPM
-                        </label>
-
-                        <input
-                            type="text"
-                            id="ppm"
-                            class="form-control"
-                            value="0.00"
-                            readonly
-                        >
-
+            <div class="calculation-grid">
+                <div class="calculation-box">
+                    <div class="calculation-label">Calculated PPM</div>
+                    <div class="calculation-value">
+                        <span id="ppmValue">0.00</span>
+                        <span class="calculation-unit">ppm</span>
                     </div>
-
-
-                    <div class="col-md-6 mb-3">
-
-                        <label class="form-label">
-                            % v/v
-                        </label>
-
-                        <input
-                            type="text"
-                            id="percent_vv"
-                            class="form-control"
-                            value="0.0000"
-                            readonly
-                        >
-
-                    </div>
-
                 </div>
 
-
-                <!-- RESULT -->
-
-                <div class="mb-4">
-
-                    <label class="form-label">
-                        Result
-                    </label>
-
-                    <div
-                        id="resultStatus"
-                        class="alert alert-secondary"
-                    >
-                        Enter R-71 drops to calculate.
+                <div class="calculation-box">
+                    <div class="calculation-label">Calculated Percent (v/v)</div>
+                    <div class="calculation-value">
+                        <span id="percentValue">0.0000</span>
+                        <span class="calculation-unit">%</span>
                     </div>
-
                 </div>
+            </div>
 
-
-                <!-- BUTTONS -->
+            <div class="form-actions">
+                <button
+                    type="button"
+                    class="action-button button-secondary"
+                    id="cancelEditButton"
+                >
+                    Cancel
+                </button>
 
                 <button
-                    type="submit"
-                    id="saveButton"
-                    class="btn btn-primary"
+                    type="button"
+                    class="action-button button-primary"
+                    id="saveDraftButton"
                 >
                     Save Draft
                 </button>
 
                 <button
                     type="button"
-                    id="submitButton"
-                    class="btn btn-success ms-2 d-none"
+                    class="action-button button-success"
+                    id="submitRecordButton"
                 >
-                    Submit
+                    Submit Record
                 </button>
+            </div>
+        </form>
+    </section>
+
+    <section class="sanitizer-card">
+        <div class="records-header">
+            <div>
+                <h2 class="section-heading">Sanitizer Records</h2>
+                <p class="section-description" style="margin-bottom:0;">
+                    Review existing titrations and manage eligible draft records.
+                </p>
+            </div>
+
+            <div class="records-filters">
+                <select id="filterPlant" class="form-select" aria-label="Filter by plant">
+                    <option value="">All Plants</option>
+                </select>
+
+                <select id="filterStatus" class="form-select" aria-label="Filter by status">
+                    <option value="">All Statuses</option>
+                    <option value="DRAFT">Draft</option>
+                    <option value="SUBMITTED">Submitted</option>
+                    <option value="CORRECTED">Corrected</option>
+                    <option value="REVIEW_REQUIRED">Review Required</option>
+                </select>
 
                 <button
                     type="button"
-                    id="cancelEditButton"
-                    class="btn btn-secondary ms-2 d-none"
+                    class="action-button button-secondary"
+                    id="refreshRecordsButton"
                 >
-                    Cancel Edit
+                    Refresh
                 </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-
-    <!-- RECORDS -->
-
-    <div class="card shadow">
-
-        <div class="card-body">
-
-            <h4 class="mb-4">
-                Sanitizer Titration Records
-            </h4>
-
-            <div class="table-responsive">
-
-                <table class="table table-bordered table-hover">
-
-                    <thead>
-
-                        <tr>
-
-                            <th>ID</th>
-                            <th>Plant</th>
-                            <th>R-71 Drops</th>
-                            <th>PPM</th>
-                            <th>% v/v</th>
-                            <th>Result</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-
-                        </tr>
-
-                    </thead>
-
-                    <tbody id="recordsTable">
-
-                    </tbody>
-
-                </table>
-
             </div>
-
         </div>
 
-    </div>
+        <div id="recordsAlert" class="alert-message" role="alert" aria-live="polite"></div>
 
+        <div class="table-container">
+            <table class="sanitizer-table">
+                <thead>
+                    <tr>
+                        <th>Plant</th>
+                        <th>R-71 Drops</th>
+                        <th>PPM</th>
+                        <th>Percent (v/v)</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="recordsTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">Loading sanitizer records...</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="records-count" id="recordsCount">Loading records...</div>
+    </section>
 </div>
+{% endblock %}
 
-
+{% block extra_js %}
 <script>
+(function () {
+    "use strict";
 
-const API_URL = "/api/titrations/";
+    const API_URL = "/api/titrations/";
+    const PLANTS_URL = "/api/plants/";
 
-const accessToken =
-    localStorage.getItem("access_token");
+    const form = document.getElementById("sanitizerForm");
+    const formCard = document.getElementById("sanitizerFormCard");
+    const plantSelect = document.getElementById("plant");
+    const r71DropsInput = document.getElementById("r71Drops");
+    const notesInput = document.getElementById("notes");
+    const recordIdInput = document.getElementById("recordId");
 
+    const ppmValue = document.getElementById("ppmValue");
+    const percentValue = document.getElementById("percentValue");
 
-let editingId = null;
+    const saveDraftButton = document.getElementById("saveDraftButton");
+    const submitRecordButton = document.getElementById("submitRecordButton");
+    const cancelEditButton = document.getElementById("cancelEditButton");
+    const newRecordButton = document.getElementById("newRecordButton");
+    const refreshRecordsButton = document.getElementById("refreshRecordsButton");
 
+    const recordsTableBody = document.getElementById("recordsTableBody");
+    const recordsCount = document.getElementById("recordsCount");
+    const filterPlant = document.getElementById("filterPlant");
+    const filterStatus = document.getElementById("filterStatus");
 
-/* --------------------------------------------------
-   CHECK LOGIN
--------------------------------------------------- */
+    const pageAlert = document.getElementById("pageAlert");
+    const formAlert = document.getElementById("formAlert");
+    const recordsAlert = document.getElementById("recordsAlert");
+    const formHeading = document.getElementById("formHeading");
 
-if (!accessToken) {
+    let records = [];
+    let plants = [];
+    let editingRecord = null;
+    let requestInProgress = false;
 
-    window.location.href = "/login/";
+    function getAccessToken() {
+        return localStorage.getItem("access_token")
+            || localStorage.getItem("access")
+            || "";
+    }
 
-}
+    function getHeaders(includeJson = true) {
+        const headers = {};
+        const token = getAccessToken();
 
-
-/* --------------------------------------------------
-   ELEMENTS
--------------------------------------------------- */
-
-const form =
-    document.getElementById("titrationForm");
-
-const plantSelect =
-    document.getElementById("plant");
-
-const dropsInput =
-    document.getElementById("r71_drops");
-
-const ppmInput =
-    document.getElementById("ppm");
-
-const percentInput =
-    document.getElementById("percent_vv");
-
-const resultStatus =
-    document.getElementById("resultStatus");
-
-const saveButton =
-    document.getElementById("saveButton");
-
-const submitButton =
-    document.getElementById("submitButton");
-
-const cancelEditButton =
-    document.getElementById("cancelEditButton");
-
-const recordsTable =
-    document.getElementById("recordsTable");
-
-const message =
-    document.getElementById("message");
-
-
-/* --------------------------------------------------
-   MESSAGE
--------------------------------------------------- */
-
-function showMessage(text, type = "success") {
-
-    message.textContent = text;
-
-    message.className =
-        `alert alert-${type}`;
-
-}
-
-
-/* --------------------------------------------------
-   API HEADERS
--------------------------------------------------- */
-
-function getHeaders() {
-
-    return {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json"
-    };
-
-}
-
-
-/* --------------------------------------------------
-   LOAD PLANTS
--------------------------------------------------- */
-
-async function loadPlants() {
-
-    try {
-
-        const response = await fetch(
-            "/api/plants/",
-            {
-                headers: {
-                    "Authorization":
-                        `Bearer ${accessToken}`
-                }
-            }
-        );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load plants."
-            );
-
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
         }
 
+        if (includeJson) {
+            headers["Content-Type"] = "application/json";
+        }
 
-        const plants =
-            await response.json();
+        return headers;
+    }
 
+    async function apiRequest(url, options = {}) {
+        const headers = {
+            ...getHeaders(options.body !== undefined),
+            ...(options.headers || {})
+        };
 
-        plantSelect.innerHTML =
-            '<option value="">Select Plant</option>';
-
-
-        plants.forEach(plant => {
-
-            if (!plant.active) {
-                return;
-            }
-
-            const option =
-                document.createElement("option");
-
-            option.value =
-                plant.id;
-
-            option.textContent =
-                `${plant.code} - ${plant.name}`;
-
-            plantSelect.appendChild(option);
-
+        const response = await fetch(url, {
+            ...options,
+            headers
         });
 
-    } catch (error) {
+        const text = await response.text();
+        let data = null;
 
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* --------------------------------------------------
-   CALCULATE VALUES
--------------------------------------------------- */
-
-function calculateValues() {
-
-    const drops =
-        Number(dropsInput.value);
-
-
-    if (!drops || drops < 1) {
-
-        ppmInput.value = "0.00";
-
-        percentInput.value =
-            "0.0000";
-
-        resultStatus.textContent =
-            "Enter R-71 drops to calculate.";
-
-        resultStatus.className =
-            "alert alert-secondary";
-
-        return;
-
-    }
-
-
-    const ppm =
-        drops * 12.5;
-
-
-    const percentVV =
-        drops * 0.0125;
-
-
-    ppmInput.value =
-        ppm.toFixed(2);
-
-
-    percentInput.value =
-        percentVV.toFixed(4);
-
-
-    resultStatus.textContent =
-        "Final PASS / FAIL status will be determined by the server.";
-
-    resultStatus.className =
-        "alert alert-info";
-
-}
-
-
-/* --------------------------------------------------
-   DROPS INPUT
--------------------------------------------------- */
-
-dropsInput.addEventListener(
-    "input",
-    calculateValues
-);
-
-
-/* --------------------------------------------------
-   LOAD RECORDS
--------------------------------------------------- */
-
-async function loadRecords() {
-
-    try {
-
-        const response = await fetch(
-            API_URL,
-            {
-                headers: getHeaders()
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch (_) {
+                data = text;
             }
-        );
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                "Unable to load titration records."
-            );
-
         }
 
+        if (!response.ok) {
+            let message = "Request failed (" + response.status + ").";
 
-        const records =
-            await response.json();
+            if (data && typeof data === "object") {
+                if (data.detail) {
+                    message = data.detail;
+                } else {
+                    message = Object.entries(data)
+                        .map(([key, value]) => {
+                            const description = Array.isArray(value)
+                                ? value.join(", ")
+                                : typeof value === "object"
+                                    ? JSON.stringify(value)
+                                    : String(value);
 
+                            return key + ": " + description;
+                        })
+                        .join(" ");
+                }
+            } else if (typeof data === "string" && data.trim()) {
+                message = data;
+            }
 
-        recordsTable.innerHTML = "";
+            throw new Error(message);
+        }
 
+        return data;
+    }
 
-        if (records.length === 0) {
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[character];
+        });
+    }
 
-            recordsTable.innerHTML = `
+    function showAlert(element, message, type = "info") {
+        element.textContent = message;
+        element.className = "alert-message show alert-" + type;
+    }
+
+    function hideAlert(element) {
+        element.textContent = "";
+        element.className = "alert-message";
+    }
+
+    function setBusy(busy) {
+        requestInProgress = busy;
+
+        saveDraftButton.disabled = busy;
+        submitRecordButton.disabled = busy;
+        cancelEditButton.disabled = busy;
+        newRecordButton.disabled = busy;
+        refreshRecordsButton.disabled = busy;
+
+        saveDraftButton.textContent = busy
+            ? "Saving..."
+            : (recordIdInput.value ? "Update Draft" : "Save Draft");
+
+        submitRecordButton.textContent = busy
+            ? "Submitting..."
+            : "Submit Record";
+    }
+
+    function getArray(data) {
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (data && Array.isArray(data.results)) {
+            return data.results;
+        }
+
+        return [];
+    }
+
+    function getPlantId(record) {
+        return record.plant ?? record.plant_id ?? "";
+    }
+
+    function getPlantName(record) {
+        if (record.plant_name) {
+            const plant = plants.find(
+                item => item.name === record.plant_name
+            );
+
+            if (plant && plant.code) {
+                return plant.code + " - " + plant.name;
+            }
+
+            return record.plant_name;
+        }
+
+        const plantId = getPlantId(record);
+        const plant = plants.find(
+            item => String(item.id) === String(plantId)
+        );
+
+        if (plant) {
+            return (plant.code ? plant.code + " - " : "") + plant.name;
+        }
+
+        return plantId ? "Plant " + plantId : "—";
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
+        }
+
+        return date.toLocaleString();
+    }
+
+    function normalizeStatus(status) {
+        return String(status || "DRAFT").toUpperCase();
+    }
+
+    function statusClass(status) {
+        const normalized = normalizeStatus(status);
+
+        if (normalized === "DRAFT") return "status-draft";
+        if (normalized === "SUBMITTED") return "status-submitted";
+        if (normalized === "PASS") return "status-pass";
+        if (normalized === "FAIL") return "status-fail";
+        if (normalized === "REVIEW_REQUIRED") return "status-review";
+
+        return "status-other";
+    }
+
+    function statusLabel(status) {
+        return normalizeStatus(status).replaceAll("_", " ");
+    }
+
+    function getResult(record) {
+        return record.result_status
+            ?? record.result
+            ?? record.pass_fail
+            ?? record.outcome
+            ?? "—";
+    }
+
+    function getCreatedBy(record) {
+        const creator = record.created_by;
+
+        const name =
+            record.created_by_name ??
+            record.created_by_username ??
+            record.created_by_details?.username ??
+            record.created_by_details?.name ??
+            record.username ??
+            record.user?.username ??
+            record.user?.name;
+
+        if (name !== null && name !== undefined && name !== "") {
+            return name;
+        }
+
+        if (creator && typeof creator === "object") {
+            return creator.username
+                ?? creator.name
+                ?? creator.first_name
+                ?? creator.email
+                ?? "—";
+        }
+
+        return "—";
+    }
+
+    function updateCalculations() {
+        const rawDrops = r71DropsInput.value.trim();
+        const drops = Number(rawDrops);
+
+        if (
+            rawDrops === ""
+            || !Number.isInteger(drops)
+            || drops < 1
+            || drops > 32
+        ) {
+            ppmValue.textContent = "0.00";
+            percentValue.textContent = "0.0000";
+            return;
+        }
+
+        ppmValue.textContent = (drops * 12.5).toFixed(2);
+        percentValue.textContent = (drops * 0.0125).toFixed(4);
+    }
+
+    function openForm() {
+        formCard.hidden = false;
+        newRecordButton.setAttribute("aria-expanded", "true");
+    }
+
+    function closeForm() {
+        formCard.hidden = true;
+        newRecordButton.setAttribute("aria-expanded", "false");
+    }
+
+    function resetForm() {
+        form.reset();
+
+        recordIdInput.value = "";
+        editingRecord = null;
+
+        updateCalculations();
+
+        formHeading.textContent = "New Sanitizer Titration";
+        saveDraftButton.textContent = "Save Draft";
+        submitRecordButton.textContent = "Submit Record";
+
+        plantSelect.disabled = false;
+        r71DropsInput.disabled = false;
+        notesInput.disabled = false;
+
+        hideAlert(formAlert);
+    }
+
+    function startNewRecord() {
+        if (requestInProgress) {
+            return;
+        }
+
+        resetForm();
+        openForm();
+
+        formHeading.textContent = "New Sanitizer Titration";
+
+        document.getElementById("sanitizerFormCard").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        plantSelect.focus({ preventScroll: true });
+    }
+
+    function populatePlantOptions() {
+        const currentPlant = plantSelect.value;
+        const currentFilter = filterPlant.value;
+
+        plantSelect.innerHTML =
+            '<option value="">Select a plant</option>';
+
+        filterPlant.innerHTML =
+            '<option value="">All Plants</option>';
+
+        plants.forEach(plant => {
+            const label =
+                (plant.code ? plant.code + " - " : "") + plant.name;
+
+            const formOption = document.createElement("option");
+            formOption.value = plant.id;
+            formOption.textContent = label;
+
+            if (plant.is_active === false || plant.is_active === 0) {
+                formOption.disabled = true;
+                formOption.textContent += " (Inactive)";
+            }
+
+            plantSelect.appendChild(formOption);
+
+            const filterOption = document.createElement("option");
+            filterOption.value = plant.id;
+            filterOption.textContent = label;
+
+            filterPlant.appendChild(filterOption);
+        });
+
+        if (currentPlant) {
+            plantSelect.value = currentPlant;
+        }
+
+        if (currentFilter) {
+            filterPlant.value = currentFilter;
+        }
+    }
+
+    async function loadPlants() {
+        const data = await apiRequest(PLANTS_URL, {
+            method: "GET"
+        });
+
+        plants = getArray(data);
+        populatePlantOptions();
+    }
+
+    async function loadRecords() {
+        hideAlert(recordsAlert);
+
+        recordsTableBody.innerHTML = `
+            <tr>
+                <td colspan="9">
+                    <div class="empty-state">Loading sanitizer records...</div>
+                </td>
+            </tr>
+        `;
+
+        try {
+            const data = await apiRequest(API_URL, {
+                method: "GET"
+            });
+
+            records = getArray(data);
+            renderRecords();
+        } catch (error) {
+            recordsTableBody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="9"
-                        class="text-center"
-                    >
-                        No sanitizer titration records found.
+                    <td colspan="9">
+                        <div class="empty-state">
+                            Unable to load sanitizer records.
+                        </div>
                     </td>
                 </tr>
             `;
 
-            return;
+            recordsCount.textContent = "Records could not be loaded.";
 
+            showAlert(
+                recordsAlert,
+                error.message || "Unable to load sanitizer records.",
+                "error"
+            );
         }
+    }
 
+    function canEditRecord(record) {
+        return normalizeStatus(record.status) === "DRAFT";
+    }
 
-        records.forEach(record => {
+    function renderRecords() {
+        const selectedPlant = filterPlant.value;
+        const selectedStatus = filterStatus.value;
 
-            const row =
-                document.createElement("tr");
+        const filteredRecords = records.filter(record => {
+            const matchesPlant = !selectedPlant
+                || String(getPlantId(record)) === String(selectedPlant);
 
+            const matchesStatus = !selectedStatus
+                || normalizeStatus(record.status) === selectedStatus;
 
-            let actions = "";
+            return matchesPlant && matchesStatus;
+        });
 
-
-            if (record.status === "DRAFT") {
-
-                actions = `
-                    <button
-                        class="btn btn-sm btn-primary me-1"
-                        onclick="editRecord(${record.id})"
-                    >
-                        Edit
-                    </button>
-
-                    <button
-                        class="btn btn-sm btn-success"
-                        onclick="submitRecord(${record.id})"
-                    >
-                        Submit
-                    </button>
-                `;
-
-            } else {
-
-                actions = `
-                    <span class="text-muted">
-                        Locked
-                    </span>
-                `;
-
-            }
-
-
-            row.innerHTML = `
-
-                <td>${record.id}</td>
-
-                <td>
-                    ${record.plant_name}
-                </td>
-
-                <td>
-                    ${record.r71_drops}
-                </td>
-
-                <td>
-                    ${record.ppm}
-                </td>
-
-                <td>
-                    ${record.percent_vv}
-                </td>
-
-                <td>
-                    ${formatResultStatus(
-                        record.result_status
-                    )}
-                </td>
-
-                <td>
-                    ${record.status}
-                </td>
-
-                <td>
-                    ${formatDate(
-                        record.created_at
-                    )}
-                </td>
-
-                <td>
-                    ${actions}
-                </td>
-
+        if (!filteredRecords.length) {
+            recordsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9">
+                        <div class="empty-state">
+                            No sanitizer records found for the selected filters.
+                        </div>
+                    </td>
+                </tr>
             `;
 
-
-            recordsTable.appendChild(row);
-
-        });
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message,
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* --------------------------------------------------
-   RESULT STATUS DISPLAY
--------------------------------------------------- */
-
-function formatResultStatus(status) {
-
-    if (status === "PASS") {
-
-        return `
-            <span class="badge bg-success">
-                PASS
-            </span>
-        `;
-
-    }
-
-
-    if (status === "FAIL") {
-
-        return `
-            <span class="badge bg-danger">
-                FAIL
-            </span>
-        `;
-
-    }
-
-
-    if (status === "REVIEW_REQUIRED") {
-
-        return `
-            <span class="badge bg-warning text-dark">
-                REVIEW REQUIRED
-            </span>
-        `;
-
-    }
-
-
-    return status;
-
-}
-
-
-/* --------------------------------------------------
-   DATE FORMAT
--------------------------------------------------- */
-
-function formatDate(dateString) {
-
-    if (!dateString) {
-        return "";
-    }
-
-
-    return new Date(
-        dateString
-    ).toLocaleString();
-
-}
-
-
-/* --------------------------------------------------
-   SAVE DRAFT
--------------------------------------------------- */
-
-form.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const plant =
-            plantSelect.value;
-
-        const drops =
-            Number(dropsInput.value);
-
-
-        if (!plant) {
-
-            showMessage(
-                "Please select a plant.",
-                "danger"
-            );
-
+            recordsCount.textContent = "Showing 0 records.";
             return;
-
         }
 
+        recordsTableBody.innerHTML = filteredRecords.map(record => {
+            const editable = canEditRecord(record);
+            const status = normalizeStatus(record.status);
+            const drops = record.r71_drops ?? record.drops ?? "—";
 
-        if (!drops || drops < 1 || drops > 32) {
-
-            showMessage(
-                "R-71 drops must be between 1 and 32.",
-                "danger"
-            );
-
-            return;
-
-        }
-
-
-        const payload = {
-            plant: Number(plant),
-            r71_drops: drops
-        };
-
-
-        saveButton.disabled = true;
-
-
-        try {
-
-            let response;
-
-
-            if (editingId) {
-
-                response = await fetch(
-                    `${API_URL}${editingId}/`,
-                    {
-                        method: "PATCH",
-                        headers: getHeaders(),
-                        body: JSON.stringify(payload)
-                    }
+            const ppm = record.ppm !== undefined && record.ppm !== null
+                ? Number(record.ppm).toFixed(2)
+                : (
+                    drops !== "—" && Number.isFinite(Number(drops))
+                        ? (Number(drops) * 12.5).toFixed(2)
+                        : "—"
                 );
 
-            } else {
+            const percent =
+                record.percent_vv !== undefined
+                && record.percent_vv !== null
+                    ? Number(record.percent_vv).toFixed(4)
+                    : (
+                        drops !== "—" && Number.isFinite(Number(drops))
+                            ? (Number(drops) * 0.0125).toFixed(4)
+                            : "—"
+                    );
 
-                response = await fetch(
-                    API_URL,
-                    {
-                        method: "POST",
-                        headers: getHeaders(),
-                        body: JSON.stringify(payload)
-                    }
-                );
+            const createdBy = getCreatedBy(record);
+            const result = getResult(record);
 
-            }
+            const createdDate =
+                record.created_at ??
+                record.created_on ??
+                record.date_created ??
+                record.timestamp;
 
+            return `
+                <tr>
+                    <td>${escapeHtml(getPlantName(record))}</td>
+                    <td>${escapeHtml(drops)}</td>
+                    <td>${escapeHtml(ppm)}</td>
+                    <td>${escapeHtml(percent)}</td>
+                    <td>
+                        <span class="status-badge ${statusClass(result)}">
+                            ${escapeHtml(statusLabel(result))}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${statusClass(status)}">
+                            ${escapeHtml(statusLabel(status))}
+                        </span>
+                    </td>
+                    <td>${escapeHtml(createdBy)}</td>
+                    <td>${escapeHtml(formatDate(createdDate))}</td>
+                    <td>
+                        <div class="table-actions">
+                            ${
+                                editable
+                                    ? `<button
+                                        type="button"
+                                        class="table-button"
+                                        data-action="edit"
+                                        data-id="${escapeHtml(record.id)}"
+                                    >Edit</button>`
+                                    : `<span style="color:var(--text-secondary,#667085);">
+                                        Locked
+                                    </span>`
+                            }
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join("");
 
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                showMessage(
-                    JSON.stringify(data),
-                    "danger"
-                );
-
-                return;
-
-            }
-
-
-            if (editingId) {
-
-                showMessage(
-                    "Sanitizer titration updated successfully.",
-                    "success"
-                );
-
-            } else {
-
-                showMessage(
-                    "Sanitizer titration saved as draft.",
-                    "success"
-                );
-
-            }
-
-
-            editingId = null;
-
-            resetForm();
-
-            await loadRecords();
-
-
-        } catch (error) {
-
-            showMessage(
-                "Unable to save titration.",
-                "danger"
-            );
-
-        } finally {
-
-            saveButton.disabled = false;
-
-        }
-
+        recordsCount.textContent =
+            "Showing " + filteredRecords.length
+            + " of " + records.length + " records.";
     }
-);
 
-
-/* --------------------------------------------------
-   EDIT RECORD
--------------------------------------------------- */
-
-async function editRecord(id) {
-
-    try {
-
-        const response = await fetch(
-            `${API_URL}${id}/`,
-            {
-                headers: getHeaders()
-            }
-        );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            showMessage(
-                JSON.stringify(data),
-                "danger"
-            );
-
+    function editRecord(id) {
+        if (requestInProgress) {
             return;
-
         }
 
+        const record = records.find(
+            item => String(item.id) === String(id)
+        );
 
-        if (data.status !== "DRAFT") {
-
-            showMessage(
-                "Only draft titrations can be edited.",
-                "danger"
+        if (!record) {
+            showAlert(
+                pageAlert,
+                "The selected record could not be found. Refresh the records and try again.",
+                "error"
             );
-
             return;
-
         }
 
-
-        editingId = id;
-
-
-        plantSelect.value =
-            data.plant;
-
-        dropsInput.value =
-            data.r71_drops;
-
-
-        calculateValues();
-
-
-        saveButton.textContent =
-            "Update Draft";
-
-        submitButton.classList.remove(
-            "d-none"
-        );
-
-        cancelEditButton.classList.remove(
-            "d-none"
-        );
-
-
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-
-
-    } catch (error) {
-
-        showMessage(
-            "Unable to load titration.",
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* --------------------------------------------------
-   SUBMIT RECORD
--------------------------------------------------- */
-
-async function submitRecord(id) {
-
-    const confirmed =
-        confirm(
-            "Are you sure you want to submit this titration? It cannot be edited after submission."
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    try {
-
-        const response = await fetch(
-            `${API_URL}${id}/submit/`,
-            {
-                method: "POST",
-                headers: getHeaders()
-            }
-        );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            showMessage(
-                JSON.stringify(data),
-                "danger"
+        if (!canEditRecord(record)) {
+            showAlert(
+                pageAlert,
+                "Only draft records can be edited.",
+                "error"
             );
-
             return;
-
         }
-
-
-        showMessage(
-            "Sanitizer titration submitted successfully.",
-            "success"
-        );
-
-
-        await loadRecords();
-
-
-    } catch (error) {
-
-        showMessage(
-            "Unable to submit titration.",
-            "danger"
-        );
-
-    }
-
-}
-
-
-/* --------------------------------------------------
-   CANCEL EDIT
--------------------------------------------------- */
-
-cancelEditButton.addEventListener(
-    "click",
-    function() {
-
-        editingId = null;
 
         resetForm();
 
+        editingRecord = record;
+        recordIdInput.value = record.id;
+
+        plantSelect.value = getPlantId(record);
+        r71DropsInput.value = record.r71_drops ?? record.drops ?? "";
+        notesInput.value = record.notes ?? "";
+
+        updateCalculations();
+
+        formHeading.textContent =
+            "Edit Sanitizer Titration #" + record.id;
+
+        saveDraftButton.textContent = "Update Draft";
+        submitRecordButton.textContent = "Submit Record";
+
+        openForm();
+
+        formCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        r71DropsInput.focus({ preventScroll: true });
     }
-);
 
+    async function saveRecord(submit = false) {
+        if (requestInProgress) {
+            return;
+        }
 
-/* --------------------------------------------------
-   RESET FORM
--------------------------------------------------- */
+        hideAlert(formAlert);
+        hideAlert(pageAlert);
 
-function resetForm() {
+        const plant = plantSelect.value;
+        const rawDrops = r71DropsInput.value.trim();
+        const drops = Number(rawDrops);
 
-    form.reset();
+        if (!plant) {
+            showAlert(formAlert, "Please select a plant.", "error");
+            plantSelect.focus();
+            return;
+        }
 
+        if (
+            rawDrops === ""
+            || !Number.isInteger(drops)
+            || drops < 1
+            || drops > 32
+        ) {
+            showAlert(
+                formAlert,
+                "R-71 drops must be a whole number between 1 and 32.",
+                "error"
+            );
 
-    ppmInput.value =
-        "0.00";
+            r71DropsInput.focus();
+            return;
+        }
 
-    percentInput.value =
-        "0.0000";
+        const payload = {
+            plant: Number(plant),
+            r71_drops: drops,
+            notes: notesInput.value.trim()
+        };
 
+        let recordId = recordIdInput.value;
+        const wasEditing = Boolean(recordId);
 
-    resultStatus.textContent =
-        "Enter R-71 drops to calculate.";
+        setBusy(true);
 
-    resultStatus.className =
-        "alert alert-secondary";
+        try {
+            let savedRecord;
 
+            if (recordId) {
+                savedRecord = await apiRequest(
+                    API_URL + recordId + "/",
+                    {
+                        method: "PATCH",
+                        body: JSON.stringify(payload)
+                    }
+                );
+            } else {
+                savedRecord = await apiRequest(
+                    API_URL,
+                    {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    }
+                );
 
-    saveButton.textContent =
-        "Save Draft";
+                /*
+                 * Preserve the new ID if submission fails, so a retry
+                 * updates the same draft rather than creating a duplicate.
+                 */
+                if (savedRecord && savedRecord.id !== undefined) {
+                    recordId = String(savedRecord.id);
+                    recordIdInput.value = recordId;
+                    editingRecord = savedRecord;
 
+                    formHeading.textContent =
+                        "Edit Sanitizer Titration #" + recordId;
 
-    submitButton.classList.add(
-        "d-none"
-    );
+                    saveDraftButton.textContent = "Update Draft";
+                }
+            }
 
+            if (submit) {
+                const savedId = savedRecord?.id ?? recordId;
 
-    cancelEditButton.classList.add(
-        "d-none"
-    );
+                if (!savedId) {
+                    throw new Error(
+                        "The record was saved, but its ID was not returned. "
+                        + "Refresh the records before submitting."
+                    );
+                }
 
-}
+                await apiRequest(
+                    API_URL + savedId + "/submit/",
+                    {
+                        method: "POST",
+                        body: JSON.stringify({})
+                    }
+                );
+            }
 
+            /*
+             * Close and reset the form only after the requested operation
+             * succeeds. If an API request fails, keep the form open.
+             */
+            resetForm();
+            closeForm();
 
-/* --------------------------------------------------
-   INITIAL LOAD
--------------------------------------------------- */
+            showAlert(
+                pageAlert,
+                submit
+                    ? "Sanitizer titration submitted successfully."
+                    : wasEditing
+                        ? "Sanitizer draft updated successfully."
+                        : "Sanitizer draft saved successfully.",
+                "success"
+            );
 
-loadPlants();
+            await loadRecords();
 
-loadRecords();
+        } catch (error) {
+            showAlert(
+                formAlert,
+                error.message || "Unable to save sanitizer titration.",
+                "error"
+            );
+        } finally {
+            setBusy(false);
+        }
+    }
 
+    r71DropsInput.addEventListener("input", updateCalculations);
+
+    saveDraftButton.addEventListener("click", function () {
+        saveRecord(false);
+    });
+
+    submitRecordButton.addEventListener("click", function () {
+        saveRecord(true);
+    });
+
+    cancelEditButton.addEventListener("click", function () {
+        if (requestInProgress) {
+            return;
+        }
+
+        resetForm();
+        closeForm();
+    });
+
+    newRecordButton.addEventListener("click", startNewRecord);
+
+    refreshRecordsButton.addEventListener("click", loadRecords);
+
+    filterPlant.addEventListener("change", renderRecords);
+    filterStatus.addEventListener("change", renderRecords);
+
+    recordsTableBody.addEventListener("click", function (event) {
+        const button = event.target.closest('[data-action="edit"]');
+
+        if (!button) {
+            return;
+        }
+
+        editRecord(button.dataset.id);
+    });
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        saveRecord(false);
+    });
+
+    async function initializePage() {
+        closeForm();
+
+        try {
+            await loadPlants();
+            await loadRecords();
+        } catch (error) {
+            showAlert(
+                pageAlert,
+                error.message || "Unable to initialize the sanitizer page.",
+                "error"
+            );
+        }
+    }
+
+    initializePage();
+})();
 </script>
-
-</body>
-
-</html>
+{% endblock %}

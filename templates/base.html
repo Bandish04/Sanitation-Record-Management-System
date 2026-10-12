@@ -1,0 +1,269 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Sanitation Record Management{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'css/tailadmin.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}app-body{% endblock %}">
+
+{% block layout %}
+<div class="app-shell">
+
+    <!-- Mobile sidebar backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+
+        <!-- Original sidebar branding -->
+        <a href="/dashboard/" class="brand">
+            <span class="brand-mark">S</span>
+            <span class="brand-copy">
+                <strong>Sanitation</strong>
+                <small>Record Management</small>
+            </span>
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <div class="sidebar-section-label">MENU</div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+
+            <a class="nav-link" href="/dashboard/" data-nav="/dashboard/">
+                <span class="nav-icon" aria-hidden="true">⌂</span>
+                <span>Dashboard</span>
+            </a>
+
+            <a class="nav-link" href="/plants/" data-nav="/plants/">
+                <span class="nav-icon" aria-hidden="true">▦</span>
+                <span>Plants Management</span>
+            </a>
+
+            <div class="sidebar-section-label">SANITATION</div>
+
+            <a class="nav-link" href="/titrations/sanitizer/" data-nav="/titrations/sanitizer/">
+                <span class="nav-icon" aria-hidden="true">◉</span>
+                <span>Sanitizer Titrations</span>
+            </a>
+
+            <a class="nav-link" href="/titrations/chloragel/" data-nav="/titrations/chloragel/">
+                <span class="nav-icon" aria-hidden="true">◉</span>
+                <span>Chloragel Titrations</span>
+            </a>
+
+            <a class="nav-link" href="/inspections/" data-nav="/inspections/">
+                <span class="nav-icon" aria-hidden="true">☑</span>
+                <span>Inspections</span>
+            </a>
+
+            <a class="nav-link" href="/inspections/atp/" data-nav="/inspections/atp/">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                <span>ATP Reports</span>
+            </a>
+
+            <div class="sidebar-section-label">RECORDS</div>
+
+            <a class="nav-link" href="/records/daily/" data-nav="/records/daily/">
+                <span class="nav-icon" aria-hidden="true">▤</span>
+                <span>Daily Records</span>
+            </a>
+
+            <a class="nav-link" href="/records/search/" data-nav="/records/search/">
+                <span class="nav-icon" aria-hidden="true">⌕</span>
+                <span>Search Records</span>
+            </a>
+
+            <a class="nav-link" href="/records/pdf/" data-nav="/records/pdf/">
+                <span class="nav-icon" aria-hidden="true">▧</span>
+                <span>PDF Reports</span>
+            </a>
+
+            <a class="nav-link" href="/corrective-actions/" data-nav="/corrective-actions/">
+                <span class="nav-icon" aria-hidden="true">✓</span>
+                <span>Corrective Actions</span>
+            </a>
+
+            {% if request.user.is_authenticated %}
+                {% for group in request.user.groups.all %}
+                    {% if group.name == "Admin" %}
+                        <div class="sidebar-section-label">ADMINISTRATION</div>
+
+                        <a class="nav-link" href="/admin/users/" data-nav="/admin/users/">
+                            <span class="nav-icon" aria-hidden="true">♙</span>
+                            <span>User Management</span>
+                        </a>
+
+                        <a class="nav-link" href="/audit/" data-nav="/audit/">
+                            <span class="nav-icon" aria-hidden="true">◷</span>
+                            <span>Audit Logs</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="sidebar-footer">
+            <div class="sidebar-footer-icon">✓</div>
+            <div>
+                <strong>Sanitation System</strong>
+                <small>Record management portal</small>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main area -->
+    <div class="app-main">
+
+        <!-- Top navigation -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <button
+                    type="button"
+                    class="icon-button sidebar-toggle"
+                    id="sidebarToggle"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                >
+                    ☰
+                </button>
+
+                <div class="breadcrumb">
+                    <a href="/dashboard/">Home</a>
+                    <span>/</span>
+                    <strong>{% block breadcrumb %}Dashboard{% endblock %}</strong>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                {% if request.user.is_authenticated %}
+
+                    <div class="user-profile">
+                        <div class="user-avatar">
+                            {{ request.user.username|first|upper }}
+                        </div>
+
+                        <div class="user-profile-copy">
+                            <strong>{{ request.user.username }}</strong>
+
+                            <small>
+                                {% if request.user.is_superuser %}
+                                    Superuser
+                                {% else %}
+                                    {% for group in request.user.groups.all %}
+                                        {{ group.name }}{% if not forloop.last %}, {% endif %}
+                                    {% empty %}
+                                        User
+                                    {% endfor %}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+
+                    <a href="/logout/" class="button button-outline button-small">
+                        Log out
+                    </a>
+
+                {% endif %}
+            </div>
+
+        </header>
+
+        <!-- Page content -->
+        <main class="page-content">
+            {% block content %}{% endblock %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <span>Sanitation Record Management System</span>
+            <span>© {% now "Y" %}</span>
+        </footer>
+
+    </div>
+</div>
+{% endblock %}
+
+<script>
+(function () {
+    const sidebar = document.getElementById("appSidebar");
+    const toggle = document.getElementById("sidebarToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    function closeSidebar() {
+        if (sidebar) {
+            sidebar.classList.remove("sidebar-open");
+        }
+
+        if (backdrop) {
+            backdrop.classList.remove("backdrop-visible");
+        }
+
+        if (toggle) {
+            toggle.setAttribute("aria-expanded", "false");
+        }
+    }
+
+    function openSidebar() {
+        if (sidebar) {
+            sidebar.classList.add("sidebar-open");
+        }
+
+        if (backdrop) {
+            backdrop.classList.add("backdrop-visible");
+        }
+
+        if (toggle) {
+            toggle.setAttribute("aria-expanded", "true");
+        }
+    }
+
+    if (toggle) {
+        toggle.addEventListener("click", function () {
+            if (sidebar && sidebar.classList.contains("sidebar-open")) {
+                closeSidebar();
+            } else {
+                openSidebar();
+            }
+        });
+    }
+
+    if (backdrop) {
+        backdrop.addEventListener("click", closeSidebar);
+    }
+
+    const currentPath = window.location.pathname.replace(/\/?$/, "/");
+
+    document.querySelectorAll("[data-nav]").forEach(function (link) {
+        const navPath = link.getAttribute("data-nav");
+
+        if (
+            currentPath === navPath ||
+            (
+                navPath !== "/dashboard/" &&
+                navPath !== "/" &&
+                currentPath.startsWith(navPath)
+            )
+        ) {
+            link.classList.add("nav-link-active");
+        }
+    });
+})();
+</script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

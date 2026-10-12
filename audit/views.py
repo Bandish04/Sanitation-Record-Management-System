@@ -1,6 +1,7 @@
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
 
+from rest_framework import generics
+
+from accounts.permissions import IsAdmin
 from .models import AuditLog
 from .serializers import AuditLogSerializer
 
@@ -8,7 +9,7 @@ from .serializers import AuditLogSerializer
 class AuditLogListAPIView(generics.ListAPIView):
 
     serializer_class = AuditLogSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdmin]
 
     def get_queryset(self):
         return AuditLog.objects.select_related(

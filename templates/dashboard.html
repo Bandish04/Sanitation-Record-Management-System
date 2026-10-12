@@ -1,433 +1,266 @@
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
+{% extends "base.html" %}
 
-    <meta charset="UTF-8">
+{% block title %}Dashboard | Sanitation Record Management System{% endblock %}
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+{% block breadcrumb %}Dashboard{% endblock %}
 
-    <title>Dashboard - Sanitation Record Management System</title>
+{% block content %}
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+<div class="dashboard-page">
 
-</head>
+    <!-- Welcome Section -->
+    <section class="dashboard-welcome">
+        <div class="dashboard-welcome-content">
+            <span class="dashboard-eyebrow">SANITATION MANAGEMENT</span>
 
-<body class="bg-light">
-
-    <!-- Navigation Bar -->
-
-    <nav class="navbar navbar-dark bg-dark">
-
-        <div class="container-fluid">
-
-            <a
-                class="navbar-brand"
-                href="/dashboard/"
-            >
-                Sanitation Record Management System
-            </a>
-
-            <div class="d-flex align-items-center gap-3">
-
-                <span class="text-white">
-                    Welcome, {{ user.username }}
-                </span>
-
-                <a
-                    href="/logout/"
-                    class="btn btn-outline-light btn-sm"
-                >
-                    Logout
-                </a>
-
-            </div>
-
-        </div>
-
-    </nav>
-
-
-    <!-- Main Content -->
-
-    <div class="container py-5">
-
-        <div class="mb-4">
-
-            <h1 class="fw-bold">
-                Dashboard
+            <h1 class="page-title">
+                Welcome back{% if user.first_name %}, {{ user.first_name }}{% endif %}!
             </h1>
 
-            <p class="text-muted">
-                Manage sanitation records and system activities.
+            <p class="page-description">
+                Manage your sanitation inspections, titrations, reports, and
+                corrective actions from one place.
             </p>
-
         </div>
 
+        <div class="dashboard-welcome-icon" aria-hidden="true">
+            <span>SR</span>
+        </div>
+    </section>
 
-        <!-- Main Modules -->
-
-        <div class="row g-4">
-
-
-            <!-- Plants -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Plants
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            View and manage Plant A and Plant B.
-                        </p>
-
-                        <a
-                            href="/plants/"
-                            class="btn btn-primary"
-                        >
-                            Open Plants
-                        </a>
-
-                    </div>
-
-                </div>
-
+    <!-- Main Modules -->
+    <section class="dashboard-section">
+        <div class="dashboard-section-heading">
+            <div>
+                <h2 class="dashboard-section-title">Sanitation Operations</h2>
+                <p class="dashboard-section-description">
+                    Access the tools you need to manage daily sanitation activities.
+                </p>
             </div>
+        </div>
 
+        <div class="card-grid dashboard-module-grid">
+
+            <!-- Plants Management -->
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-blue" aria-hidden="true">
+                        <span>PL</span>
+                    </div>
+                    <h3 class="card-title">Plants Management</h3>
+                    <p class="card-text">
+                        View plants and access plant-related sanitation records.
+                    </p>
+                    <a href="/plants/" class="button button-primary dashboard-module-link">
+                        Open Plants <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </article>
 
             <!-- Daily Records -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Daily Records
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            View combined daily sanitation records.
-                        </p>
-
-                        <a
-                            href="/records/daily/"
-                            class="btn btn-primary"
-                        >
-                            Open Daily Records
-                        </a>
-
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-purple" aria-hidden="true">
+                        <span>DR</span>
                     </div>
-
+                    <h3 class="card-title">Daily Records</h3>
+                    <p class="card-text">
+                        Review combined sanitation records for a selected plant and date.
+                    </p>
+                    <a href="/records/daily/" class="button button-primary dashboard-module-link">
+                        View Daily Records <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-
-            </div>
-
+            </article>
 
             <!-- Sanitizer Titrations -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Sanitizer Titrations
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Manage sanitizer and Maxquat titration records.
-                        </p>
-
-                        <a
-                            href="/titrations/sanitizer/"
-                            class="btn btn-primary"
-                        >
-                            Open Sanitizer
-                        </a>
-
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-green" aria-hidden="true">
+                        <span>ST</span>
                     </div>
-
+                    <h3 class="card-title">Sanitizer Titrations</h3>
+                    <p class="card-text">
+                        Create and review sanitizer and Maxquat titration records.
+                    </p>
+                    <a href="/titrations/sanitizer/" class="button button-primary dashboard-module-link">
+                        Open Sanitizer <span aria-hidden="true">→</span>
+                    </a>
                 </div>
+            </article>
 
-            </div>
-
-
-            <!-- Chloragel -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Chloragel Titrations
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Manage Chloragel titration records.
-                        </p>
-
-                        <a
-                            href="/titrations/chloragel/"
-                            class="btn btn-primary"
-                        >
-                            Open Chloragel
-                        </a>
-
+            <!-- Chloragel Titrations -->
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-orange" aria-hidden="true">
+                        <span>CT</span>
                     </div>
-
+                    <h3 class="card-title">Chloragel Titrations</h3>
+                    <p class="card-text">
+                        Create and review Chloragel titration records.
+                    </p>
+                    <a href="/titrations/chloragel/" class="button button-primary dashboard-module-link">
+                        Open Chloragel <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-
-            </div>
-
+            </article>
 
             <!-- Inspections -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Sanitation Inspections
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Create and manage daily sanitation inspections.
-                        </p>
-
-                        <a
-                            href="/inspections/"
-                            class="btn btn-primary"
-                        >
-                            Open Inspections
-                        </a>
-
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-cyan" aria-hidden="true">
+                        <span>SI</span>
                     </div>
-
+                    <h3 class="card-title">Sanitation Inspections</h3>
+                    <p class="card-text">
+                        Complete and manage daily sanitation inspections.
+                    </p>
+                    <a href="/inspections/" class="button button-primary dashboard-module-link">
+                        Open Inspections <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-
-            </div>
-
+            </article>
 
             <!-- ATP Reports -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            ATP Reports
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Upload and review UltraSnap ATP reports.
-                        </p>
-
-                        <a
-                            href="/inspections/atp/"
-                            class="btn btn-primary"
-                        >
-                            Open ATP Reports
-                        </a>
-
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-pink" aria-hidden="true">
+                        <span>ATP</span>
                     </div>
-
+                    <h3 class="card-title">ATP Reports</h3>
+                    <p class="card-text">
+                        Upload and review UltraSnap ATP reports.
+                    </p>
+                    <a href="/inspections/atp/" class="button button-primary dashboard-module-link">
+                        Open ATP Reports <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-
-            </div>
-
+            </article>
 
             <!-- Corrective Actions -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Corrective Actions
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Manage inspection corrective actions.
-                        </p>
-
-                        <a
-                            href="/corrective-actions/"
-                            class="btn btn-primary"
-                        >
-                            Open Corrective Actions
-                        </a>
-
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-red" aria-hidden="true">
+                        <span>CA</span>
                     </div>
-
+                    <h3 class="card-title">Corrective Actions</h3>
+                    <p class="card-text">
+                        Track and manage corrective actions resulting from inspections.
+                    </p>
+                    <a href="/corrective-actions/" class="button button-primary dashboard-module-link">
+                        View Actions <span aria-hidden="true">→</span>
+                    </a>
                 </div>
-
-            </div>
-
-
-            <!-- Search -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            Search Records
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Search and filter sanitation records.
-                        </p>
-
-                        <a
-                            href="/records/search/"
-                            class="btn btn-primary"
-                        >
-                            Search Records
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- PDF Reports -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-title">
-                            PDF Reports
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Generate daily sanitation PDF reports.
-                        </p>
-
-                        <a
-                            href="/records/pdf/"
-                            class="btn btn-primary"
-                        >
-                            Open PDF Reports
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Audit Logs -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="card h-100 shadow-sm">
-
-                    <div class="card-body">
-
-                        <h5 class="card-body">
-
-                        <h5 class="card-title">
-                            Audit Logs
-                        </h5>
-
-                        <p class="card-text text-muted">
-                            Review system activity and audit history.
-                        </p>
-
-                        <a
-                            href="/audit/"
-                            class="btn btn-primary"
-                        >
-                            Open Audit Logs
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- User Management - ADMIN ONLY -->
-
-            {% if user.groups.all %}
-                {% for group in user.groups.all %}
-
-                    {% if group.name == "Admin" %}
-
-                        <div class="col-md-6 col-lg-4">
-
-                            <div class="card h-100 shadow-sm border-danger">
-
-                                <div class="card-body">
-
-                                    <h5 class="card-title">
-                                        User Management
-                                    </h5>
-
-                                    <p class="card-text text-muted">
-                                        Create users, manage accounts, and assign
-                                        roles such as Inspector, Team Lead, or Admin.
-                                    </p>
-
-                                    <a
-                                        href="/admin/users/"
-                                        class="btn btn-danger"
-                                    >
-                                        Manage Users
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    {% endif %}
-
-                {% endfor %}
-            {% endif %}
-
+            </article>
 
         </div>
+    </section>
 
-    </div>
+    <!-- Records and Reports -->
+    <section class="dashboard-section">
+        <div class="dashboard-section-heading">
+            <div>
+                <h2 class="dashboard-section-title">Records &amp; Reports</h2>
+                <p class="dashboard-section-description">
+                    Find existing records and access report generation tools.
+                </p>
+            </div>
+        </div>
 
+        <div class="card-grid dashboard-module-grid">
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    ></script>
+            <!-- Search Records -->
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-blue" aria-hidden="true">
+                        <span>SR</span>
+                    </div>
+                    <h3 class="card-title">Search Records</h3>
+                    <p class="card-text">
+                        Search and filter sanitation records across the system.
+                    </p>
+                    <a href="/records/search/" class="button button-primary dashboard-module-link">
+                        Search Records <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </article>
 
-</body>
+            <!-- PDF Reports -->
+            <article class="card dashboard-module">
+                <div class="card-body">
+                    <div class="module-icon module-icon-purple" aria-hidden="true">
+                        <span>PDF</span>
+                    </div>
+                    <h3 class="card-title">PDF Reports</h3>
+                    <p class="card-text">
+                        Generate and access daily sanitation PDF reports.
+                    </p>
+                    <a href="/records/pdf/" class="button button-primary dashboard-module-link">
+                        Open PDF Reports <span aria-hidden="true">→</span>
+                    </a>
+                </div>
+            </article>
 
-</html>
+        </div>
+    </section>
+
+    <!-- Admin Tools -->
+    {% for group in user.groups.all %}
+        {% if group.name == "Admin" %}
+
+            <section class="dashboard-section">
+                <div class="dashboard-section-heading">
+                    <div>
+                        <h2 class="dashboard-section-title">Administration</h2>
+                        <p class="dashboard-section-description">
+                            Manage user access and review system activity.
+                        </p>
+                    </div>
+                    <span class="dashboard-admin-label">Admin access</span>
+                </div>
+
+                <div class="card-grid dashboard-module-grid">
+
+                    <!-- Audit Logs -->
+                    <article class="card dashboard-module">
+                        <div class="card-body">
+                            <div class="module-icon module-icon-slate" aria-hidden="true">
+                                <span>AL</span>
+                            </div>
+                            <h3 class="card-title">Audit Logs</h3>
+                            <p class="card-text">
+                                Review system activity and audit history.
+                            </p>
+                            <a href="/audit/" class="button button-primary dashboard-module-link">
+                                View Audit Logs <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- User Management -->
+                    <article class="card dashboard-module">
+                        <div class="card-body">
+                            <div class="module-icon module-icon-slate" aria-hidden="true">
+                                <span>UM</span>
+                            </div>
+                            <h3 class="card-title">User Management</h3>
+                            <p class="card-text">
+                                Manage user accounts and assign Inspector, Team Lead,
+                                or Admin roles.
+                            </p>
+                            <a href="/admin/users/" class="button button-primary dashboard-module-link">
+                                Manage Users <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+        {% endif %}
+    {% endfor %}
+
+</div>
+
+{% endblock %}
