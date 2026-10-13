@@ -343,10 +343,6 @@ Here are some screenshots of the Sanitation Record Management System.
 
 ![Screenshot 17](ScreenShots/17.png)
 
-
-
-> **📌 Note:** Add the image files with the exact filenames shown above. Until those files exist in the repository, the screenshot previews will not display.
-
 ---
 
 ## ⚙️ Installation and Setup
@@ -490,11 +486,11 @@ You can now log in with the local account you created and explore the applicatio
 
 The following usernames identify the example accounts used during project development.
 
-| Username | Role |
-|---|---|
-| `Admin` | 👑 Admin |
-| `Ajay` | 🧑‍🔬 Inspector |
-| `Deep` | 🧑‍💼 Team Lead |
+| Username | | Password | | Role |
+|---|---|---|
+| `Admin` | | `Bandish040802bv!` | 👑 Admin |
+| `Ajay` | | `Ajay040802bv!` | 🧑‍🔬 Inspector |
+| `Deep` | | `Deep040802bv!` | 🧑‍💼 Team Lead |
 
 ### 🔑 How to Log In After Cloning
 
