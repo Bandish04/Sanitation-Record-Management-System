@@ -482,15 +482,21 @@ You can now log in with the local account you created and explore the applicatio
 
 ---
 
-## 🔐 Demo Login Accounts
 
-The following usernames identify the example accounts used during project development.
+## 🔐 Demo Login Credentials
 
-| Username | | Password | | Role |
+Use the following credentials to log in to the application after the demo accounts have been created in the database.
+
+| 👤 Username | 🔑 Password | 🛡️ Role |
 |---|---|---|
-| `Admin` | | `Bandish040802bv!` | 👑 Admin |
-| `Ajay` | | `Ajay040802bv!` | 🧑‍🔬 Inspector |
-| `Deep` | | `Deep040802bv!` | 🧑‍💼 Team Lead |
+| `Admin` | `Bandish040802bv!` | 👑 Admin |
+| `Ajay` | `Ajay040802bv!` | 🧑‍🔬 Inspector |
+| `Deep` | `Deep040802bv!` | 🧑‍💼 Team Lead |
+
+> ⚠️ **Note:** These accounts must exist in the database before you can log in. Do not use these demo credentials in a production environment.
+
+
+
 
 ### 🔑 How to Log In After Cloning
 
