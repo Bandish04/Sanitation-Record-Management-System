@@ -1,6 +1,7 @@
 import os
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -21,17 +22,33 @@ class Command(BaseCommand):
 
         user, created = User.objects.get_or_create(
             username=username,
-            defaults={"is_staff": True, "is_superuser": True},
+            defaults={
+                "is_staff": True,
+                "is_superuser": True,
+            },
         )
 
         user.is_staff = True
         user.is_superuser = True
-        user.set_password(password)
+
+        # Only set a password for a newly created account.
+        if created:
+            user.set_password(password)
+
         user.save()
+
+        # Ensure the user has the application's Admin role.
+        admin_group, _ = Group.objects.get_or_create(name="Admin")
+        user.groups.add(admin_group)
 
         action = "Created" if created else "Updated"
         self.stdout.write(
             self.style.SUCCESS(
                 f"{action} deployment administrator: {username}"
+            )
+        )
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Assigned {username} to the Admin group."
             )
         )
