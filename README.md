@@ -686,6 +686,13 @@ Before reusing, modifying, or distributing the project, check the repository for
 
 ---
 
+
+## 📘 Project Documentation — TCA Report
+
+For a detailed explanation of the Sanitation Record Management System, including its architecture, modules, database structure, API integration, and functionality, refer to the complete project report.
+
+📄 **[View the TCA Report (PDF)](SANITATION%20RECORD%20MANAGEMENT%20SYSTEM.pdf)**
+
 ## 👨‍💻 Author
 
 **Bandish Vaidya**
